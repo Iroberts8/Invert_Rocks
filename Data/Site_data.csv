@@ -1,0 +1,21 @@
+Nature Reserve Name,Site,Plot,Treatment,Lat,Long,Code
+Jerrabomberra East Nature Reserve,JE,3,Rock,-35.37364312,149.1805204,JE_11_C
+Jerrabomberra East Nature Reserve,JE,4,Control,-35.3730091,149.180938,JE_10_C
+Jerrabomberra East Nature Reserve,JE,7,Control,-35.37122929,149.1860154,JE_4_C
+Jerrabomberra East Nature Reserve,JE,8,Rock,-35.37160253,149.1870254,JE_17_C
+Jerrabomberra West Nature Reserve,JW,13,Control,-35.37238867,149.1600303,JW_13_C
+Jerrabomberra West Nature Reserve,JW,15,Rock,-35.36612571,149.1588716,JW_6_C
+Jerrabomberra West Nature Reserve,JW,16,Control,-35.36597508,149.157536,JW_5_C
+Jerrabomberra West Nature Reserve,JW,25,Rock,-35.37163088,149.1612401,JW_12_C
+Crace Nature Reserve,CR,71,Rock,-35.22961835,149.1327233,CR_8_C
+Crace Nature Reserve,CR,72,Control,-35.23124938,149.1321619,CR_10_C
+Crace Nature Reserve,CR,73,Control,-35.22976695,149.1300845,CR_7_C
+Crace Nature Reserve,CR,74,Rock,-35.22859687,149.1303965,CR_5_C
+Mulanggari Nature Reserve,MUL,42,Rock,-35.19296322,149.1378506,MUL_4_C
+Mulanggari Nature Reserve,MUL,43,Control,-35.19168403,149.1377739,MUL_1_C
+Mulanggari Nature Reserve,MUL,46,Rock,-35.19444803,149.1372054,MUL_7_C
+Mulanggari Nature Reserve,MUL,47,Control,-35.19533985,149.1362323,MUL_8_C
+Kama Nature Reserve ,K,30,Control,-35.2762543,149.0231421,KA_6_C
+Kama Nature Reserve ,K,31,Rock,-35.27490645,149.0228083,KA_5_C
+Kama Nature Reserve ,K,32,Control,-35.27216354,149.0220492,Ka_3_C
+Kama Nature Reserve ,K,33,Rock,-35.270686,149.0227902,KA_1_C

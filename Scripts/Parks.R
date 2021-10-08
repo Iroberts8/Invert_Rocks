@@ -1,3 +1,44 @@
+#Species data from 2016 and 2019
+#Five reserves
+
+#Five target orders
+#1 Araneae (Spiders) - Family
+#2 Blattodea (Cockroaches) - Family
+#3 Coleoptera (Beetles) - Family
+#4 Orthoptera (Crickets and Grasshoppers) - Sub-family
+#5 Formicidae (Ants) - Sub-family
+
+#6 Other invertebrates (identified to Order only - does not include Hemiptera, Hymenoptera)
+
+#Species information
+head(Morphospecies);dim(Morphospecies)
+
+#Site data (Site_data)
+Site <- read.csv('Data/Site_data.csv',header=T)
+head(Site);dim(Site)
+
+head(Araneae[,1:10],3);dim(Araneae)
+colnames(Araneae)[6:ncol(Araneae)] %in% Morphospecies$Morphospecies
+
+table(Morphospecies$Order)
+Morphospecies[grep(pattern = 'Larvae',x = Morphospecies$Morphospecies),]
+
+#Create taxanomic richness data
+basedata <- Araneae[,1:5]
+basedata$Pit_code <- paste(basedata$Site,basedata$Plot,basedata$Treatment,basedata$Pitfall,basedata$Year,sep='_')
+head(basedata);dim(basedata)
+
+taxrich <- basedata
+head(taxrich);dim(taxrich)
+
+Ara_rich <- data.frame(Pit_code=basedata$Pit_code, Ara_rich=apply(X = Araneae[,6:ncol(Araneae)], MARGIN = 1, FUN = function(x) length(which(x>0))))
+head(Ara_rich);dim(Ara_rich)
+
+taxrich2 <- merge(taxrich,Ara_rich,by='Pit_code',all.x=T,all.y=F)
+head(taxrich2);dim(taxrich2)
+
+#My summary experiments
+
 ara2 <- Araneae[,c(-3,-5)]
 Ara_summ <- ara2 %>% group_by(Year,Site,Treatment) %>% summarise_all(mean, sum)
 write.csv(Ara_summ,file='Araneae summary')
