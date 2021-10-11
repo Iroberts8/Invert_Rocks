@@ -8,7 +8,7 @@
 #4 Orthoptera (Crickets and Grasshoppers) - Sub-family
 #5 Formicidae (Ants) - Sub-family
 
-#6 Other invertebrates (identified to Order only - does not include Hemiptera, Hymenoptera)
+#6 Other (Other invertebrates) - identified to Order only, does not include Hemiptera, Hymenoptera
 
 #Species information
 head(Morphospecies);dim(Morphospecies)
@@ -17,24 +17,24 @@ head(Morphospecies);dim(Morphospecies)
 Site <- read.csv('Data/Site_data.csv',header=T)
 head(Site);dim(Site)
 
-head(Araneae[,1:10],3);dim(Araneae)
-colnames(Araneae)[6:ncol(Araneae)] %in% Morphospecies$Morphospecies
+head(Other[,1:10],3);dim(Other)
+colnames(Other)[6:ncol(Other)] %in% Morphospecies$Morphospecies
 
 table(Morphospecies$Order)
 Morphospecies[grep(pattern = 'Larvae',x = Morphospecies$Morphospecies),]
 
 #Create taxanomic richness data
-basedata <- Araneae[,1:5]
+basedata <- Other[,1:5]
 basedata$Pit_code <- paste(basedata$Site,basedata$Plot,basedata$Treatment,basedata$Pitfall,basedata$Year,sep='_')
 head(basedata);dim(basedata)
 
 taxrich <- basedata
 head(taxrich);dim(taxrich)
 
-Ara_rich <- data.frame(Pit_code=basedata$Pit_code, Ara_rich=apply(X = Araneae[,6:ncol(Araneae)], MARGIN = 1, FUN = function(x) length(which(x>0))))
-head(Ara_rich);dim(Ara_rich)
+Other_rich <- data.frame(Pit_code=basedata$Pit_code, Other_rich=apply(X = Other[,6:ncol(Other)], MARGIN = 1, FUN = function(x) length(which(x>0))))
+head(Other_rich);dim(Other_rich)
 
-taxrich2 <- merge(taxrich,Ara_rich,by='Pit_code',all.x=T,all.y=F)
+taxrich2 <- merge(taxrich,Other_rich,by='Pit_code',all.x=T,all.y=F)
 head(taxrich2);dim(taxrich2)
 
 #My summary experiments
@@ -75,3 +75,10 @@ Morpho_summ <- sapply(Morphospecies, function(Order) length(unique(Order)))
 
 full_summ <- cbind(Ara_summ, Bla_summ, Col_summ, Form_summ, Ort_summ)
 write.csv(full_summ,file='Target summary')
+
+#My rough attempt at merging all richness files
+rich <- cbind(Ara_rich,Form_rich,Col_rich,Bla_rich,Other_rich,Ort_rich)
+rich2 <- rich[,c(-3,-5,-7,-9,-11)]
+taxrich_full<- merge(taxrich,rich2,by='Pit_code', all.x=T, all.y=F)
+head(taxrich_full);dim(taxrich_full)
+
