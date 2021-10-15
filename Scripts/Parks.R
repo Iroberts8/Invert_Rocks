@@ -24,17 +24,17 @@ table(Morphospecies$Order)
 Morphospecies[grep(pattern = 'Larvae',x = Morphospecies$Morphospecies),]
 
 #Create taxanomic richness data
-basedata <- Other[,1:5]
+basedata <- Col2[,1:5]
 basedata$Pit_code <- paste(basedata$Site,basedata$Plot,basedata$Treatment,basedata$Pitfall,basedata$Year,sep='_')
 head(basedata);dim(basedata)
 
 taxrich <- basedata
 head(taxrich);dim(taxrich)
 
-Other_rich <- data.frame(Pit_code=basedata$Pit_code, Other_rich=apply(X = Other[,6:ncol(Other)], MARGIN = 1, FUN = function(x) length(which(x>0))))
-head(Other_rich);dim(Other_rich)
+Col_rich2 <- data.frame(Pit_code=basedata$Pit_code, Col_rich2=apply(X = Col2[,6:ncol(Col2)], MARGIN = 1, FUN = function(x) length(which(x>0))))
+head(Col_rich2);dim(Col_rich2)
 
-taxrich2 <- merge(taxrich,Other_rich,by='Pit_code',all.x=T,all.y=F)
+taxrich2 <- merge(taxrich,Col_rich2,by='Pit_code',all.x=T,all.y=F)
 head(taxrich2);dim(taxrich2)
 
 #My summary experiments
@@ -47,11 +47,12 @@ boxplot(ara2[,28]~ara2$Treatment)
 #Lycosidae 6 vs Year
 boxplot(ara2[,28]~ara2$Year)
 
+
 Bla2 <- Blattodea[,c(-3,-5)]
 Bla_summ <- Bla2 %>% group_by(Year,Site,Treatment) %>% summarise_all(sum)
 write.csv(Bla_summ,file='Blattodea summary')
 
-Col2 <- Coleoptera[,c(-3,-5)]
+Col2 <- Coleoptera[,c(-42,-43,-44,-45,-46,-47,-48,-49)]
 Col_summ <- Col2 %>% group_by(Year,Site,Treatment) %>% summarise_all(sum)
 write.csv(Col_summ,file='Coleoptera summary')
 
@@ -63,9 +64,11 @@ boxplot(Form2[,5]~Form2$Treatment)
 #Dolichoderinae 1 vs Year
 boxplot(Form2[,5]~Form2$Year)
 
-Ort2 <- Orthoptera[,c(-3,-5)]
+Ort2 <- Orthoptera[,c(-7,-11)]
 Ort_summ <- Ort2 %>% group_by(Year,Site,Treatment) %>% summarise_all(sum)
 write.csv(Ort_summ,file='Orthoptera summary')
+
+Other2 <- Other[,c(-11,-21,-28,-29,-30,-31,-32,-33,-34)]
 
 Morpho2 <- Morphospecies[,c(-2,-3)]
 Morpho2 <- group_by(Morphospecies)
@@ -77,8 +80,8 @@ full_summ <- cbind(Ara_summ, Bla_summ, Col_summ, Form_summ, Ort_summ)
 write.csv(full_summ,file='Target summary')
 
 #My rough attempt at merging all richness files
-rich <- cbind(Ara_rich,Form_rich,Col_rich,Bla_rich,Other_rich,Ort_rich)
-rich2 <- rich[,c(-3,-5,-7,-9,-11)]
+rich_nolarvae <- cbind(Ara_rich,Form_rich,Col_rich2,Bla_rich,Other_rich2,Ort_rich2)
+rich_nolarvae2 <- rich_nolarvae[,c(-3,-5,-7,-9,-11)]
 taxrich_full<- merge(taxrich,rich2,by='Pit_code', all.x=T, all.y=F)
 head(taxrich_full);dim(taxrich_full)
 
