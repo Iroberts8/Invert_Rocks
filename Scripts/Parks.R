@@ -122,14 +122,14 @@ head(Col_div);dim(Col_div)
 Form_div <- data.frame(Pit_code=basedata$Pit_code, Form_div=apply(X = Formicidae[,6:ncol(Formicidae)], MARGIN = 1, FUN = function(x) diversity(x,index="shannon",MARGIN=1)))
 head(Form_div);dim(Form_div)
 
-Other_div <- data.frame(Pit_code=basedata$Pit_code, Other_div=apply(X = Other2[,6:ncol(Other2)], MARGIN = 1, FUN = function(x) diversity(x,index="shannon",MARGIN=1)))
-head(Other_div);dim(Other_div)
-
 Ort_div <- data.frame(Pit_code=basedata$Pit_code, Ort_div=apply(X = Ort2[,6:ncol(Ort2)], MARGIN = 1, FUN = function(x) diversity(x,index="shannon",MARGIN=1)))
 head(Ort_div);dim(Ort_div)
 
+Other_div <- data.frame(Pit_code=basedata$Pit_code, Other_div=apply(X = Other2[,6:ncol(Other2)], MARGIN = 1, FUN = function(x) diversity(x,index="shannon",MARGIN=1)))
+head(Other_div);dim(Other_div)
+
 #Merging of the diversity data (Shannons)
-div <- cbind(Ara_div,Form_div,Col_div,Bla_div,Other_div,Ort_div)
+div <- cbind(Ara_div,Bla_div,Col_div,Form_div,Ort_div,Other_div)
 div_full <- div[,c(-3,-5,-7,-9,-11)]
 div_full2 <- merge(taxrich,div_full,by='Pit_code', all.x=T, all.y=F)
 head(div_full2);dim(div_full2)
@@ -139,3 +139,52 @@ div_rich <- cbind(div_full,rich_nolarvae2)
 div_rich2 <- div_rich[,c(-8)]
 div_rich_full2<- merge(taxrich,div_rich2,by='Pit_code', all.x=T, all.y=F)
 head(div_rich_full2);dim(div_rich_full2)
+
+#Histograms of Shannons diversity data - frequency of zeros in the data
+dev.new(width=12,height=8,dpi=100,pointsize=16,noRStudioGD = T)
+par(mfrow=c(2,3),mar=c(4,4,1,1))
+hist(div_full2$Ara_div,ylab='Frequency',xlab='Araneae diversity')
+hist(div_full2$Bla_div,ylab='Frequency',xlab='Blattodea diversity')
+hist(div_full2$Col_div,ylab='Frequency',xlab='Coleoptera diversity')
+hist(div_full2$Form_div,ylab='Frequency',xlab='Formicidae diversity')
+hist(div_full2$Ort_div,ylab='Frequency',xlab='Orthoptera diversity')
+hist(div_full2$Other_div,ylab='Frequency',xlab='Other diversity')
+
+#Calculate inverse Simpson's index
+head(taxrich_full2);dim(taxrich_full2)
+head(Araneae[,1:10]);dim(Araneae)
+apply(X = Araneae[,6:ncol(Araneae)], MARGIN = 1, FUN = function(x) diversity(x,index="invsimpson",MARGIN=1))
+
+Ara_invdiv <- data.frame(Pit_code=basedata$Pit_code, Ara_invdiv=apply(X = Araneae[,6:ncol(Araneae)], MARGIN = 1, FUN = function(x) diversity(x,index="invsimpson",MARGIN=1)))
+head(Ara_invdiv);dim(Ara_invdiv)
+
+Bla_invdiv <- data.frame(Pit_code=basedata$Pit_code, Bla_invdiv=apply(X = Blattodea[,6:ncol(Blattodea)], MARGIN = 1, FUN = function(x) diversity(x,index="invsimpson",MARGIN=1)))
+head(Bla_invdiv);dim(Bla_invdiv)
+
+Col_invdiv <- data.frame(Pit_code=basedata$Pit_code, Col_invdiv=apply(X = Col2[,6:ncol(Col2)], MARGIN = 1, FUN = function(x) diversity(x,index="invsimpson",MARGIN=1)))
+head(Col_invdiv);dim(Col_invdiv)
+
+Form_invdiv <- data.frame(Pit_code=basedata$Pit_code, Form_invdiv=apply(X = Formicidae[,6:ncol(Formicidae)], MARGIN = 1, FUN = function(x) diversity(x,index="invsimpson",MARGIN=1)))
+head(Form_invdiv);dim(Form_invdiv)
+
+Ort_invdiv <- data.frame(Pit_code=basedata$Pit_code, Ort_invdiv=apply(X = Ort2[,6:ncol(Ort2)], MARGIN = 1, FUN = function(x) diversity(x,index="invsimpson",MARGIN=1)))
+head(Ort_invdiv);dim(Ort_invdiv)
+
+Other_invdiv <- data.frame(Pit_code=basedata$Pit_code, Other_div=apply(X = Other2[,6:ncol(Other2)], MARGIN = 1, FUN = function(x) diversity(x,index="invsimpson",MARGIN=1)))
+head(Other_invdiv);dim(Other_invdiv)
+
+#Merging of the diversity data (Inverse Simpsons)
+divinv <- cbind(Ara_invdiv,Bla_invdiv,Col_invdiv,Form_invdiv,Ort_invdiv,Other_invdiv)
+divinv_full <- divinv[,c(-3,-5,-7,-9,-11)]
+divinv_full2 <- merge(taxrich,divinv_full,by='Pit_code', all.x=T, all.y=F)
+head(divinv_full2);dim(divinv_full2)
+
+#Histograms of Inverse Simpsons diversity data - frequency of zeros in the data
+dev.new(width=12,height=8,dpi=100,pointsize=16,noRStudioGD = T)
+par(mfrow=c(2,3),mar=c(4,4,1,1))
+hist(divinv_full2$Ara_invdiv,ylab='Frequency',xlab='Araneae diversity')
+hist(divinv_full2$Bla_invdiv,ylab='Frequency',xlab='Blattodea diversity')
+hist(divinv_full2$Col_invdiv,ylab='Frequency',xlab='Coleoptera diversity')
+hist(divinv_full2$Form_invdiv,ylab='Frequency',xlab='Formicidae diversity')
+hist(divinv_full2$Ort_invdiv,ylab='Frequency',xlab='Orthoptera diversity')
+hist(divinv_full2$Other_invdiv,ylab='Frequency',xlab='Other diversity')
