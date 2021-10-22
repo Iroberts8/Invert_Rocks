@@ -105,6 +105,16 @@ axis(side=1,at=1:4,labels=c('C_2016','R_2016','C_2019','R_2019'))
 boxplot(taxrich_full2$Ort_rich2~taxrich_full2$Treatment+taxrich_full2$Year,ylab='Orthoptera richness',xlab='',xaxt='n',las=1)
 axis(side=1,at=1:4,labels=c('C_2016','R_2016','C_2019','R_2019'))
 
+#Histrograms of richness
+dev.new(width=12,height=8,dpi=100,pointsize=16,noRStudioGD = T)
+par(mfrow=c(2,3),mar=c(4,4,1,1))
+hist(taxrich_full2$Ara_rich,main = 'Araneae Richness',ylab='Frequency',xlab='Araneae richness',las=1)
+hist(taxrich_full2$Bla_rich,main = 'Blattodea richness',ylab='Frequency',xlab='Blattodea richness',las=1)
+hist(taxrich_full2$Col_rich2,main = 'Coleoptera richness',ylab='Frequency',xlab='Coleoptera richness',las=1)
+hist(taxrich_full2$Form_rich,main = 'Formicidae Richness',ylab='Frequency',xlab='Formicidae richness',las=1)
+hist(taxrich_full2$Ort_rich2,main = 'Orthoptera richness',ylab='Frequency',xlab='Orthoptera richness',las=1)
+hist(taxrich_full2$Other_rich2,main = 'Other richness',ylab='Frequency',xlab='Other richness',las=1)
+
 #Add species diversity to main data file
 head(taxrich_full2);dim(taxrich_full2)
 head(Araneae[,1:10]);dim(Araneae)
@@ -157,21 +167,27 @@ apply(X = Araneae[,6:ncol(Araneae)], MARGIN = 1, FUN = function(x) diversity(x,i
 
 Ara_invdiv <- data.frame(Pit_code=basedata$Pit_code, Ara_invdiv=apply(X = Araneae[,6:ncol(Araneae)], MARGIN = 1, FUN = function(x) diversity(x,index="invsimpson",MARGIN=1)))
 head(Ara_invdiv);dim(Ara_invdiv)
+Ara_invdiv$Ara_invdiv[which(Ara_invdiv$Ara_invdiv==Inf)] <- 0
 
 Bla_invdiv <- data.frame(Pit_code=basedata$Pit_code, Bla_invdiv=apply(X = Blattodea[,6:ncol(Blattodea)], MARGIN = 1, FUN = function(x) diversity(x,index="invsimpson",MARGIN=1)))
 head(Bla_invdiv);dim(Bla_invdiv)
+Bla_invdiv$Bla_invdiv[which(Bla_invdiv$Bla_invdiv==Inf)] <- 0
 
 Col_invdiv <- data.frame(Pit_code=basedata$Pit_code, Col_invdiv=apply(X = Col2[,6:ncol(Col2)], MARGIN = 1, FUN = function(x) diversity(x,index="invsimpson",MARGIN=1)))
 head(Col_invdiv);dim(Col_invdiv)
+Col_invdiv$Col_invdiv[which(Col_invdiv$Col_invdiv==Inf)] <- 0
 
 Form_invdiv <- data.frame(Pit_code=basedata$Pit_code, Form_invdiv=apply(X = Formicidae[,6:ncol(Formicidae)], MARGIN = 1, FUN = function(x) diversity(x,index="invsimpson",MARGIN=1)))
 head(Form_invdiv);dim(Form_invdiv)
+Form_invdiv$Form_invdiv[which(Form_invdiv$Form_invdiv==Inf)] <- 0
 
 Ort_invdiv <- data.frame(Pit_code=basedata$Pit_code, Ort_invdiv=apply(X = Ort2[,6:ncol(Ort2)], MARGIN = 1, FUN = function(x) diversity(x,index="invsimpson",MARGIN=1)))
 head(Ort_invdiv);dim(Ort_invdiv)
+Ort_invdiv$Ort_invdiv[which(Ort_invdiv$Ort_invdiv==Inf)] <- 0
 
 Other_invdiv <- data.frame(Pit_code=basedata$Pit_code, Other_invdiv=apply(X = Other2[,6:ncol(Other2)], MARGIN = 1, FUN = function(x) diversity(x,index="invsimpson",MARGIN=1)))
 head(Other_invdiv);dim(Other_invdiv)
+Other_invdiv$Other_div[which(Other_invdiv$Other_div==Inf)] <- 0
 
 #Merging of the diversity data (Inverse Simpsons)
 divinv <- cbind(Ara_invdiv,Bla_invdiv,Col_invdiv,Form_invdiv,Ort_invdiv,Other_invdiv)
@@ -188,3 +204,36 @@ hist(divinv_full2$Col_invdiv,main = 'Coleoptera Inverse Simpsons Index',ylab='Fr
 hist(divinv_full2$Form_invdiv,main = 'Formicidae Inverse Simpsons Index',ylab='Frequency',xlab='Formicidae diversity')
 hist(divinv_full2$Ort_invdiv,main = 'Orthoptera Inverse Simpsons Index',ylab='Frequency',xlab='Orthoptera diversity')
 hist(divinv_full2$Other_div,main = 'Other Inverse Simpsons Index',ylab='Frequency',xlab='Other diversity')
+
+#Negative binomial
+taxrich_full2$Site <- as.factor(taxrich_full2$Site)
+taxrich_full2$Treatment <- as.factor(taxrich_full2$Treatment)
+head(taxrich_full2)
+taxrich_full2$Plot <- as.factor(as.character(taxrich_full2$Plot))
+taxrich_full2$Yr <- taxrich_full2$Year-min(taxrich_full2$Year)
+
+richgroups <- colnames(taxrich_full2)[7:ncol(taxrich_full2)]
+
+richgroups
+
+form.thisrun <- paste('Ara_rich',"~Treatment+Yr+Treatment:Yr+(1|Site/Plot)", sep="")
+
+mod1<-glmmadmb(as.formula(formula), family="nbinom", data=taxrich_full2)
+
+mod1<-glmmadmb(Ara_rich~Treatment+Yr+Treatment:Yr+(1|Site), family="nbinom", data=taxrich_full2)
+summary(mod1)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
