@@ -47,7 +47,6 @@ boxplot(ara2[,28]~ara2$Treatment)
 #Lycosidae 6 vs Year
 boxplot(ara2[,28]~ara2$Year)
 
-
 Bla2 <- Blattodea[,c(-3,-5)]
 Bla_summ <- Bla2 %>% group_by(Year,Site,Treatment) %>% summarise_all(sum)
 write.csv(Bla_summ,file='Blattodea summary')
@@ -79,30 +78,31 @@ Morpho_summ <- sapply(Morphospecies, function(Order) length(unique(Order)))
 full_summ <- cbind(Ara_summ, Bla_summ, Col_summ, Form_summ, Ort_summ)
 write.csv(full_summ,file='Target summary')
 
-#My rough attempt at merging all richness files
-rich_nolarvae <- cbind(Ara_rich,Form_rich,Col_rich2,Bla_rich,Other_rich2,Ort_rich2)
+#Merging all richness files
+rich_nolarvae <- cbind(Ara_rich,Bla_rich,Col_rich2,Form_rich,Ort_rich2,Other_rich2)
 rich_nolarvae2 <- rich_nolarvae[,c(-3,-5,-7,-9,-11)]
 taxrich_full2<- merge(taxrich,rich_nolarvae2,by='Pit_code', all.x=T, all.y=F)
 head(taxrich_full2);dim(taxrich_full2)
 
+#Boxplots of richness
 dev.new(width=12,height=8,dpi=100,pointsize=16,noRStudioGD = T)
 par(mfrow=c(2,3),mar=c(4,4,1,1))
 boxplot(taxrich_full2$Ara_rich~taxrich_full2$Treatment+taxrich_full2$Year,ylab='Araneae richness',xlab='',xaxt='n',las=1)
 axis(side=1,at=1:4,labels=c('C_2016','R_2016','C_2019','R_2019'))
 
-boxplot(taxrich_full2$Form_rich~taxrich_full2$Treatment+taxrich_full2$Year,ylab='Formicidae richness',xlab='',xaxt='n',las=1)
+boxplot(taxrich_full2$Bla_rich~taxrich_full2$Treatment+taxrich_full2$Year,ylab='Blattodea richness',xlab='',xaxt='n',las=1)
 axis(side=1,at=1:4,labels=c('C_2016','R_2016','C_2019','R_2019'))
 
 boxplot(taxrich_full2$Col_rich2~taxrich_full2$Treatment+taxrich_full2$Year,ylab='Coleoptera richness',xlab='',xaxt='n',las=1)
 axis(side=1,at=1:4,labels=c('C_2016','R_2016','C_2019','R_2019'))
 
-boxplot(taxrich_full2$Bla_rich~taxrich_full2$Treatment+taxrich_full2$Year,ylab='Blattodea richness',xlab='',xaxt='n',las=1)
-axis(side=1,at=1:4,labels=c('C_2016','R_2016','C_2019','R_2019'))
-
-boxplot(taxrich_full2$Other_rich2~taxrich_full2$Treatment+taxrich_full2$Year,ylab='Other richness',xlab='',xaxt='n',las=1)
+boxplot(taxrich_full2$Form_rich~taxrich_full2$Treatment+taxrich_full2$Year,ylab='Formicidae richness',xlab='',xaxt='n',las=1)
 axis(side=1,at=1:4,labels=c('C_2016','R_2016','C_2019','R_2019'))
 
 boxplot(taxrich_full2$Ort_rich2~taxrich_full2$Treatment+taxrich_full2$Year,ylab='Orthoptera richness',xlab='',xaxt='n',las=1)
+axis(side=1,at=1:4,labels=c('C_2016','R_2016','C_2019','R_2019'))
+
+boxplot(taxrich_full2$Other_rich2~taxrich_full2$Treatment+taxrich_full2$Year,ylab='Other richness',xlab='',xaxt='n',las=1)
 axis(side=1,at=1:4,labels=c('C_2016','R_2016','C_2019','R_2019'))
 
 #Histrograms of richness
@@ -160,6 +160,27 @@ hist(div_full2$Form_div,main = 'Formicidae Shannons Index',ylab='Frequency',xlab
 hist(div_full2$Ort_div,main = 'Orthoptera Shannons Index',ylab='Frequency',xlab='Orthoptera diversity')
 hist(div_full2$Other_div,main = 'Other Shannons Index',ylab='Frequency',xlab='Other diversity')
 
+#Boxplots of Shannons diversity data
+dev.new(width=12,height=8,dpi=100,pointsize=16,noRStudioGD = T)
+par(mfrow=c(2,3),mar=c(4,4,1,1))
+boxplot(div_full2$Ara_div~div_full2$Treatment+div_full2$Year,ylab='Araneae diversity (Shannons)',xlab='',xaxt='n',las=1)
+axis(side=1,at=1:4,labels=c('C_2016','R_2016','C_2019','R_2019'))
+
+boxplot(div_full2$Bla_div~div_full2$Treatment+div_full2$Year,ylab='Blattodea diversity (Shannons)',xlab='',xaxt='n',las=1)
+axis(side=1,at=1:4,labels=c('C_2016','R_2016','C_2019','R_2019'))
+
+boxplot(div_full2$Col_div~div_full2$Treatment+div_full2$Year,ylab='Coleoptera diversity (Shannons)',xlab='',xaxt='n',las=1)
+axis(side=1,at=1:4,labels=c('C_2016','R_2016','C_2019','R_2019'))
+
+boxplot(div_full2$Form_div~div_full2$Treatment+div_full2$Year,ylab='Formicidae diversity (Shannons)',xlab='',xaxt='n',las=1)
+axis(side=1,at=1:4,labels=c('C_2016','R_2016','C_2019','R_2019'))
+
+boxplot(div_full2$Ort_div~div_full2$Treatment+div_full2$Year,ylab='Orthoptera diversity (Shannons)',xlab='',xaxt='n',las=1)
+axis(side=1,at=1:4,labels=c('C_2016','R_2016','C_2019','R_2019'))
+
+boxplot(div_full2$Other_div~div_full2$Treatment+div_full2$Year,ylab='Other diversity (Shannons)',xlab='',xaxt='n',las=1)
+axis(side=1,at=1:4,labels=c('C_2016','R_2016','C_2019','R_2019'))
+
 #Calculate inverse Simpson's index
 head(taxrich_full2);dim(taxrich_full2)
 head(Araneae[,1:10]);dim(Araneae)
@@ -205,6 +226,27 @@ hist(divinv_full2$Form_invdiv,main = 'Formicidae Inverse Simpsons Index',ylab='F
 hist(divinv_full2$Ort_invdiv,main = 'Orthoptera Inverse Simpsons Index',ylab='Frequency',xlab='Orthoptera diversity')
 hist(divinv_full2$Other_div,main = 'Other Inverse Simpsons Index',ylab='Frequency',xlab='Other diversity')
 
+#Boxplots of Inverse Simpsons diversity data
+dev.new(width=12,height=8,dpi=100,pointsize=16,noRStudioGD = T)
+par(mfrow=c(2,3),mar=c(4,4,1,1))
+boxplot(divinv_full2$Ara_invdiv~divinv_full2$Treatment+divinv_full2$Year,ylab='Araneae diversity (Inv Simpsons)',xlab='',xaxt='n',las=1)
+axis(side=1,at=1:4,labels=c('C_2016','R_2016','C_2019','R_2019'))
+
+boxplot(divinv_full2$Bla_invdiv~divinv_full2$Treatment+divinv_full2$Year,ylab='Blattodea diversity (Inv Simpsons)',xlab='',xaxt='n',las=1)
+axis(side=1,at=1:4,labels=c('C_2016','R_2016','C_2019','R_2019'))
+
+boxplot(divinv_full2$Col_invdiv~divinv_full2$Treatment+divinv_full2$Year,ylab='Coleoptera diversity (Inv Simpsons)',xlab='',xaxt='n',las=1)
+axis(side=1,at=1:4,labels=c('C_2016','R_2016','C_2019','R_2019'))
+
+boxplot(divinv_full2$Form_invdiv~divinv_full2$Treatment+divinv_full2$Year,ylab='Formicidae diversity (Inv Simpsons)',xlab='',xaxt='n',las=1)
+axis(side=1,at=1:4,labels=c('C_2016','R_2016','C_2019','R_2019'))
+
+boxplot(divinv_full2$Ort_invdiv~divinv_full2$Treatment+divinv_full2$Year,ylab='Orthoptera diversity (Inv Simpsons)',xlab='',xaxt='n',las=1)
+axis(side=1,at=1:4,labels=c('C_2016','R_2016','C_2019','R_2019'))
+
+boxplot(divinv_full2$Other_div~divinv_full2$Treatment+divinv_full2$Year,ylab='Other diversity (Inv Simpsons)',xlab='',xaxt='n',las=1)
+axis(side=1,at=1:4,labels=c('C_2016','R_2016','C_2019','R_2019'))
+
 #Negative binomial
 taxrich_full2$Site <- as.factor(taxrich_full2$Site)
 taxrich_full2$Treatment <- as.factor(taxrich_full2$Treatment)
@@ -222,8 +264,6 @@ mod1<-glmmadmb(as.formula(formula), family="nbinom", data=taxrich_full2)
 
 mod1<-glmmadmb(Ara_rich~Treatment+Yr+Treatment:Yr+(1|Site), family="nbinom", data=taxrich_full2)
 summary(mod1)
-
-
 
 
 
