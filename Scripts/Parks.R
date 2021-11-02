@@ -37,24 +37,88 @@ head(Col_rich2);dim(Col_rich2)
 taxrich2 <- merge(taxrich,Col_rich2,by='Pit_code',all.x=T,all.y=F)
 head(taxrich2);dim(taxrich2)
 
-#My summary experiments
-
-ara2 <- Araneae[,c(-3,-5)]
-Ara_summ <- ara2 %>% group_by(Year,Site,Treatment) %>% summarise_all(mean, sum)
+#Summary data - abundance overall and by year/site
+#Araneae summary data
+Ara2 <- Araneae[,c(-3,-5)]
+Ara_summ <- Ara2 %>% group_by(Year,Site,Treatment) %>% summarise_all(sum)
+head(Ara2)
 write.csv(Ara_summ,file='Araneae summary')
 #Lycosidae 1 vs Treatment
-boxplot(ara2[,28]~ara2$Treatment)
+boxplot(Ara2[,28]~Ara2$Treatment)
 #Lycosidae 6 vs Year
-boxplot(ara2[,28]~ara2$Year)
+boxplot(Ara2[,28]~Ara2$Year)
 
+#Araneae total abundance
+Ara_ttl <- Ara2[,c(-1,-2,-3)] %>% summarise_all(sum)
+Ara_ttlabun <- as.data.frame(t(Ara_ttl))
+names(Ara_ttlabun)[names(Ara_ttlabun) == 'V1'] <- "Abundance"
+write.csv(Ara_ttlabun,file='Araneae abundance')
+
+#Araneae by year 
+Ara_yr <- Ara2[,c(-2,-3)] %>% group_by(Year) %>% summarise_all(sum)
+Ara_yrabun <- as.data.frame(t(Ara_yr))
+colnames(Ara_yrabun) <- Ara_yrabun[1,]
+Ara_yrabun <- Ara_yrabun[(-1),]
+write.csv(Ara_yrabun,file='Araneae year')
+
+#Araneae by site
+Ara_site <- Ara2[,c(-1,-3)] %>% group_by(Site) %>% summarise_all(sum)
+Ara_siteabun <- as.data.frame(t(Ara_site))
+colnames(Ara_siteabun) <- Ara_siteabun[1,]
+Ara_siteabun <- Ara_siteabun[(-1),]
+write.csv(Ara_siteabun,file='Araneae site')
+
+#Blattodea summary data
 Bla2 <- Blattodea[,c(-3,-5)]
 Bla_summ <- Bla2 %>% group_by(Year,Site,Treatment) %>% summarise_all(sum)
 write.csv(Bla_summ,file='Blattodea summary')
 
-Col2 <- Coleoptera[,c(-42,-43,-44,-45,-46,-47,-48,-49)]
+#Blattodea total abundance
+Bla_ttl <- Bla2[,c(-1,-2,-3)] %>% summarise_all(sum)
+Bla_ttlabun <- as.data.frame(t(Bla_ttl))
+names(Bla_ttlabun)[names(Bla_ttlabun) == 'V1'] <- "Abundance"
+write.csv(Bla_ttlabun,file='Blattodea abundance')
+
+#Blattodea by year 
+Bla_yr <- Bla2[,c(-2,-3)] %>% group_by(Year) %>% summarise_all(sum)
+Bla_yrabun <- as.data.frame(t(Bla_yr))
+colnames(Bla_yrabun) <- Bla_yrabun[1,]
+Bla_yrabun <- Bla_yrabun[(-1),]
+write.csv(Bla_yrabun,file='Blattodea year')
+
+#Blattodea by site
+Bla_site <- Bla2[,c(-1,-3)] %>% group_by(Site) %>% summarise_all(sum)
+Bla_siteabun <- as.data.frame(t(Bla_site))
+colnames(Bla_siteabun) <- Bla_siteabun[1,]
+Bla_siteabun <- Bla_siteabun[(-1),]
+write.csv(Bla_siteabun,file='Blattodea site')
+
+#Coleoptera summary data
+Col2 <- Coleoptera[,c(-3,-5,-42,-43,-44,-45,-46,-47,-48,-49)]
 Col_summ <- Col2 %>% group_by(Year,Site,Treatment) %>% summarise_all(sum)
 write.csv(Col_summ,file='Coleoptera summary')
 
+#Coleoptera total abundance
+Col_ttl <- Col2[,c(-1,-2,-3)] %>% summarise_all(sum)
+Col_ttlabun <- as.data.frame(t(Col_ttl))
+names(Col_ttlabun)[names(Col_ttlabun) == 'V1'] <- "Abundance"
+write.csv(Col_ttlabun,file='Coleoptera abundance')
+
+#Coleoptera by year 
+Col_yr <- Col2[,c(-2,-3)] %>% group_by(Year) %>% summarise_all(sum)
+Col_yrabun <- as.data.frame(t(Col_yr))
+colnames(Col_yrabun) <- Col_yrabun[1,]
+Col_yrabun <- Col_yrabun[(-1),]
+write.csv(Col_yrabun,file='Coleoptera year')
+
+#Coleoptera by site
+Col_site <- Col2[,c(-1,-3)] %>% group_by(Site) %>% summarise_all(sum)
+Col_siteabun <- as.data.frame(t(Col_site))
+colnames(Col_siteabun) <- Col_siteabun[1,]
+Col_siteabun <- Col_siteabun[(-1),]
+write.csv(Col_siteabun,file='Coleoptera site')
+
+#Formicidae summary data
 Form2 <- Formicidae[,c(-3,-5)]
 Form_summ <- Form2 %>% group_by(Year,Site,Treatment) %>% summarise_all(sum)
 write.csv(Form_summ,file='Formicidae summary')
@@ -63,11 +127,75 @@ boxplot(Form2[,5]~Form2$Treatment)
 #Dolichoderinae 1 vs Year
 boxplot(Form2[,5]~Form2$Year)
 
-Ort2 <- Orthoptera[,c(-7,-11)]
+#Formicidae total abundance
+Form_ttl <- Form2[,c(-1,-2,-3)] %>% summarise_all(sum)
+Form_ttlabun <- as.data.frame(t(Form_ttl))
+names(Form_ttlabun)[names(Form_ttlabun) == 'V1'] <- "Abundance"
+write.csv(Form_ttlabun,file='Formicidae abundance')
+
+#Formicidae by year 
+Form_yr <- Form2[,c(-2,-3)] %>% group_by(Year) %>% summarise_all(sum)
+Form_yrabun <- as.data.frame(t(Form_yr))
+colnames(Form_yrabun) <- Form_yrabun[1,]
+Form_yrabun <- Form_yrabun[(-1),]
+write.csv(Form_yrabun,file='Formicidae year')
+
+#Formicidae by site
+Form_site <- Form2[,c(-1,-3)] %>% group_by(Site) %>% summarise_all(sum)
+Form_siteabun <- as.data.frame(t(Form_site))
+colnames(Form_siteabun) <- Form_siteabun[1,]
+Form_siteabun <- Form_siteabun[(-1),]
+write.csv(Form_siteabun,file='Formicidae site')
+
+#Orthoptera summary data
+Ort2 <- Orthoptera[,c(-3,-5,-7,-11)]
 Ort_summ <- Ort2 %>% group_by(Year,Site,Treatment) %>% summarise_all(sum)
 write.csv(Ort_summ,file='Orthoptera summary')
 
-Other2 <- Other[,c(-11,-21,-28,-29,-30,-31,-32,-33,-34)]
+#Orthoptera total abundance
+Ort_ttl <- Ort2[,c(-1,-2,-3)] %>% summarise_all(sum)
+Ort_ttlabun <- as.data.frame(t(Ort_ttl))
+names(Ort_ttlabun)[names(Ort_ttlabun) == 'V1'] <- "Abundance"
+write.csv(Ort_ttlabun,file='Orthoptera abundance')
+
+#Orthoptera by year 
+Ort_yr <- Ort2[,c(-2,-3)] %>% group_by(Year) %>% summarise_all(sum)
+Ort_yrabun <- as.data.frame(t(Ort_yr))
+colnames(Ort_yrabun) <- Ort_yrabun[1,]
+Ort_yrabun <- Ort_yrabun[(-1),]
+write.csv(Ort_yrabun,file='Orthoptera year')
+
+#Orthoptera by site
+Ort_site <- Ort2[,c(-1,-3)] %>% group_by(Site) %>% summarise_all(sum)
+Ort_siteabun <- as.data.frame(t(Ort_site))
+colnames(Ort_siteabun) <- Ort_siteabun[1,]
+Ort_siteabun <- Ort_siteabun[(-1),]
+write.csv(Ort_siteabun,file='Orthoptera site')
+
+#Other species summary data
+Other2 <- Other[,c(-3,-5,-11,-21,-28,-29,-30,-31,-32,-33,-34)]
+Other_summ <- Other2 %>% group_by(Year,Site,Treatment) %>% summarise_all(sum)
+write.csv(Other_summ,file='Other summary')
+
+#Other total abundance
+Other_ttl <- Other2[,c(-1,-2,-3)] %>% summarise_all(sum)
+Other_ttlabun <- as.data.frame(t(Other_ttl))
+names(Other_ttlabun)[names(Other_ttlabun) == 'V1'] <- "Abundance"
+write.csv(Other_ttlabun,file='Other abundance')
+
+#Other by year 
+Other_yr <- Other2[,c(-2,-3)] %>% group_by(Year) %>% summarise_all(sum)
+Other_yrabun <- as.data.frame(t(Other_yr))
+colnames(Other_yrabun) <- Other_yrabun[1,]
+Other_yrabun <- Other_yrabun[(-1),]
+write.csv(Other_yrabun,file='Other year')
+
+#Other by site
+Other_site <- Other2[,c(-1,-3)] %>% group_by(Site) %>% summarise_all(sum)
+Other_siteabun <- as.data.frame(t(Other_site))
+colnames(Other_siteabun) <- Other_siteabun[1,]
+Other_siteabun <- Other_siteabun[(-1),]
+write.csv(Other_siteabun,file='Other site')
 
 Morpho2 <- Morphospecies[,c(-2,-3)]
 Morpho2 <- group_by(Morphospecies)
@@ -77,6 +205,23 @@ Morpho_summ <- sapply(Morphospecies, function(Order) length(unique(Order)))
 
 full_summ <- cbind(Ara_summ, Bla_summ, Col_summ, Form_summ, Ort_summ)
 write.csv(full_summ,file='Target summary')
+
+#Merging abundance data
+#Total abundance
+ttl_abun <- rbind(Ara_ttlabun,Bla_ttlabun,Col_ttlabun,Form_ttlabun,Ort_ttlabun,Other_ttlabun)
+
+#Abundance by year
+year_abun <- rbind(Ara_yrabun,Bla_yrabun,Col_yrabun,Form_yrabun,Ort_yrabun,Other_yrabun)
+
+#Abundance by site
+site_abun <- rbind(Ara_siteabun,Bla_siteabun,Col_siteabun,Form_siteabun,Ort_siteabun,Other_siteabun)
+
+#Merge with Morphospecies file
+rownames(ttl_abun)[1:nrow(ttl_abun)] %in% Morphospecies$Morphospecies
+rownames(year_abun)[1:nrow(year_abun)] %in% Morphospecies$Morphospecies
+rownames(site_abun)[1:nrow(site_abun)] %in% Morphospecies$Morphospecies
+Morpho_abun <- cbind(Morphospecies[-c(122,123,124,125,126,127,128,129,206,210,226,236,243,244,245,246,247,248,249),],ttl_abun,year_abun,site_abun)
+Morpho_abun <- Morpho_abun[,c(-1)]
 
 #Merging all richness files
 rich_nolarvae <- cbind(Ara_rich,Bla_rich,Col_rich2,Form_rich,Ort_rich2,Other_rich2)
@@ -248,11 +393,23 @@ boxplot(divinv_full2$Other_div~divinv_full2$Treatment+divinv_full2$Year,ylab='Ot
 axis(side=1,at=1:4,labels=c('C_2016','R_2016','C_2019','R_2019'))
 
 #Negative binomial
+head(taxrich_full2)
 taxrich_full2$Site <- as.factor(taxrich_full2$Site)
 taxrich_full2$Treatment <- as.factor(taxrich_full2$Treatment)
-head(taxrich_full2)
 taxrich_full2$Plot <- as.factor(as.character(taxrich_full2$Plot))
 taxrich_full2$Yr <- taxrich_full2$Year-min(taxrich_full2$Year)
+
+head(div_full2)
+div_full2$Site <- as.factor(div_full2$Site)
+div_full2$Treatment <- as.factor(div_full2$Treatment)
+div_full2$Plot <- as.factor(as.character(div_full2$Plot))
+div_full2$Yr <- div_full2$Year-min(div_full2$Year)
+
+head(divinv_full2)
+divinv_full2$Site <- as.factor(divinv_full2$Site)
+divinv_full2$Treatment <- as.factor(divinv_full2$Treatment)
+divinv_full2$Plot <- as.factor(as.character(divinv_full2$Plot))
+divinv_full2$Yr <- divinv_full2$Year-min(divinv_full2$Year)
 
 richgroups <- colnames(taxrich_full2)[7:ncol(taxrich_full2)]
 
