@@ -10,8 +10,15 @@
 
 #6 Other (Other invertebrates) - identified to Order only, does not include Hemiptera, Hymenoptera
 
+#Load workspace
+load('Workspace/Invert_Rocks_E.RData')
+
+#save.image('Workspace/Invert_Rocks_E.RData')
+
 #Species information
 head(Morphospecies);dim(Morphospecies)
+head(Morpho_abun);dim(Morpho_abun)
+hist(Morpho_abun$Abundance[Morpho_abun$Abundance<100])
 
 #Site data (Site_data)
 Site <- read.csv('Data/Site_data.csv',header=T)
@@ -294,6 +301,11 @@ div_rich <- cbind(div_full,rich_nolarvae2)
 div_rich2 <- div_rich[,c(-8)]
 div_rich_full2<- merge(taxrich,div_rich2,by='Pit_code', all.x=T, all.y=F)
 head(div_rich_full2);dim(div_rich_full2)
+richtab <- div_rich_full2[,c(2:6,grep(pattern='rich',colnames(div_rich_full2)))]
+head(richtab)
+
+#How many zeros are in each morphospecies
+apply(richtab[,6:length(richtab)],2,FUN = function(x)table(x==0))
 
 #Histograms of Shannons diversity data - frequency of zeros in the data
 dev.new(width=12,height=8,dpi=100,pointsize=16,noRStudioGD = T)
@@ -392,13 +404,34 @@ axis(side=1,at=1:4,labels=c('C_2016','R_2016','C_2019','R_2019'))
 boxplot(divinv_full2$Other_div~divinv_full2$Treatment+divinv_full2$Year,ylab='Other diversity (Inv Simpsons)',xlab='',xaxt='n',las=1)
 axis(side=1,at=1:4,labels=c('C_2016','R_2016','C_2019','R_2019'))
 
-#Negative binomial
+#GLM negative binomial (modelling richness for Araneae, Coleoptera and Formicidae)
 head(taxrich_full2)
 taxrich_full2$Site <- as.factor(taxrich_full2$Site)
 taxrich_full2$Treatment <- as.factor(taxrich_full2$Treatment)
 taxrich_full2$Plot <- as.factor(as.character(taxrich_full2$Plot))
 taxrich_full2$Yr <- taxrich_full2$Year-min(taxrich_full2$Year)
 
+richgroups <- colnames(taxrich_full2)[7:ncol(taxrich_full2)]
+
+richgroups
+
+form.thisrun <- paste('Ara_rich',"~Treatment+Yr+Treatment:Yr+(1|Site/Plot)", sep="")
+
+mod1<-glmmadmb(as.formula(formula), family="nbinom", data=taxrich_full2)
+
+Ararich_mod1<-glmmadmb(Ara_rich~Treatment+Yr+Treatment:Yr+(1|Site/Plot), family="nbinom", data=taxrich_full2)
+Ararich_mod1<-glmmadmb(Ara_rich~Treatment+Yr+Treatment:Yr+(1|Plot), family="nbinom", data=taxrich_full2)
+summary(Ararich_mod1)
+
+Colrich_mod1<-glmmadmb(Col_rich2~Treatment+Yr+Treatment:Yr+(1|Site/Plot), family="nbinom", data=taxrich_full2)
+Colrich_mod1<-glmmadmb(Col_rich2~Treatment+Yr+Treatment:Yr+(1|Plot), family="nbinom", data=taxrich_full2)
+summary(Colrich_mod1)
+
+Formrich_mod1<-glmmadmb(Form_rich~Treatment+Yr+Treatment:Yr+(1|Site/Plot), family="nbinom", data=taxrich_full2)
+Formrich_mod1<-glmmadmb(Form_rich~Treatment+Yr+Treatment:Yr+(1|Plot), family="nbinom", data=taxrich_full2)
+summary(Formrich_mod1)
+
+#Preparing diversity files for modelling
 head(div_full2)
 div_full2$Site <- as.factor(div_full2$Site)
 div_full2$Treatment <- as.factor(div_full2$Treatment)
@@ -410,27 +443,34 @@ divinv_full2$Site <- as.factor(divinv_full2$Site)
 divinv_full2$Treatment <- as.factor(divinv_full2$Treatment)
 divinv_full2$Plot <- as.factor(as.character(divinv_full2$Plot))
 divinv_full2$Yr <- divinv_full2$Year-min(divinv_full2$Year)
+head(div_rich_full2);dim(div_rich_full2)
 
-richgroups <- colnames(taxrich_full2)[7:ncol(taxrich_full2)]
+#Binomial models for Richness (Blattodea, Orthopera and Other)
+bindat <- div_rich_full2[,c(1:6,which(colnames(div_rich_full2) %in% c("Bla_rich","Other_rich2","Ort_rich2")))]
+head(bindat)
+bindat$Bla_rich[which(bindat$Bla_rich>0)] <- 1
+bindat$Other_rich2[which(bindat$Other_rich2>0)] <- 1
+bindat$Ort_rich2[which(bindat$Ort_rich2>0)] <- 1
+bindat$Yr <- bindat$Year-min(bindat$Year)
 
-richgroups
+Blarich_mod1 <- glmer(Bla_rich ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),family=binomial,data=bindat)
+summary(Blarich_mod1)
 
-form.thisrun <- paste('Ara_rich',"~Treatment+Yr+Treatment:Yr+(1|Site/Plot)", sep="")
+Ortrich_mod1 <- glmer(Ort_rich2 ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),family=binomial,data=bindat)
+summary(Ortrich_mod1)
 
-mod1<-glmmadmb(as.formula(formula), family="nbinom", data=taxrich_full2)
+Otherrich_mod1 <- glmer(Other_rich2 ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),family=binomial,data=bindat)
+summary(Otherrich_mod1)
 
-mod1<-glmmadmb(Ara_rich~Treatment+Yr+Treatment:Yr+(1|Site), family="nbinom", data=taxrich_full2)
-summary(mod1)
+#Linear modelling for Shannons diversity (Araneae, Coleoptera and Formicidae)
 
+div_rich_full2$Yr <- div_rich_full2$Year-min(div_rich_full2$Year)
 
+Aradiv_mod1 <- lmer(Ara_div ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),data=div_rich_full2)
+summary(Aradiv_mod1)
 
+Coldiv_mod1 <- lmer(Col_div ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),data=div_rich_full2)
+summary(Coldiv_mod1)
 
-
-
-
-
-
-
-
-
-
+Formdiv_mod1 <- lmer(Form_div ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),data=div_rich_full2)
+summary(Formdiv_mod1)
