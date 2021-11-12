@@ -452,6 +452,7 @@ bindat$Bla_rich[which(bindat$Bla_rich>0)] <- 1
 bindat$Other_rich2[which(bindat$Other_rich2>0)] <- 1
 bindat$Ort_rich2[which(bindat$Ort_rich2>0)] <- 1
 bindat$Yr <- bindat$Year-min(bindat$Year)
+bindat$Treatment <- as.factor(bindat$Treatment)
 
 Blarich_mod1 <- glmer(Bla_rich ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),family=binomial,data=bindat)
 summary(Blarich_mod1)
@@ -465,6 +466,10 @@ summary(Otherrich_mod1)
 #Linear modelling for Shannons diversity (Araneae, Coleoptera and Formicidae)
 
 div_rich_full2$Yr <- div_rich_full2$Year-min(div_rich_full2$Year)
+div_rich_full2$Site <- as.factor(div_rich_full2$Site)
+div_rich_full2$Treatment <- as.factor(div_rich_full2$Treatment)
+div_rich_full2$Plot <- as.factor(as.character(div_rich_full2$Plot))
+head(div_rich_full2)
 
 Aradiv_mod1 <- lmer(Ara_div ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),data=div_rich_full2)
 summary(Aradiv_mod1)
@@ -474,3 +479,53 @@ summary(Coldiv_mod1)
 
 Formdiv_mod1 <- lmer(Form_div ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),data=div_rich_full2)
 summary(Formdiv_mod1)
+
+#Estimates
+mod1.b<-lm(ar_neutral~trt, data=gd_all)
+summary(mod1.b); anova(mod1.b)
+
+Formdiv_mod1 <- lmer(Form_div ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),data=div_rich_full2)
+summary(Formdiv_mod1); anova(Formdiv_mod1)
+nd_form<-data.frame()
+
+Blarich_mod1 <- glmer(Bla_rich ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),family=binomial,data=bindat)
+summary(Blarich_mod1)
+Blarich_nd <- data.frame(Yr=c(0,0,3,3),Treatment=rep(levels(bindat$Treatment),2))
+Blarich_pr <- predictSE(Blarich_mod1,newdata=Blarich_nd,se.fit=T,type='response')
+Blarich_pr<-data.frame(Blarich_nd, fit=Blarich_pr$fit, se=Blarich_pr$se.fit)
+Blarich_pr$lci<-Blarich_pr$fit-(1.96*Blarich_pr$se)
+Blarich_pr$uci<-Blarich_pr$fit+(1.96*Blarich_pr$se)
+Blarich_pr
+dev.new(width=8,height=8,dpi=80,pointsize=20,noRStudioGD = T)
+par(mfrow=c(1,1),mar=c(5,5,1,1))
+plot(1:4,Blarich_pr$fit,ylim=c(0,1),type='p',pch=20,xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Probability of Occurence',xlab='',main='Blattodea Richness',font.main=1)
+axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
+arrows(1:4,Blarich_pr$lci,1:4,Blarich_pr$uci,length=0.2,angle=90,code=3)
+
+#For plotting between ci
+plot(1:4,Blarich_pr$fit,ylim=c(min(Blarich_pr$lci),max(Blarich_pr$uci)),type='p',pch=20,xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Probability of Occurence',xlab='')
+
+
+nd_neut<-data.frame(trt=levels(gd_all$trt))
+p_neut<-predict(mod1.b, newdata = nd_neut, se.fit=T)
+p_neut<-data.frame(nd_neut, fit=p_neut$fit, se=p_neut$se.fit)
+p_neut$lci<-p_neut$fit-(1.96*p_neut$se)
+p_neut$uci<-p_neut$fit+(1.96*p_neut$se)
+p_neut
+
+Aradiv_mod1 <- lmer(Ara_div ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),data=div_rich_full2)
+Ara_coeff <- summary(Aradiv_mod1)$coefficients[,1]
+str(summary(Aradiv_mod1))
+levels(div_rich_full2$Treatment)
+unique(div_rich_full2$Yr)
+range(div_rich_full2$Ara_div)
+Ara_coeff[1]
+Ara_coeff[1]+Ara_coeff[2]
+Ara_coeff[1]+(Ara_coeff[3]*3)
+Ara_coeff[1]+Ara_coeff[2]+(Ara_coeff[3]*3)+(Ara_coeff[4]*3)
+Aradiv_nd <- data.frame(Yr=c(0,0,3,3),Treatment=rep(levels(div_rich_full2$Treatment),2))
+Aradiv_pr <- predictSE(Aradiv_mod1,newdata=Aradiv_nd,se.fit=T)
+Aradiv_pr<-data.frame(Aradiv_nd, fit=Aradiv_pr$fit, se=Aradiv_pr$se.fit)
+Aradiv_pr$lci<-Aradiv_pr$fit-(1.96*Aradiv_pr$se)
+Aradiv_pr$uci<-Aradiv_pr$fit+(1.96*Aradiv_pr$se)
+Aradiv_pr
