@@ -470,6 +470,7 @@ div_rich_full2$Site <- as.factor(div_rich_full2$Site)
 div_rich_full2$Treatment <- as.factor(div_rich_full2$Treatment)
 div_rich_full2$Plot <- as.factor(as.character(div_rich_full2$Plot))
 head(div_rich_full2)
+str(div_rich_full2)
 
 Aradiv_mod1 <- lmer(Ara_div ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),data=div_rich_full2)
 summary(Aradiv_mod1)
@@ -480,13 +481,20 @@ summary(Coldiv_mod1)
 Formdiv_mod1 <- lmer(Form_div ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),data=div_rich_full2)
 summary(Formdiv_mod1)
 
+#Gamma models (values have to be >0)
+
+Aradiv_mod1 <- glmer(Ara_div ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),family=Gamma(link='log'),data=div_rich_full2)
+summary(Aradiv_mod1)
+
+Coldiv_mod1 <- glmer(Col_div ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),family=Gamma(link='log'),data=div_rich_full2)
+summary(Coldiv_mod1)
+
+Formdiv_mod1 <- glmer(Form_div ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),family=Gamma(link='log'),data=div_rich_full2)
+summary(Formdiv_mod1)
+
 #Estimates
 mod1.b<-lm(ar_neutral~trt, data=gd_all)
 summary(mod1.b); anova(mod1.b)
-
-Formdiv_mod1 <- lmer(Form_div ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),data=div_rich_full2)
-summary(Formdiv_mod1); anova(Formdiv_mod1)
-nd_form<-data.frame()
 
 Blarich_mod1 <- glmer(Bla_rich ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),family=binomial,data=bindat)
 summary(Blarich_mod1)
@@ -496,24 +504,88 @@ Blarich_pr<-data.frame(Blarich_nd, fit=Blarich_pr$fit, se=Blarich_pr$se.fit)
 Blarich_pr$lci<-Blarich_pr$fit-(1.96*Blarich_pr$se)
 Blarich_pr$uci<-Blarich_pr$fit+(1.96*Blarich_pr$se)
 Blarich_pr
-dev.new(width=8,height=8,dpi=80,pointsize=20,noRStudioGD = T)
-par(mfrow=c(1,1),mar=c(5,5,1,1))
-plot(1:4,Blarich_pr$fit,ylim=c(0,1),type='p',pch=20,xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Probability of Occurence',xlab='',main='Blattodea Richness',font.main=1)
+dev.new(width=24,height=8,dpi=80,pointsize=20,noRStudioGD = T)
+par(mfrow=c(2,3),mar=c(5,5,1,1))
+plot(1:4,Blarich_pr$fit,ylim=c(0,1),type='p',pch=c(20,18,20,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Probability of Occurence',xlab='',main='Blattodea Richness',font.main=1)
+legend("topright", legend=c("Control", "Rock"), pch = c(20,18), cex=1, box.lty=0)
 axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
 arrows(1:4,Blarich_pr$lci,1:4,Blarich_pr$uci,length=0.2,angle=90,code=3)
+
+Ortrich_mod1 <- glmer(Ort_rich2 ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),family=binomial,data=bindat)
+summary(Ortrich_mod1)
+Ortrich_nd <- data.frame(Yr=c(0,0,3,3),Treatment=rep(levels(bindat$Treatment),2))
+Ortrich_pr <- predictSE(Ortrich_mod1,newdata=Ortrich_nd,se.fit=T,type='response')
+Ortrich_pr<-data.frame(Ortrich_nd, fit=Ortrich_pr$fit, se=Ortrich_pr$se.fit)
+Ortrich_pr$lci<-Ortrich_pr$fit-(1.96*Ortrich_pr$se)
+Ortrich_pr$uci<-Ortrich_pr$fit+(1.96*Ortrich_pr$se)
+Ortrich_pr
+plot(1:4,Ortrich_pr$fit,ylim=c(0,1),type='p',pch=c(20,18,20,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Probability of Occurence',xlab='',main='Orthoptera Richness',font.main=1)
+legend("topright", legend=c("Control", "Rock"), pch = c(20,18), cex=1, box.lty=0)
+axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
+arrows(1:4,Ortrich_pr$lci,1:4,Ortrich_pr$uci,length=0.2,angle=90,code=3)
+
+Otherrich_mod1 <- glmer(Other_rich2 ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),family=binomial,data=bindat)
+summary(Otherrich_mod1)
+Otherrich_nd <- data.frame(Yr=c(0,0,3,3),Treatment=rep(levels(bindat$Treatment),2))
+Otherrich_pr <- predictSE(Otherrich_mod1,newdata=Otherrich_nd,se.fit=T,type='response')
+Otherrich_pr<-data.frame(Otherrich_nd, fit=Otherrich_pr$fit, se=Otherrich_pr$se.fit)
+Otherrich_pr$lci<-Otherrich_pr$fit-(1.96*Otherrich_pr$se)
+Otherrich_pr$uci<-Otherrich_pr$fit+(1.96*Otherrich_pr$se)
+Otherrich_pr
+plot(1:4,Otherrich_pr$fit,ylim=c(0,1),type='p',pch=c(20,18,20,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Probability of Occurence',xlab='',main='Other Richness',font.main=1)
+legend("bottomright", legend=c("Control", "Rock"), pch = c(20,18), cex=1, box.lty=0)
+axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
+arrows(1:4,Otherrich_pr$lci,1:4,Otherrich_pr$uci,length=0.2,angle=90,code=3)
+
+str(taxrich_full2)
+
+Ararich_mod1<-glmmadmb(Ara_rich~Treatment+Yr+Treatment:Yr+(1|Site/Plot), family="nbinom", data=taxrich_full2)
+summary(Ararich_mod1)
+Ararich_nd <- data.frame(Yr=c(0,0,3,3),Treatment=rep(levels(taxrich_full2$Treatment),2))
+Ararich_pr <- predict(Ararich_mod1,newdata=Ararich_nd,se.fit=TRUE,type="response")
+Ararich_pr<-data.frame(Ararich_nd, fit=Ararich_pr$fit, se=Ararich_pr$se.fit)
+Ararich_pr$lci<-Ararich_pr$fit-(1.96*Ararich_pr$se)
+Ararich_pr$uci<-Ararich_pr$fit+(1.96*Ararich_pr$se)
+Ararich_pr
+dev.new(width=8,height=8,dpi=80,pointsize=20,noRStudioGD = T)
+par(mfrow=c(1,3),mar=c(5,5,1,1))
+plot(1:4,Ararich_pr$fit,ylim=c(0,1),type='p',pch=c(20,18,20,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Probability of Occurence',xlab='',main='Araneae Richness',font.main=1)
+legend("topright", legend=c("Control", "Rock"), pch = c(20,18), cex=1, box.lty=0)
+axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
+arrows(1:4,Ararich_pr$lci,1:4,Ararich_pr$uci,length=0.2,angle=90,code=3)
+
+Colrich_mod1<-glmmadmb(Col_rich2~Treatment+Yr+Treatment:Yr+(1|Site/Plot), family="nbinom", data=taxrich_full2)
+summary(Colrich_mod1)
+Colrich_nd <- data.frame(Yr=c(0,0,3,3),Treatment=rep(levels(taxrich_full2$Treatment),2))
+Colrich_pr <- predict(Colrich_mod1,newdata=Colrich_nd,se.fit=T,type='response')
+Colrich_pr<-data.frame(Colrich_nd, fit=Colrich_pr$fit, se=Colrich_pr$se.fit)
+Colrich_pr$lci<-Colrich_pr$fit-(1.96*Colrich_pr$se)
+Colrich_pr$uci<-Colrich_pr$fit+(1.96*Colrich_pr$se)
+Colrich_pr
+plot(1:4,Colrich_pr$fit,ylim=c(0,1),type='p',pch=c(20,18,20,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Probability of Occurence',xlab='',main='Coleoptera Richness',font.main=1)
+legend("bottomright", legend=c("Control", "Rock"), pch = c(20,18), cex=1, box.lty=0)
+axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
+arrows(1:4,Colrich_pr$lci,1:4,Colrich_pr$uci,length=0.2,angle=90,code=3)
+
+Formrich_mod1<-glmmadmb(Form_rich~Treatment+Yr+Treatment:Yr+(1|Site/Plot), family="nbinom", data=taxrich_full2)
+summary(Formrich_mod1)
+Formrich_nd <- data.frame(Yr=c(0,0,3,3),Treatment=rep(levels(taxrich_full2$Treatment),2))
+Formrich_pr <- predictSE(Formrich_mod1,newdata=Formrich_nd,se.fit=T,type='response')
+Formrich_pr<-data.frame(Formrich_nd, fit=Formrich_pr$fit, se=Formrich_pr$se.fit)
+Formrich_pr$lci<-Formrich_pr$fit-(1.96*Formrich_pr$se)
+Formrich_pr$uci<-Formrich_pr$fit+(1.96*Formrich_pr$se)
+Formrich_pr
+plot(1:4,Formrich_pr$fit,ylim=c(0,1),type='p',pch=c(20,18,20,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Probability of Occurence',xlab='',main='Formicidae Richness',font.main=1)
+legend("bottomright", legend=c("Control", "Rock"), pch = c(20,18), cex=1, box.lty=0)
+axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
+arrows(1:4,Formrich_pr$lci,1:4,Formrich_pr$uci,length=0.2,angle=90,code=3)
 
 #For plotting between ci
 plot(1:4,Blarich_pr$fit,ylim=c(min(Blarich_pr$lci),max(Blarich_pr$uci)),type='p',pch=20,xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Probability of Occurence',xlab='')
 
-
-nd_neut<-data.frame(trt=levels(gd_all$trt))
-p_neut<-predict(mod1.b, newdata = nd_neut, se.fit=T)
-p_neut<-data.frame(nd_neut, fit=p_neut$fit, se=p_neut$se.fit)
-p_neut$lci<-p_neut$fit-(1.96*p_neut$se)
-p_neut$uci<-p_neut$fit+(1.96*p_neut$se)
-p_neut
-
+#Estimates for diversity
 Aradiv_mod1 <- lmer(Ara_div ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),data=div_rich_full2)
+plot(Aradiv_mod1)
 Ara_coeff <- summary(Aradiv_mod1)$coefficients[,1]
 str(summary(Aradiv_mod1))
 levels(div_rich_full2$Treatment)
@@ -529,3 +601,75 @@ Aradiv_pr<-data.frame(Aradiv_nd, fit=Aradiv_pr$fit, se=Aradiv_pr$se.fit)
 Aradiv_pr$lci<-Aradiv_pr$fit-(1.96*Aradiv_pr$se)
 Aradiv_pr$uci<-Aradiv_pr$fit+(1.96*Aradiv_pr$se)
 Aradiv_pr
+dev.new(width=24,height=8,dpi=80,pointsize=20,noRStudioGD = T)
+par(mfrow=c(1,3),mar=c(5,5,1,1))
+plot(1:4,Aradiv_pr$fit,ylim=c(0.8,2),type='p',pch=c(20,18,20,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Probability of Occurence',xlab='',main='Araneae diversity',font.main=1)
+legend("topright", legend=c("Control", "Rock"), pch = c(20,18), cex=1, box.lty=0)
+axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
+arrows(1:4,Aradiv_pr$lci,1:4,Aradiv_pr$uci,length=0.2,angle=90,code=3)
+
+Coldiv_mod1 <- lmer(Col_div ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),data=div_rich_full2)
+summary(Coldiv_mod1)
+plot(Coldiv_mod1)
+Col_coeff <- summary(Coldiv_mod1)$coefficients[,1]
+str(summary(Coldiv_mod1))
+levels(div_rich_full2$Treatment)
+unique(div_rich_full2$Yr)
+range(div_rich_full2$Col_div)
+Coldiv_nd <- data.frame(Yr=c(0,0,3,3),Treatment=rep(levels(div_rich_full2$Treatment),2))
+Coldiv_pr <- predictSE(Coldiv_mod1,newdata=Coldiv_nd,se.fit=T)
+Coldiv_pr<-data.frame(Coldiv_nd, fit=Coldiv_pr$fit, se=Coldiv_pr$se.fit)
+Coldiv_pr$lci<-Coldiv_pr$fit-(1.96*Coldiv_pr$se)
+Coldiv_pr$uci<-Coldiv_pr$fit+(1.96*Coldiv_pr$se)
+Coldiv_pr
+plot(1:4,Coldiv_pr$fit,ylim=c(0.8,2),type='p',pch=c(20,18,20,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Probability of Occurence',xlab='',main='Coleoptera diversity',font.main=1)
+legend("topright", legend=c("Control", "Rock"), pch = c(20,18), cex=1, box.lty=0)
+axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
+arrows(1:4,Coldiv_pr$lci,1:4,Coldiv_pr$uci,length=0.2,angle=90,code=3)
+
+Formdiv_mod1 <- lmer(Form_div ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),data=div_rich_full2)
+summary(Formdiv_mod1)
+plot(Formdiv_mod1)
+Form_coeff <- summary(Formdiv_mod1)$coefficients[,1]
+str(summary(Formdiv_mod1))
+levels(div_rich_full2$Treatment)
+unique(div_rich_full2$Yr)
+range(div_rich_full2$Form_div)
+Form_coeff[1]
+Form_coeff[1]+Form_coeff[2]
+Form_coeff[1]+(Form_coeff[3]*3)
+Form_coeff[1]+Form_coeff[2]+(Form_coeff[3]*3)+(Form_coeff[4]*3)
+Formdiv_nd <- data.frame(Yr=c(0,0,3,3),Treatment=rep(levels(div_rich_full2$Treatment),2))
+Formdiv_pr <- predictSE(Formdiv_mod1,newdata=Formdiv_nd,se.fit=T)
+Formdiv_pr<-data.frame(Formdiv_nd, fit=Formdiv_pr$fit, se=Formdiv_pr$se.fit)
+Formdiv_pr$lci<-Formdiv_pr$fit-(1.96*Formdiv_pr$se)
+Formdiv_pr$uci<-Formdiv_pr$fit+(1.96*Formdiv_pr$se)
+Formdiv_pr
+plot(1:4,Formdiv_pr$fit,ylim=c(0.8,2),type='p',pch=c(20,18,20,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Probability of Occurence',xlab='',main='Formicidae diversity',font.main=1)
+legend("topright", legend=c("Control", "Rock"), pch = c(20,18), cex=1, box.lty=0)
+axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
+arrows(1:4,Formdiv_pr$lci,1:4,Formdiv_pr$uci,length=0.2,angle=90,code=3)
+
+#Models/estimates/plots for diversity glm(Gamma)
+Formdiv_mod1 <- glmer(Form_div ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),family=Gamma(link='log'),data=div_rich_full2)
+summary(Formdiv_mod1)
+plot(Formdiv_mod1)
+Form_coeff <- summary(Formdiv_mod1)$coefficients[,1]
+str(summary(Formdiv_mod1))
+levels(div_rich_full2$Treatment)
+unique(div_rich_full2$Yr)
+range(div_rich_full2$Form_div)
+Form_coeff[1]
+Form_coeff[1]+Form_coeff[2]
+Form_coeff[1]+(Form_coeff[3]*3)
+Form_coeff[1]+Form_coeff[2]+(Form_coeff[3]*3)+(Form_coeff[4]*3)
+Formdiv_nd <- data.frame(Yr=c(0,0,3,3),Treatment=rep(levels(div_rich_full2$Treatment),2))
+Formdiv_pr <- predictSE(Formdiv_mod1,newdata=Formdiv_nd,se.fit=T,type='response')
+Formdiv_pr<-data.frame(Formdiv_nd, fit=Formdiv_pr$fit, se=Formdiv_pr$se.fit)
+Formdiv_pr$lci<-Formdiv_pr$fit-(1.96*Formdiv_pr$se)
+Formdiv_pr$uci<-Formdiv_pr$fit+(1.96*Formdiv_pr$se)
+Formdiv_pr
+plot(1:4,Formdiv_pr$fit,ylim=c(0.8,2),type='p',pch=c(20,18,20,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Probability of Occurence',xlab='',main='Formicidae diversity',font.main=1)
+legend("topright", legend=c("Control", "Rock"), pch = c(20,18), cex=1, box.lty=0)
+axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
+arrows(1:4,Formdiv_pr$lci,1:4,Formdiv_pr$uci,length=0.2,angle=90,code=3)
