@@ -419,8 +419,6 @@ divinv_full$Yr <- divinv_full$Year-min(divinv_full$Year)
 
 #Close Inverse Simpsons diversity ----
 
-Aradiv_mod1 <- glmer(Ara_div ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),family=Gamma(link='log'),data=div_rich_full2)
-
 #Graphs for Inverse Simpsons diversity ----
 
 #Histograms of Inverse Simpsons diversity data - frequency of zeros in the data
@@ -543,6 +541,8 @@ summary(Colinvdiv_mod1)
 Forminvdiv_mod1 <- glmer(Form_invdiv ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),family=Gamma(link='log'),data=divinv_full)
 summary(Forminvdiv_mod1)
 
+#Close modelling for Inverse Simpsons diversity ----
+
 #Estimates for Richness ----
 mod1.b<-lm(ar_neutral~trt, data=gd_all)
 summary(mod1.b); anova(mod1.b)
@@ -589,10 +589,6 @@ axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
 arrows(1:4,Otherrich_pr$lci,1:4,Otherrich_pr$uci,length=0.1,angle=90,code=3)
 
 str(taxrich_full2)
-str (Ararich_nd)
-str (Ararich_pr)
-
-str(Ararich_mod1)
 
 admbControl(impSamp=0,maxfn=10000,imaxfn=500,maxph=5,noinit=TRUE,shess=TRUE,run=TRUE, ZI_kluge=FALSE, poiss_prob_bound=TRUE)
 mcmcControl(mcmc = 10000, mcmc2=0, mcsave, mcnoscale = FALSE, mcgrope = FALSE, mcmult = 1)
@@ -897,4 +893,83 @@ arrows(1:4,Forminvdiv_pr$lci,1:4,Forminvdiv_pr$uci,length=0.1,angle=90,code=3)
 
 #Close plotting estimates for Inverse Simpsons diversity ----
 
+#Proportion of plots with zero values ----
+
+#Individual species
+sum(Araneae$col[6,50]==0)/160
+
+#Richness using (taxrich_full2)
+sum(taxrich_full2$Ara_rich==0)/160
+which(taxrich_full2$Bla_rich==0)/160
+which(taxrich_full2$Col_rich==0)/160
+which(taxrich_full2$Form_rich==0)/160
+which(taxrich_full2$Ort_rich==0)/160
+which(taxrich_full2$Other_rich==0)/160
+
+which(taxrich_full2$Ara_rich==0)/80
+which(taxrich_full2$Bla_rich==0)/80
+which(taxrich_full2$Col_rich==0)/80
+which(taxrich_full2$Form_rich==0)/80
+which(taxrich_full2$Ort_rich==0)/80
+which(taxrich_full2$Other_rich==0)/80
+
+#MDS attempt ----
+
+Morpho_abun$Abundance <- as.numeric(Morpho_abun$Abundance)
+Morpho_abun$`2016` <- as.numeric(Morpho_abun$`2016`)
+Morpho_abun$`2019` <- as.numeric(Morpho_abun$`2019`)
+Morpho_abun$CR <- as.numeric(Morpho_abun$CR)
+Morpho_abun$JE <- as.numeric(Morpho_abun$JE)
+Morpho_abun$JW <- as.numeric(Morpho_abun$JW)
+Morpho_abun$K <- as.numeric(Morpho_abun$K)
+Morpho_abun$MUL <- as.numeric(Morpho_abun$MUL)
+
+# Remove species with less than 80 samples (by yr/pitfall) or 16 samples (by site/reserve):
+mds_abun <- subset(Morpho_abun,Abundance>80)
+head(mds_abun,3)
+mds_abunyr<-mds_abun[,c(-1,-2,-3,-4,-5,-8,-9,-10,-11,-12)]
+mds_abunsite<-mds_abun[,c(-1,-2,-3,-4,-5,-6,-7)]
+
+mds_abun2 <- subset(Morpho_abun,Abundance>16)
+head(mds_abun2)
+mds_abun2yr<-mds_abun2[,c(-1,-2,-3,-4,-5,-8,-9,-10,-11,-12)]
+mds_abun2site<-mds_abun2[,c(-1,-2,-3,-4,-5,-6,-7)]
+
+# Do MDS analysis using the Bray-Curtis dissimilarity index:
+simmdsyr<-capscale(mds_abunyr~1, distance="bray")
+simmdsyr
+head(summary(simmdsyr))
+str(summary(simmdsyr))
+head(summary(simmdsyr)$sites)
+length(summary(simmdsyr)$sites[,1])
+summary(simmdsyr)$cont$importance[,1:6]
+
+simmdssite<-capscale(mds_abunsite~1, distance="bray")
+simmdssite
+head(summary(simmdssite))
+str(summary(simmdssite))
+head(summary(simmdssite)$sites)
+length(summary(simmdssite)$sites[,1])
+summary(simmdssite)$cont$importance[,1:6]
+
+simmds2yr<-capscale(mds_abun2yr~1, distance="bray")
+simmds2yr
+head(summary(simmds2yr))
+str(summary(simmds2yr))
+head(summary(simmds2yr)$sites)
+length(summary(simmds2yr)$sites[,1])
+summary(simmds2yr)$cont$importance[,1:6]
+
+simmds2site<-capscale(mds_abun2site~1, distance="bray")
+simmds2site
+head(summary(simmds2site))
+str(summary(simmds2site))
+head(summary(simmds2site)$sites)
+length(summary(simmds2site)$sites[,1])
+summary(simmds2site)$cont$importance[,1:6]
+
+#Analyse dissimilarity (not sure about this)
+
+site_mds<-cbind(mds_abun,site_mds1=as.numeric(summary(simmdssite)$sites[,1]),site_mds2=as.numeric(summary(simmdssite)$sites[,2]),site_mds3=as.numeric(summary(simmdssite)$sites[,3]),site_mds4=as.numeric(summary(simmdssite)$sites[,4]),site_mds5=as.numeric(summary(simmdssite)$sites[,5]),site_mds6=as.numeric(summary(simmdssite)$sites[,6]))
+head(site_mds)
 
