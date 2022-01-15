@@ -895,23 +895,328 @@ arrows(1:4,Forminvdiv_pr$lci,1:4,Forminvdiv_pr$uci,length=0.1,angle=90,code=3)
 
 #Proportion of plots with zero values ----
 
-#Individual species
-sum(Araneae$col[6,50]==0)/160
+#Individual species (total plots /160, year /80, reserve /32 (over two years thus 16*2))
 
-#Richness using (taxrich_full2)
-sum(taxrich_full2$Ara_rich==0)/160
-which(taxrich_full2$Bla_rich==0)/160
-which(taxrich_full2$Col_rich==0)/160
-which(taxrich_full2$Form_rich==0)/160
-which(taxrich_full2$Ort_rich==0)/160
-which(taxrich_full2$Other_rich==0)/160
+#Araneae
 
-which(taxrich_full2$Ara_rich==0)/80
-which(taxrich_full2$Bla_rich==0)/80
-which(taxrich_full2$Col_rich==0)/80
-which(taxrich_full2$Form_rich==0)/80
-which(taxrich_full2$Ort_rich==0)/80
-which(taxrich_full2$Other_rich==0)/80
+arazero <- Ara2
+arazero <- arazero[,c(-1,-2,-3)]
+arazero <- as.data.frame(t(arazero))
+arazero1 <- as.data.frame(apply(arazero,1,function(x) sum(x==0)/160))
+arazero1 <- rename(arazero1,c("apply(arazero, 1, function(x) sum(x == 0)/160)"="propzeros_total"))
+
+azero16 <- Ara2[-c(1:80),]
+azero16 <- azero16[,c(-1,-2,-3)]
+azero16 <- as.data.frame(t(azero16))
+azero16a <- as.data.frame(apply(azero16,1,function(x) sum(x==0)/80))
+azero16a <- rename(azero16a,c("apply(azero16, 1, function(x) sum(x == 0)/80)"="propzeros_2016"))
+
+azero19 <- Ara2[-c(81:160),]
+azero19 <- azero19[,c(-1,-2,-3)]
+azero19 <- as.data.frame(t(azero19))
+azero19a <- as.data.frame(apply(azero19,1,function(x) sum(x==0)/80))
+azero19a <- rename(azero19a,c("apply(azero19, 1, function(x) sum(x == 0)/80)"="propzeros_2019"))
+
+asite <- Ara2[,c(-1,-3)]
+aJE <- subset(asite, Site == "JE")
+aJE <- aJE[,c(-1)]
+aJE <- as.data.frame(t(aJE))
+aJE <- as.data.frame(apply(aJE,1,function(x) sum(x==0)/32))
+aJE <- rename(aJE,c("apply(aJE, 1, function(x) sum(x == 0)/32)"="propzeros_JE"))
+
+aJW <- subset(asite, Site == "JW")
+aJW <- aJW[,c(-1)]
+aJW <- as.data.frame(t(aJW))
+aJW <- as.data.frame(apply(aJW,1,function(x) sum(x==0)/32))
+aJW <- rename(aJW,c("apply(aJW, 1, function(x) sum(x == 0)/32)"="propzeros_JW"))
+
+aCR <- subset(asite, Site == "CR")
+aCR <- aCR[,c(-1)]
+aCR <- as.data.frame(t(aCR))
+aCR <- as.data.frame(apply(aCR,1,function(x) sum(x==0)/32))
+aCR <- rename(aCR,c("apply(aCR, 1, function(x) sum(x == 0)/32)"="propzeros_CR"))
+
+aMUL <- subset(asite, Site == "MUL")
+aMUL <- aMUL[,c(-1)]
+aMUL <- as.data.frame(t(aMUL))
+aMUL <- as.data.frame(apply(aMUL,1,function(x) sum(x==0)/32))
+aMUL <- rename(aMUL,c("apply(aMUL, 1, function(x) sum(x == 0)/32)"="propzeros_MUL"))
+
+aK <- subset(asite, Site == "K")
+aK <- aK[,c(-1)]
+aK <- as.data.frame(t(aK))
+aK <- as.data.frame(apply(aK,1,function(x) sum(x==0)/32))
+aK <- rename(aK,c("apply(aK, 1, function(x) sum(x == 0)/32)"="propzeros_K"))
+
+#Blattodea
+
+blazero <- Bla2
+blazero <- blazero[,c(-1,-2,-3)]
+blazero <- as.data.frame(t(blazero))
+blazero1 <- as.data.frame(apply(blazero,1,function(x) sum(x==0)/160))
+blazero1 <- rename(blazero1,c("apply(blazero, 1, function(x) sum(x == 0)/160)"="propzeros_total"))
+
+bzero16 <- Bla2[-c(1:80),]
+bzero16 <- bzero16[,c(-1,-2,-3)]
+bzero16 <- as.data.frame(t(bzero16))
+bzero16a <- as.data.frame(apply(bzero16,1,function(x) sum(x==0)/80))
+bzero16a <- rename(bzero16a,c("apply(bzero16, 1, function(x) sum(x == 0)/80)"="propzeros_2016"))
+
+bzero19 <- Bla2[-c(81:160),]
+bzero19 <- bzero19[,c(-1,-2,-3)]
+bzero19 <- as.data.frame(t(bzero19))
+bzero19a <- as.data.frame(apply(bzero19,1,function(x) sum(x==0)/80))
+bzero19a <- rename(bzero19a,c("apply(bzero19, 1, function(x) sum(x == 0)/80)"="propzeros_2019"))
+
+bsite <- Bla2[,c(-1,-3)]
+bJE <- subset(bsite, Site == "JE")
+bJE <- bJE[,c(-1)]
+bJE <- as.data.frame(t(bJE))
+bJE <- as.data.frame(apply(bJE,1,function(x) sum(x==0)/32))
+bJE <- rename(bJE,c("apply(bJE, 1, function(x) sum(x == 0)/32)"="propzeros_JE"))
+
+bJW <- subset(bsite, Site == "JW")
+bJW <- bJW[,c(-1)]
+bJW <- as.data.frame(t(bJW))
+bJW <- as.data.frame(apply(bJW,1,function(x) sum(x==0)/32))
+bJW <- rename(bJW,c("apply(bJW, 1, function(x) sum(x == 0)/32)"="propzeros_JW"))
+
+bCR <- subset(bsite, Site == "CR")
+bCR <- bCR[,c(-1)]
+bCR <- as.data.frame(t(bCR))
+bCR <- as.data.frame(apply(bCR,1,function(x) sum(x==0)/32))
+bCR <- rename(bCR,c("apply(bCR, 1, function(x) sum(x == 0)/32)"="propzeros_CR"))
+
+bMUL <- subset(bsite, Site == "MUL")
+bMUL <- bMUL[,c(-1)]
+bMUL <- as.data.frame(t(bMUL))
+bMUL <- as.data.frame(apply(bMUL,1,function(x) sum(x==0)/32))
+bMUL <- rename(bMUL,c("apply(bMUL, 1, function(x) sum(x == 0)/32)"="propzeros_MUL"))
+
+bK <- subset(bsite, Site == "K")
+bK <- bK[,c(-1)]
+bK <- as.data.frame(t(bK))
+bK <- as.data.frame(apply(bK,1,function(x) sum(x==0)/32))
+bK <- rename(bK,c("apply(bK, 1, function(x) sum(x == 0)/32)"="propzeros_K"))
+
+#Coleoptera
+
+colzero <- Col2
+colzero <- colzero[,c(-1,-2,-3)]
+colzero <- as.data.frame(t(colzero))
+colzero1 <- as.data.frame(apply(colzero,1,function(x) sum(x==0)/160))
+colzero1 <- rename(colzero1,c("apply(colzero, 1, function(x) sum(x == 0)/160)"="propzeros_total"))
+
+czero16 <- Col2[-c(1:80),]
+czero16 <- czero16[,c(-1,-2,-3)]
+czero16 <- as.data.frame(t(czero16))
+czero16a <- as.data.frame(apply(czero16,1,function(x) sum(x==0)/80))
+czero16a <- rename(czero16a,c("apply(czero16, 1, function(x) sum(x == 0)/80)"="propzeros_2016"))
+
+czero19 <- Col2[-c(81:160),]
+czero19 <- czero19[,c(-1,-2,-3)]
+czero19 <- as.data.frame(t(czero19))
+czero19a <- as.data.frame(apply(czero19,1,function(x) sum(x==0)/80))
+czero19a <- rename(czero19a,c("apply(czero19, 1, function(x) sum(x == 0)/80)"="propzeros_2019"))
+
+csite <- Col2[,c(-1,-3)]
+cJE <- subset(csite, Site == "JE")
+cJE <- cJE[,c(-1)]
+cJE <- as.data.frame(t(cJE))
+cJE <- as.data.frame(apply(cJE,1,function(x) sum(x==0)/32))
+cJE <- rename(cJE,c("apply(cJE, 1, function(x) sum(x == 0)/32)"="propzeros_JE"))
+
+cJW <- subset(csite, Site == "JW")
+cJW <- cJW[,c(-1)]
+cJW <- as.data.frame(t(cJW))
+cJW <- as.data.frame(apply(cJW,1,function(x) sum(x==0)/32))
+cJW <- rename(cJW,c("apply(cJW, 1, function(x) sum(x == 0)/32)"="propzeros_JW"))
+
+cCR <- subset(csite, Site == "CR")
+cCR <- cCR[,c(-1)]
+cCR <- as.data.frame(t(cCR))
+cCR <- as.data.frame(apply(cCR,1,function(x) sum(x==0)/32))
+cCR <- rename(cCR,c("apply(cCR, 1, function(x) sum(x == 0)/32)"="propzeros_CR"))
+
+cMUL <- subset(csite, Site == "MUL")
+cMUL <- cMUL[,c(-1)]
+cMUL <- as.data.frame(t(cMUL))
+cMUL <- as.data.frame(apply(cMUL,1,function(x) sum(x==0)/32))
+cMUL <- rename(cMUL,c("apply(cMUL, 1, function(x) sum(x == 0)/32)"="propzeros_MUL"))
+
+cK <- subset(csite, Site == "K")
+cK <- cK[,c(-1)]
+cK <- as.data.frame(t(cK))
+cK <- as.data.frame(apply(cK,1,function(x) sum(x==0)/32))
+cK <- rename(cK,c("apply(cK, 1, function(x) sum(x == 0)/32)"="propzeros_K"))
+
+#Formicidae
+
+formzero <- Form2
+formzero <- formzero[,c(-1,-2,-3)]
+formzero <- as.data.frame(t(formzero))
+formzero1 <- as.data.frame(apply(formzero,1,function(x) sum(x==0)/160))
+formzero1 <- rename(formzero1,c("apply(formzero, 1, function(x) sum(x == 0)/160)"="propzeros_total"))
+
+fzero16 <- Form2[-c(1:80),]
+fzero16 <- fzero16[,c(-1,-2,-3)]
+fzero16 <- as.data.frame(t(fzero16))
+fzero16a <- as.data.frame(apply(fzero16,1,function(x) sum(x==0)/80))
+fzero16a <- rename(fzero16a,c("apply(fzero16, 1, function(x) sum(x == 0)/80)"="propzeros_2016"))
+
+fzero19 <- Form2[-c(81:160),]
+fzero19 <- fzero19[,c(-1,-2,-3)]
+fzero19 <- as.data.frame(t(fzero19))
+fzero19a <- as.data.frame(apply(fzero19,1,function(x) sum(x==0)/80))
+fzero19a <- rename(fzero19a,c("apply(fzero19, 1, function(x) sum(x == 0)/80)"="propzeros_2019"))
+
+fsite <- Form2[,c(-1,-3)]
+fJE <- subset(fsite, Site == "JE")
+fJE <- fJE[,c(-1)]
+fJE <- as.data.frame(t(fJE))
+fJE <- as.data.frame(apply(fJE,1,function(x) sum(x==0)/32))
+fJE <- rename(fJE,c("apply(fJE, 1, function(x) sum(x == 0)/32)"="propzeros_JE"))
+
+fJW <- subset(fsite, Site == "JW")
+fJW <- fJW[,c(-1)]
+fJW <- as.data.frame(t(fJW))
+fJW <- as.data.frame(apply(fJW,1,function(x) sum(x==0)/32))
+fJW <- rename(fJW,c("apply(fJW, 1, function(x) sum(x == 0)/32)"="propzeros_JW"))
+
+fCR <- subset(fsite, Site == "CR")
+fCR <- fCR[,c(-1)]
+fCR <- as.data.frame(t(fCR))
+fCR <- as.data.frame(apply(fCR,1,function(x) sum(x==0)/32))
+fCR <- rename(fCR,c("apply(fCR, 1, function(x) sum(x == 0)/32)"="propzeros_CR"))
+
+fMUL <- subset(fsite, Site == "MUL")
+fMUL <- fMUL[,c(-1)]
+fMUL <- as.data.frame(t(fMUL))
+fMUL <- as.data.frame(apply(fMUL,1,function(x) sum(x==0)/32))
+fMUL <- rename(fMUL,c("apply(fMUL, 1, function(x) sum(x == 0)/32)"="propzeros_MUL"))
+
+fK <- subset(fsite, Site == "K")
+fK <- fK[,c(-1)]
+fK <- as.data.frame(t(fK))
+fK <- as.data.frame(apply(fK,1,function(x) sum(x==0)/32))
+fK <- rename(fK,c("apply(fK, 1, function(x) sum(x == 0)/32)"="propzeros_K"))
+
+#Orthoptera
+
+ortzero <- Ort2
+ortzero <- ortzero[,c(-1,-2,-3)]
+ortzero <- as.data.frame(t(ortzero))
+ortzero1 <- as.data.frame(apply(ortzero,1,function(x) sum(x==0)/160))
+ortzero1 <- rename(ortzero1,c("apply(ortzero, 1, function(x) sum(x == 0)/160)"="propzeros_total"))
+
+orzero16 <- Ort2[-c(1:80),]
+orzero16 <- orzero16[,c(-1,-2,-3)]
+orzero16 <- as.data.frame(t(orzero16))
+orzero16a <- as.data.frame(apply(orzero16,1,function(x) sum(x==0)/80))
+orzero16a <- rename(orzero16a,c("apply(orzero16, 1, function(x) sum(x == 0)/80)"="propzeros_2016"))
+
+orzero19 <- Ort2[-c(81:160),]
+orzero19 <- orzero19[,c(-1,-2,-3)]
+orzero19 <- as.data.frame(t(orzero19))
+orzero19a <- as.data.frame(apply(orzero19,1,function(x) sum(x==0)/80))
+orzero19a <- rename(orzero19a,c("apply(orzero19, 1, function(x) sum(x == 0)/80)"="propzeros_2019"))
+
+orsite <- Ort2[,c(-1,-3)]
+orJE <- subset(orsite, Site == "JE")
+orJE <- orJE[,c(-1)]
+orJE <- as.data.frame(t(orJE))
+orJE <- as.data.frame(apply(orJE,1,function(x) sum(x==0)/32))
+orJE <- rename(orJE,c("apply(orJE, 1, function(x) sum(x == 0)/32)"="propzeros_JE"))
+
+orJW <- subset(orsite, Site == "JW")
+orJW <- orJW[,c(-1)]
+orJW <- as.data.frame(t(orJW))
+orJW <- as.data.frame(apply(orJW,1,function(x) sum(x==0)/32))
+orJW <- rename(orJW,c("apply(orJW, 1, function(x) sum(x == 0)/32)"="propzeros_JW"))
+
+orCR <- subset(orsite, Site == "CR")
+orCR <- orCR[,c(-1)]
+orCR <- as.data.frame(t(orCR))
+orCR <- as.data.frame(apply(orCR,1,function(x) sum(x==0)/32))
+orCR <- rename(orCR,c("apply(orCR, 1, function(x) sum(x == 0)/32)"="propzeros_CR"))
+
+orMUL <- subset(orsite, Site == "MUL")
+orMUL <- orMUL[,c(-1)]
+orMUL <- as.data.frame(t(orMUL))
+orMUL <- as.data.frame(apply(orMUL,1,function(x) sum(x==0)/32))
+orMUL <- rename(orMUL,c("apply(orMUL, 1, function(x) sum(x == 0)/32)"="propzeros_MUL"))
+
+orK <- subset(orsite, Site == "K")
+orK <- orK[,c(-1)]
+orK <- as.data.frame(t(orK))
+orK <- as.data.frame(apply(orK,1,function(x) sum(x==0)/32))
+orK <- rename(orK,c("apply(orK, 1, function(x) sum(x == 0)/32)"="propzeros_K"))
+
+#Other
+
+otherzero <- Other2
+otherzero <- otherzero[,c(-1,-2,-3)]
+otherzero <- as.data.frame(t(otherzero))
+otherzero1 <- as.data.frame(apply(otherzero,1,function(x) sum(x==0)/160))
+otherzero1 <- rename(otherzero1,c("apply(otherzero, 1, function(x) sum(x == 0)/160)"="propzeros_total"))
+
+otzero16 <- Other2[-c(1:80),]
+otzero16 <- otzero16[,c(-1,-2,-3)]
+otzero16 <- as.data.frame(t(otzero16))
+otzero16a <- as.data.frame(apply(otzero16,1,function(x) sum(x==0)/80))
+otzero16a <- rename(otzero16a,c("apply(otzero16, 1, function(x) sum(x == 0)/80)"="propzeros_2016"))
+
+otzero19 <- Other2[-c(81:160),]
+otzero19 <- otzero19[,c(-1,-2,-3)]
+otzero19 <- as.data.frame(t(otzero19))
+otzero19a <- as.data.frame(apply(otzero19,1,function(x) sum(x==0)/80))
+otzero19a <- rename(otzero19a,c("apply(otzero19, 1, function(x) sum(x == 0)/80)"="propzeros_2019"))
+
+otsite <- Other2[,c(-1,-3)]
+otJE <- subset(otsite, Site == "JE")
+otJE <- otJE[,c(-1)]
+otJE <- as.data.frame(t(otJE))
+otJE <- as.data.frame(apply(otJE,1,function(x) sum(x==0)/32))
+otJE <- rename(otJE,c("apply(otJE, 1, function(x) sum(x == 0)/32)"="propzeros_JE"))
+
+otJW <- subset(otsite, Site == "JW")
+otJW <- otJW[,c(-1)]
+otJW <- as.data.frame(t(otJW))
+otJW <- as.data.frame(apply(otJW,1,function(x) sum(x==0)/32))
+otJW <- rename(otJW,c("apply(otJW, 1, function(x) sum(x == 0)/32)"="propzeros_JW"))
+
+otCR <- subset(otsite, Site == "CR")
+otCR <- otCR[,c(-1)]
+otCR <- as.data.frame(t(otCR))
+otCR <- as.data.frame(apply(otCR,1,function(x) sum(x==0)/32))
+otCR <- rename(otCR,c("apply(otCR, 1, function(x) sum(x == 0)/32)"="propzeros_CR"))
+
+otMUL <- subset(otsite, Site == "MUL")
+otMUL <- otMUL[,c(-1)]
+otMUL <- as.data.frame(t(otMUL))
+otMUL <- as.data.frame(apply(otMUL,1,function(x) sum(x==0)/32))
+otMUL <- rename(otMUL,c("apply(otMUL, 1, function(x) sum(x == 0)/32)"="propzeros_MUL"))
+
+otK <- subset(otsite, Site == "K")
+otK <- otK[,c(-1)]
+otK <- as.data.frame(t(otK))
+otK <- as.data.frame(apply(otK,1,function(x) sum(x==0)/32))
+otK <- rename(otK,c("apply(otK, 1, function(x) sum(x == 0)/32)"="propzeros_K"))
+
+#Merge data
+
+zeroplot <- rbind(arazero1,blazero1,colzero1,formzero1,ortzero1,otherzero1)
+zeroyear16 <- rbind(azero16a,bzero16a,czero16a,fzero16a,orzero16a,otzero16a)
+zeroyear19 <- rbind(azero19a,bzero19a,czero19a,fzero19a,orzero19a,otzero19a)
+JE <- rbind(aJE,bJE,cJE,fJE,orJE,otJE)
+JW <- rbind(aJW,bJW,cJW,fJW,orJW,otJW)
+CR <- rbind(aCR,bCR,cCR,fCR,orCR,otCR)
+MUL <- rbind(aMUL,bMUL,cMUL,fMUL,orMUL,otMUL)
+K <- rbind(aK,bK,cK,fK,orK,otK)
+
+morpho_abun2 <- cbind(Morpho_abun,zeroplot,zeroyear16,zeroyear19,JE,JW,CR,MUL,K)
+
+#Close proportion of zeroes ----
 
 #MDS attempt ----
 
@@ -973,3 +1278,4 @@ summary(simmds2site)$cont$importance[,1:6]
 site_mds<-cbind(mds_abun,site_mds1=as.numeric(summary(simmdssite)$sites[,1]),site_mds2=as.numeric(summary(simmdssite)$sites[,2]),site_mds3=as.numeric(summary(simmdssite)$sites[,3]),site_mds4=as.numeric(summary(simmdssite)$sites[,4]),site_mds5=as.numeric(summary(simmdssite)$sites[,5]),site_mds6=as.numeric(summary(simmdssite)$sites[,6]))
 head(site_mds)
 
+#Close mds ----
