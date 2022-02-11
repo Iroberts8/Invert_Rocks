@@ -1218,6 +1218,18 @@ morpho_abun2 <- cbind(Morpho_abun,zeroplot,zeroyear16,zeroyear19,JE,JW,CR,MUL,K)
 
 #Close proportion of zeroes ----
 
+# Remove species with less than 80 samples (by yr/pitfall) or 16 samples (by site/reserve) - move to individual species analysis:
+
+mds_abun <- subset(Morpho_abun,Abundance>80)
+head(mds_abun,3)
+mds_abunyr<-mds_abun[,c(-1,-2,-3,-4,-5,-8,-9,-10,-11,-12)]
+mds_abunsite<-mds_abun[,c(-1,-2,-3,-4,-5,-6,-7)]
+
+mds_abun2 <- subset(Morpho_abun,Abundance>16)
+head(mds_abun2)
+mds_abun2yr<-mds_abun2[,c(-1,-2,-3,-4,-5,-8,-9,-10,-11,-12)]
+mds_abun2site<-mds_abun2[,c(-1,-2,-3,-4,-5,-6,-7)]
+
 #MDS attempt ----
 
 Morpho_abun$Abundance <- as.numeric(Morpho_abun$Abundance)
@@ -1229,16 +1241,8 @@ Morpho_abun$JW <- as.numeric(Morpho_abun$JW)
 Morpho_abun$K <- as.numeric(Morpho_abun$K)
 Morpho_abun$MUL <- as.numeric(Morpho_abun$MUL)
 
-# Remove species with less than 80 samples (by yr/pitfall) or 16 samples (by site/reserve):
-mds_abun <- subset(Morpho_abun,Abundance>80)
-head(mds_abun,3)
-mds_abunyr<-mds_abun[,c(-1,-2,-3,-4,-5,-8,-9,-10,-11,-12)]
-mds_abunsite<-mds_abun[,c(-1,-2,-3,-4,-5,-6,-7)]
 
-mds_abun2 <- subset(Morpho_abun,Abundance>16)
-head(mds_abun2)
-mds_abun2yr<-mds_abun2[,c(-1,-2,-3,-4,-5,-8,-9,-10,-11,-12)]
-mds_abun2site<-mds_abun2[,c(-1,-2,-3,-4,-5,-6,-7)]
+
 
 # Do MDS analysis using the Bray-Curtis dissimilarity index:
 simmdsyr<-capscale(mds_abunyr~1, distance="bray")
@@ -1279,3 +1283,340 @@ site_mds<-cbind(mds_abun,site_mds1=as.numeric(summary(simmdssite)$sites[,1]),sit
 head(site_mds)
 
 #Close mds ----
+
+#Principal components analysis ----
+
+# ?princomp ----
+Ara2[1:4,1:10];dim(Ara2)
+range(Ara2[,4:ncol(Ara2)])
+a2 <- as.matrix(Ara2[,4:ncol(Ara2)])
+hist(a2[which(a2<10 & a2>0)])
+arapca <- princomp(~ ., data = Ara2[,4:ncol(Ara2)], cor = TRUE)
+summary(arapca)
+arapca$loadings
+#Ara2$arapca<-arapca$scores[,1]
+#Ara2$arapca2<-arapca$scores[,2]*-1
+head(arapca$scores)
+head(Ara2)
+autoplot(arapca, data=Ara2, colour = 'Treatment')
+
+Bla2[1:4,1:10];dim(Bla2)
+range(Bla2[,4:ncol(Bla2)])
+blapca <- princomp(~ ., data = Bla2[,4:ncol(Bla2)], cor = TRUE)
+summary(blapca)
+blapca$loadings
+Bla2$blapca<-blapca$scores[,1]
+Bla2$blapca2<-blapca$scores[,2]*-1
+head(blapca$scores)
+head(Bla2)
+autoplot(blapca, data=Bla2, colour = 'Treatment')
+
+Col2[1:4,1:10];dim(Col2)
+range(Col2[,4:ncol(Col2)])
+colpca <- princomp(~ ., data = Col2[,4:ncol(Col2)], cor = TRUE)
+summary(colpca)
+colpca$loadings
+Col2$colpca<-colpca$scores[,1]
+Col2$colpca2<-colpca$scores[,2]*-1
+head(colpca$scores)
+head(Col2)
+autoplot(colpca, data=Col2, colour = 'Treatment')
+
+Form2[1:4,1:10];dim(Form2)
+range(Form2[,4:ncol(Form2)])
+formpca <- princomp(~ ., data = Form2[,4:ncol(Form2)], cor = TRUE)
+summary(formpca)
+formpca$loadings
+Form2$formpca<-formpca$scores[,1]
+Form2$formpca2<-formpca$scores[,2]*-1
+head(formpca$scores)
+head(Form2)
+autoplot(formpca, data=Form2, colour = 'Treatment')
+
+Ort2[1:4,1:10];dim(Ort2)
+range(Ort2[,4:ncol(Ort2)])
+ortpca <- princomp(~ ., data = Ort2[,4:ncol(Ort2)], cor = TRUE)
+summary(ortpca)
+ortpca$loadings
+Ort2$ortpca<-ortpca$scores[,1]
+Ort2$ortpca2<-ortpca$scores[,2]*-1
+head(ortpca$scores)
+head(Ort2)
+autoplot(ortpca, data=Ort2, colour = 'Treatment')
+
+Other2[1:4,1:10];dim(Other2)
+range(Other2[,4:ncol(Other2)])
+otherpca <- princomp(~ ., data = Other2[,4:ncol(Other2)], cor = TRUE)
+summary(otherpca)
+otherpca$loadings
+Other2$otherpca<-otherpca$scores[,1]
+Other2$ortpca2<-otherpca$scores[,2]*-1
+head(otherpca$scores)
+head(Other2)
+autoplot(otherpca, data=Other2, colour = 'Treatment')
+
+#Close princomp ----
+
+# ?prcomp ----
+
+arapca2 <- prcomp(~ ., data = Ara2[,4:ncol(Ara2)])
+str(summary(arapca2))
+dev.new(width=12,height=8,dpi=100,pointsize=16,noRStudioGD = T)
+par(mfrow=c(2,3),mar=c(4,4,1,1))
+plot(1:10,summary(arapca2)$importance[2,][1:10],pch=20,main='Araneae',xlab='Component',ylab='Proportion variance explained')
+lines(1:10,summary(arapca2)$importance[2,][1:10])
+
+blapca2 <- prcomp(~ ., data = Bla2[,4:ncol(Bla2)])
+str(summary(blapca2))
+plot(1:10,summary(blapca2)$importance[2,][1:10],pch=20,main='Blattodea',xlab='Component',ylab='Proportion variance explained')
+lines(1:10,summary(blapca2)$importance[2,][1:10])
+
+colpca2 <- prcomp(~ ., data = Col2[,4:ncol(Col2)])
+str(summary(colpca2))
+plot(1:10,summary(colpca2)$importance[2,][1:10],pch=20,main='Coleoptera',xlab='Component',ylab='Proportion variance explained')
+lines(1:10,summary(colpca2)$importance[2,][1:10])
+
+formpca2 <- prcomp(~ ., data = Form2[,4:ncol(Form2)])
+str(summary(formpca2))
+plot(1:10,summary(formpca2)$importance[2,][1:10],pch=20,main='Formicidae',xlab='Component',ylab='Proportion variance explained')
+lines(1:10,summary(formpca2)$importance[2,][1:10])
+
+
+ortpca2 <- prcomp(~ ., data = Ort2[,4:ncol(Ort2)])
+str(summary(ortpca2))
+plot(1:10,summary(ortpca2)$importance[2,][1:10],pch=20,main='Orthoptera',xlab='Component',ylab='Proportion variance explained')
+lines(1:10,summary(ortpca2)$importance[2,][1:10])
+
+otherpca2 <- prcomp(~ ., data = Other2[,4:ncol(Other2)])
+str(summary(otherpca2))
+plot(1:10,summary(otherpca2)$importance[2,][1:10],pch=20,main='Other',xlab='Component',ylab='Proportion variance explained')
+lines(1:10,summary(otherpca2)$importance[2,][1:10])
+
+#Close prcomp ----
+
+#Biplots ----
+
+dev.new(width=12,height=8,dpi=100,pointsize=16,noRStudioGD = T)
+par(mfrow=c(2,3),mar=c(5,5,4,1),mgp=c(2.5,1,0),oma=c(0,0,0,6))
+biplot(prcomp(~ ., data = Ara2[,4:ncol(Ara2)]),main='Araneae')
+biplot(prcomp(~ ., data = Bla2[,4:ncol(Bla2)]),main='Blattodea')
+biplot(prcomp(~ ., data = Col2[,4:ncol(Col2)]),main='Coleoptera')
+biplot(prcomp(~ ., data = Form2[,4:ncol(Form2)]),main='Formicidae')
+biplot(prcomp(~ ., data = Ort2[,4:ncol(Ort2)]),main='Orthoptera')
+biplot(prcomp(~ ., data = Other2[,4:ncol(Other2)]),main='Other')
+
+#Graphing prcomp ----
+
+summary(arapca2)$importance[2,]
+autoplot(arapca2, data=Ara2, colour = 'Treatment')
+head(arapca2$x[,1:10])
+str(arapca2)
+
+summary(blapca2)$importance[2,]
+autoplot(blapca2, data=Bla2, colour = 'Treatment')
+head(blapca2$x[,1:10])
+str(blapca2)
+
+summary(colpca2)$importance[2,]
+autoplot(colpca2, data=Col2, colour = 'Treatment')
+head(colpca2$x[,1:10])
+str(colpca2)
+
+summary(formpca2)$importance[2,]
+autoplot(formpca2, data=Form2, colour = 'Treatment')
+head(formpca2$x[,1:10])
+str(formpca2)
+
+summary(ortpca2)$importance[2,]
+autoplot(ortpca2, data=Ort2, colour = 'Treatment')
+head(ortpca2$x[,1:10])
+str(ortpca2)
+
+summary(otherpca2)$importance[2,]
+autoplot(otherpca2, data=Other2, colour = 'Treatment')
+head(otherpca2$x[,1:10])
+str(otherpca2)
+
+dev.new(width=12,height=8,dpi=100,pointsize=16,noRStudioGD = T)
+par(mfrow=c(2,3),mar=c(5,5,1,1),mgp=c(2.5,1,0),oma=c(0,0,0,6))
+plot(arapca2$x[,1],arapca2$x[,2],col=as.numeric(as.factor(Ara2$Treatment)),pch=c(16,17)[as.numeric(as.factor(Ara2$Year))],xlim=c(-15,5),ylim=c(-2,8),xlab=paste("PC 1 (",summary(arapca2)$importance[2,][1]*100,"%)",sep=""),ylab=paste("PC 1 (",summary(arapca2)$importance[2,][2]*100,"%)",sep=""),main="Araneae PCA")
+plot(blapca2$x[,1],blapca2$x[,2],col=as.numeric(as.factor(Bla2$Treatment)),pch=c(16,17)[as.numeric(as.factor(Bla2$Year))],xlim=c(-5,10),ylim=c(-2,10),xlab=paste("PC 1 (",summary(blapca2)$importance[2,][1]*100,"%)",sep=""),ylab=paste("PC 1 (",summary(blapca2)$importance[2,][2]*100,"%)",sep=""),main="Blattodea PCA")
+plot(colpca2$x[,1],colpca2$x[,2],col=as.numeric(as.factor(Col2$Treatment)),pch=c(16,17)[as.numeric(as.factor(Col2$Year))],xlim=c(-50,10),ylim=c(-2,10),xlab=paste("PC 1 (",summary(colpca2)$importance[2,][1]*100,"%)",sep=""),ylab=paste("PC 1 (",summary(colpca2)$importance[2,][2]*100,"%)",sep=""),main="Coleoptera PCA")
+par(xpd=NA)
+legend(x=15,y=10,legend = c("Control","Rock","2016","2019"),pch=c(rep(16,3),17),col=c(1,2,1,1))
+par(xpd=F)
+plot(formpca2$x[,1],formpca2$x[,2],col=as.numeric(as.factor(Form2$Treatment)),pch=c(16,17)[as.numeric(as.factor(Form2$Year))],xlim=c(-400,100),ylim=c(-50,100),xlab=paste("PC 1 (",summary(formpca2)$importance[2,][1]*100,"%)",sep=""),ylab=paste("PC 1 (",summary(formpca2)$importance[2,][2]*100,"%)",sep=""),main="Formicidae PCA")
+plot(ortpca2$x[,1],ortpca2$x[,2],col=as.numeric(as.factor(Ort2$Treatment)),pch=c(16,17)[as.numeric(as.factor(Ort2$Year))],xlim=c(-15,5),ylim=c(-5,20),xlab=paste("PC 1 (",summary(ortpca2)$importance[2,][1]*100,"%)",sep=""),ylab=paste("PC 1 (",summary(ortpca2)$importance[2,][2]*100,"%)",sep=""),main="Orthoptera PCA")
+plot(otherpca2$x[,1],otherpca2$x[,2],col=as.numeric(as.factor(Other2$Treatment)),pch=c(16,17)[as.numeric(as.factor(Other2$Year))],xlim=c(-15,5),ylim=c(-5,20),xlab=paste("PC 1 (",summary(otherpca2)$importance[2,][1]*100,"%)",sep=""),ylab=paste("PC 1 (",summary(otherpca2)$importance[2,][2]*100,"%)",sep=""),main="Other PCA")
+
+dev.new(width=12,height=8,dpi=100,pointsize=16,noRStudioGD = T)
+par(mfrow=c(2,3),mar=c(5,5,1,1),mgp=c(2.5,1,0),oma=c(0,0,0,6))
+plot(arapca2$x[,1],arapca2$x[,2],col=as.numeric(as.factor(Ara2$Treatment)),pch=c(16,17)[as.numeric(as.factor(Ara2$Year))],xlim=NULL,ylim=NULL,xlab=paste("PC 1 (",summary(arapca2)$importance[2,][1]*100,"%)",sep=""),ylab=paste("PC 1 (",summary(arapca2)$importance[2,][2]*100,"%)",sep=""),main="Araneae PCA")
+plot(blapca2$x[,1],blapca2$x[,2],col=as.numeric(as.factor(Bla2$Treatment)),pch=c(16,17)[as.numeric(as.factor(Bla2$Year))],xlim=NULL,ylim=NULL,xlab=paste("PC 1 (",summary(blapca2)$importance[2,][1]*100,"%)",sep=""),ylab=paste("PC 1 (",summary(blapca2)$importance[2,][2]*100,"%)",sep=""),main="Blattodea PCA")
+plot(colpca2$x[,1],colpca2$x[,2],col=as.numeric(as.factor(Col2$Treatment)),pch=c(16,17)[as.numeric(as.factor(Col2$Year))],xlim=NULL,ylim=NULL,xlab=paste("PC 1 (",summary(colpca2)$importance[2,][1]*100,"%)",sep=""),ylab=paste("PC 1 (",summary(colpca2)$importance[2,][2]*100,"%)",sep=""),main="Coleoptera PCA")
+par(xpd=NA)
+legend(x=15,y=10,legend = c("Control","Rock","2016","2019"),pch=c(rep(16,3),17),col=c(1,2,1,1))
+par(xpd=F)
+plot(formpca2$x[,1],formpca2$x[,2],col=as.numeric(as.factor(Form2$Treatment)),pch=c(16,17)[as.numeric(as.factor(Form2$Year))],xlim=NULL,ylim=NULL,xlab=paste("PC 1 (",summary(formpca2)$importance[2,][1]*100,"%)",sep=""),ylab=paste("PC 1 (",summary(formpca2)$importance[2,][2]*100,"%)",sep=""),main="Formicidae PCA")
+plot(ortpca2$x[,1],ortpca2$x[,2],col=as.numeric(as.factor(Ort2$Treatment)),pch=c(16,17)[as.numeric(as.factor(Ort2$Year))],xlim=NULL,ylim=NULL,xlab=paste("PC 1 (",summary(ortpca2)$importance[2,][1]*100,"%)",sep=""),ylab=paste("PC 1 (",summary(ortpca2)$importance[2,][2]*100,"%)",sep=""),main="Orthoptera PCA")
+plot(otherpca2$x[,1],otherpca2$x[,2],col=as.numeric(as.factor(Other2$Treatment)),pch=c(16,17)[as.numeric(as.factor(Other2$Year))],xlim=NULL,ylim=NULL,xlab=paste("PC 1 (",summary(otherpca2)$importance[2,][1]*100,"%)",sep=""),ylab=paste("PC 1 (",summary(otherpca2)$importance[2,][2]*100,"%)",sep=""),main="Other PCA")
+
+#Close graphing of prcomp ----
+
+#Model PCA ----
+
+Ara3 <- Araneae[,1:5]
+Ara3$PC1 <- arapca2$x[,1]
+Ara3$PC2 <- arapca2$x[,2]
+head(Ara3)
+Ara3$Yr <- Ara3$Year-min(Ara3$Year)
+arapca2_mod1 <- lmer(PC1 ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),data=Ara3)
+summary(arapca2_mod1)
+arapca2_mod2 <- lmer(PC2 ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),data=Ara3)
+summary(arapca2_mod1)
+
+Bla3 <- Blattodea[,1:5]
+Bla3$PC1 <- blapca2$x[,1]
+Bla3$PC2 <- blapca2$x[,2]
+Bla3$PC3 <- blapca2$x[,3]
+head(Bla3)
+Bla3$Yr <- Bla3$Year-min(Bla3$Year)
+blapca2_mod1 <- lmer(PC1 ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),data=Bla3)
+summary(blapca2_mod1)
+blapca2_mod2 <- lmer(PC2 ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),data=Bla3)
+summary(blapca2_mod2)
+blapca2_mod3 <- lmer(PC3 ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),data=Bla3)
+summary(blapca2_mod3)
+
+Col3 <- Coleoptera[,1:5]
+Col3$PC1 <- colpca2$x[,1]
+Col3$PC2 <- colpca2$x[,2]
+Col3$PC3 <- colpca2$x[,3]
+head(Col3)
+Col3$Yr <- Col3$Year-min(Col3$Year)
+colpca2_mod1 <- lmer(PC1 ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),data=Col3)
+summary(colpca2_mod1)
+colpca2_mod2 <- lmer(PC2 ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),data=Col3)
+summary(colpca2_mod2)
+colpca2_mod3 <- lmer(PC3 ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),data=Col3)
+summary(colpca2_mod3)
+
+Form3 <- Formicidae[,1:5]
+Form3$PC1 <- formpca2$x[,1]
+Form3$PC2 <- formpca2$x[,2]
+head(Form3)
+Form3$Yr <- Form3$Year-min(Form3$Year)
+formpca2_mod1 <- lmer(PC1 ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),data=Form3)
+summary(formpca2_mod1)
+formpca2_mod2 <- lmer(PC2 ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),data=Form3)
+summary(formpca2_mod2)
+
+Ort3 <- Orthoptera[,1:5]
+Ort3$PC1 <- ortpca2$x[,1]
+Ort3$PC2 <- ortpca2$x[,2]
+Ort3$PC3 <- ortpca2$x[,3]
+head(Ort3)
+Ort3$Yr <- Ort3$Year-min(Ort3$Year)
+ortpca2_mod1 <- lmer(PC1 ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),data=Ort3)
+summary(ortpca2_mod1)
+ortpca2_mod2 <- lmer(PC2 ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),data=Ort3)
+summary(ortpca2_mod2)
+ortpca2_mod3 <- lmer(PC3 ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),data=Ort3)
+summary(ortpca2_mod3)
+
+Other3 <- Other[,1:5]
+Other3$PC1 <- otherpca2$x[,1]
+Other3$PC2 <- colpca2$x[,2]
+Other3$PC3 <- colpca2$x[,3]
+head(Other3)
+Other3$Yr <- Other3$Year-min(Other3$Year)
+otherpca2_mod1 <- lmer(PC1 ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),data=Other3)
+summary(otherpca2_mod1)
+otherpca2_mod2 <- lmer(PC2 ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),data=Other3)
+summary(otherpca2_mod2)
+otherpca3_mod3 <- lmer(PC3 ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),data=Other3)
+summary(otherpca3_mod3)
+
+#Close modelling ----
+
+#Graphing PCA models ----
+
+Ara3$Treatment <- as.factor(Ara3$Treatment)
+
+arapca2_mod1 <- lmer(PC1 ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),data=Ara3)
+summary(arapca2_mod1)
+pca_nd <- data.frame(Yr=c(0,0,3,3),Treatment=rep(levels(Ara3$Treatment),2))
+arapca_pr <- predictSE(arapca2_mod1,newdata=pca_nd,se.fit=T,type='response')
+arapca_pr<-data.frame(pca_nd, fit=arapca_pr$fit, se=arapca_pr$se.fit)
+arapca_pr$lci<-arapca_pr$fit-(1.96*arapca_pr$se)
+arapca_pr$uci<-arapca_pr$fit+(1.96*arapca_pr$se)
+arapca_pr
+dev.new(width=12,height=8,dpi=80,pointsize=20,noRStudioGD = T)
+par(mfrow=c(2,3),mar=c(5,5,1,1))
+plot(1:4,arapca_pr$fit,ylim=c(min(arapca_pr$lci),max(arapca_pr$uci)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Variance explained',xlab='',main='Araneae PCA',font.main=1)
+legend("bottomleft", legend=c("Control", "Rock"), pch = c(16,18), cex=1, box.lty=0)
+axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
+arrows(1:4,arapca_pr$lci,1:4,arapca_pr$uci,length=0.1,angle=90,code=3)
+
+blapca2_mod1 <- lmer(PC1 ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),data=Bla3)
+summary(blapca2_mod1)
+blapca_pr <- predictSE(blapca2_mod1,newdata=pca_nd,se.fit=T,type='response')
+blapca_pr<-data.frame(pca_nd, fit=blapca_pr$fit, se=blapca_pr$se.fit)
+blapca_pr$lci<-blapca_pr$fit-(1.96*blapca_pr$se)
+blapca_pr$uci<-blapca_pr$fit+(1.96*blapca_pr$se)
+blapca_pr
+plot(1:4,blapca_pr$fit,ylim=c(min(blapca_pr$lci),max(blapca_pr$uci)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Variance explained',xlab='',main='Blattodea PCA',font.main=1)
+legend("bottomleft", legend=c("Control", "Rock"), pch = c(16,18), cex=1, box.lty=0)
+axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
+arrows(1:4,blapca_pr$lci,1:4,blapca_pr$uci,length=0.1,angle=90,code=3)
+
+colpca2_mod1 <- lmer(PC1 ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),data=Col3)
+summary(colpca2_mod1)
+colpca_pr <- predictSE(colpca2_mod1,newdata=pca_nd,se.fit=T,type='response')
+colpca_pr<-data.frame(pca_nd, fit=colpca_pr$fit, se=colpca_pr$se.fit)
+colpca_pr$lci<-colpca_pr$fit-(1.96*colpca_pr$se)
+colpca_pr$uci<-colpca_pr$fit+(1.96*colpca_pr$se)
+colpca_pr
+plot(1:4,colpca_pr$fit,ylim=c(min(colpca_pr$lci),max(colpca_pr$uci)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Variance explained',xlab='',main='Coleoptera PCA',font.main=1)
+legend("bottomright", legend=c("Control", "Rock"), pch = c(16,18), cex=1, box.lty=0)
+axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
+arrows(1:4,colpca_pr$lci,1:4,colpca_pr$uci,length=0.1,angle=90,code=3)
+
+formpca2_mod1 <- lmer(PC1 ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),data=Form3)
+summary(formpca2_mod1)
+formpca_pr <- predictSE(formpca2_mod1,newdata=pca_nd,se.fit=T,type='response')
+formpca_pr<-data.frame(pca_nd, fit=formpca_pr$fit, se=formpca_pr$se.fit)
+formpca_pr$lci<-formpca_pr$fit-(1.96*formpca_pr$se)
+formpca_pr$uci<-formpca_pr$fit+(1.96*formpca_pr$se)
+formpca_pr
+plot(1:4,formpca_pr$fit,ylim=c(min(formpca_pr$lci),max(formpca_pr$uci)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Variance explained',xlab='',main='Formicidae PCA',font.main=1)
+legend("bottomleft", legend=c("Control", "Rock"), pch = c(16,18), cex=1, box.lty=0)
+axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
+arrows(1:4,formpca_pr$lci,1:4,formpca_pr$uci,length=0.1,angle=90,code=3)
+
+ortpca2_mod1 <- lmer(PC1 ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),data=Ort3)
+summary(ortpca2_mod1)
+ortpca_pr <- predictSE(ortpca2_mod1,newdata=pca_nd,se.fit=T,type='response')
+ortpca_pr<-data.frame(pca_nd, fit=ortpca_pr$fit, se=ortpca_pr$se.fit)
+ortpca_pr$lci<-ortpca_pr$fit-(1.96*ortpca_pr$se)
+ortpca_pr$uci<-ortpca_pr$fit+(1.96*ortpca_pr$se)
+ortpca_pr
+plot(1:4,ortpca_pr$fit,ylim=c(min(ortpca_pr$lci),max(ortpca_pr$uci)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Variance explained',xlab='',main='Orthoptera PCA',font.main=1)
+legend("bottomright", legend=c("Control", "Rock"), pch = c(16,18), cex=1, box.lty=0)
+axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
+arrows(1:4,ortpca_pr$lci,1:4,ortpca_pr$uci,length=0.1,angle=90,code=3)
+
+otherpca2_mod1 <- lmer(PC1 ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),data=Other3)
+summary(otherpca2_mod1)
+otherpca_pr <- predictSE(otherpca2_mod1,newdata=pca_nd,se.fit=T,type='response')
+otherpca_pr<-data.frame(pca_nd, fit=otherpca_pr$fit, se=otherpca_pr$se.fit)
+otherpca_pr$lci<-otherpca_pr$fit-(1.96*otherpca_pr$se)
+otherpca_pr$uci<-otherpca_pr$fit+(1.96*otherpca_pr$se)
+otherpca_pr
+plot(1:4,otherpca_pr$fit,ylim=c(min(otherpca_pr$lci),max(otherpca_pr$uci)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Variance explained',xlab='',main='Orthoptera PCA',font.main=1)
+legend("bottomright", legend=c("Control", "Rock"), pch = c(16,18), cex=1, box.lty=0)
+axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
+arrows(1:4,otherpca_pr$lci,1:4,otherpca_pr$uci,length=0.1,angle=90,code=3)
+
+#Close model graphs ----
+
