@@ -7,6 +7,7 @@
 #3 Coleoptera (Beetles) - Family
 #4 Orthoptera (Crickets and Grasshoppers) - Sub-family
 #5 Formicidae (Ants) - Sub-family
+
 #6 Other (Other invertebrates) - identified to Order only, does not include Hemiptera, Hymenoptera
 
 #Load workspace
@@ -24,7 +25,7 @@ tidy.df<-function(df){
 #Load data files ----
 
 Araneae <- read.csv("Data/Araneae.csv",header=T)
-head(Araneae[,1:8])
+head(Araneae)
 Blattodea <- read.csv("Data/Blattodea.csv",header=T)
 head(Blattodea);dim(Blattodea)
 Coleoptera <- read.csv("Data/Coleoptera.csv",header=T)
@@ -42,11 +43,9 @@ head(Site);dim(Site)
 
 #Function traits, abundance and proportion zeros data
 Ara_funcabun <- read.csv("Data/Ara_funcabun.csv",header=T)
-head(Ara_funcabun[,1:8]);dim(Ara_funcabun)
+head(Ara_funcabun);dim(Ara_funcabun)
 Col_funcabun <- read.csv("Data/Col_funcabun.csv",header=T)
 head(Col_funcabun);dim(Col_funcabun)
-Form_funcabun <- read.csv("Data/Form_funcabun.csv",header=T)
-head(Form_funcabun);dim(Form_funcabun)
 
 #Close load data ----
 
@@ -295,6 +294,93 @@ hist(taxrich_full2$Other_rich,main = 'Other richness',ylab='Frequency',xlab='Oth
 
 #Close graphs of richness ----
 
+#Species diversity (Shannons) ----
+
+head(taxrich_full2);dim(taxrich_full2)
+head(Ara2[,1:10]);dim(Ara2)
+apply(X = Ara2[,4:ncol(Ara2)], MARGIN = 1, FUN = function(x) diversity(x,index="shannon",MARGIN=1))
+
+Ara_div <- data.frame(Pit_code=taxrich$Pit_code, Ara_div=apply(X = Ara2[,4:ncol(Ara2)], MARGIN = 1, FUN = function(x) diversity(x,index="shannon",MARGIN=1)))
+head(Ara_div);dim(Ara_div)
+
+Bla_div <- data.frame(Pit_code=taxrich$Pit_code, Bla_div=apply(X = Bla2[,4:ncol(Bla2)], MARGIN = 1, FUN = function(x) diversity(x,index="shannon",MARGIN=1)))
+head(Bla_div);dim(Bla_div)
+
+Col_div <- data.frame(Pit_code=taxrich$Pit_code, Col_div=apply(X = Col2[,4:ncol(Col2)], MARGIN = 1, FUN = function(x) diversity(x,index="shannon",MARGIN=1)))
+head(Col_div);dim(Col_div)
+
+Form_div <- data.frame(Pit_code=taxrich$Pit_code, Form_div=apply(X = Form2[,4:ncol(Form2)], MARGIN = 1, FUN = function(x) diversity(x,index="shannon",MARGIN=1)))
+head(Form_div);dim(Form_div)
+
+Ort_div <- data.frame(Pit_code=taxrich$Pit_code, Ort_div=apply(X = Ort2[,4:ncol(Ort2)], MARGIN = 1, FUN = function(x) diversity(x,index="shannon",MARGIN=1)))
+head(Ort_div);dim(Ort_div)
+
+Other_div <- data.frame(Pit_code=taxrich$Pit_code, Other_div=apply(X = Other2[,4:ncol(Other2)], MARGIN = 1, FUN = function(x) diversity(x,index="shannon",MARGIN=1)))
+head(Other_div);dim(Other_div)
+
+#Merging of the diversity data (Shannons) and preparing for modelling
+div_full <- cbind(Ara_div,Bla_div,Col_div,Form_div,Ort_div,Other_div)
+div_full <- div_full[,c(-3,-5,-7,-9,-11)]
+div_full <- merge(taxrich,div_full,by='Pit_code', all.x=T, all.y=F)
+head(div_full);dim(div_full)
+
+div_full$Site <- as.factor(div_full$Site)
+div_full$Treatment <- as.factor(div_full$Treatment)
+div_full$Plot <- as.factor(as.character(div_full$Plot))
+div_full$Yr <- div_full$Year-min(div_full$Year)
+
+#Close Shannons diversity ----
+
+#Graphs of Shannons diversity ----
+
+#Histograms of Shannons diversity data - frequency of zeros in the data
+dev.new(width=12,height=8,dpi=100,pointsize=16,noRStudioGD = T)
+par(mfrow=c(2,3),mar=c(4,4,1,1))
+hist(div_full$Ara_div,main = 'Araneae Shannons Index',ylab='Frequency',xlab='Araneae diversity')
+hist(div_full$Bla_div,main = 'Blattodea Shannons Index',ylab='Frequency',xlab='Blattodea diversity')
+hist(div_full$Col_div,main = 'Coleoptera Shannons Index',ylab='Frequency',xlab='Coleoptera diversity')
+hist(div_full$Form_div,main = 'Formicidae Shannons Index',ylab='Frequency',xlab='Formicidae diversity')
+hist(div_full$Ort_div,main = 'Orthoptera Shannons Index',ylab='Frequency',xlab='Orthoptera diversity')
+hist(div_full$Other_div,main = 'Other Shannons Index',ylab='Frequency',xlab='Other diversity')
+
+#Boxplots of Shannons diversity data
+dev.new(width=12,height=8,dpi=100,pointsize=16,noRStudioGD = T)
+par(mfrow=c(2,3),mar=c(4,4,1,1))
+boxplot(div_full$Ara_div~div_full$Treatment+div_full$Year,ylab='Araneae diversity (Shannons)',xlab='',xaxt='n',las=1)
+axis(side=1,at=1:4,labels=c('C_2016','R_2016','C_2019','R_2019'))
+
+boxplot(div_full$Bla_div~div_full$Treatment+div_full$Year,ylab='Blattodea diversity (Shannons)',xlab='',xaxt='n',las=1)
+axis(side=1,at=1:4,labels=c('C_2016','R_2016','C_2019','R_2019'))
+
+boxplot(div_full$Col_div~div_full$Treatment+div_full$Year,ylab='Coleoptera diversity (Shannons)',xlab='',xaxt='n',las=1)
+axis(side=1,at=1:4,labels=c('C_2016','R_2016','C_2019','R_2019'))
+
+boxplot(div_full$Form_div~div_full$Treatment+div_full$Year,ylab='Formicidae diversity (Shannons)',xlab='',xaxt='n',las=1)
+axis(side=1,at=1:4,labels=c('C_2016','R_2016','C_2019','R_2019'))
+
+boxplot(div_full$Ort_div~div_full$Treatment+div_full$Year,ylab='Orthoptera diversity (Shannons)',xlab='',xaxt='n',las=1)
+axis(side=1,at=1:4,labels=c('C_2016','R_2016','C_2019','R_2019'))
+
+boxplot(div_full$Other_div~div_full$Treatment+div_full$Year,ylab='Other diversity (Shannons)',xlab='',xaxt='n',las=1)
+axis(side=1,at=1:4,labels=c('C_2016','R_2016','C_2019','R_2019'))
+
+#Close graphs of Shannons diversity ---- 
+
+#Merging of diversity and richness
+div_rich_full2 <- cbind(div_full,taxrich_full2)
+div_rich_full2 <- div_rich_full2[,c(-14,-15,-16,-17,-18,-19)]
+head(div_rich_full2);dim(div_rich_full2)
+richtab <- div_rich_full2[,c(2:6,grep(pattern='rich',colnames(div_rich_full2)))]
+head(richtab)
+
+div_rich_full2$Yr <- div_rich_full2$Year-min(div_rich_full2$Year)
+div_rich_full2$Site <- as.factor(div_rich_full2$Site)
+div_rich_full2$Treatment <- as.factor(div_rich_full2$Treatment)
+div_rich_full2$Plot <- as.factor(as.character(div_rich_full2$Plot))
+
+#How many zeros are in each morphospecies
+apply(richtab[,6:length(richtab)],2,FUN = function(x)table(x==0))
+
 #Species diversity (Inverse Simpson's) ----
 
 #Warning numeric subsets
@@ -386,6 +472,10 @@ axis(side=1,at=1:4,labels=c('C_2016','R_2016','C_2019','R_2019'))
 
 #GLM negative binomial (modelling richness for Araneae, Coleoptera and Formicidae) ----
 
+form.thisrun <- paste('Ara_rich',"~Treatment+Yr+Treatment:Yr+(1|Site/Plot)", sep="")
+
+mod1<-glmmadmb(as.formula(formula), family="nbinom", data=taxrich_full2)
+
 Ararich_mod1<-glmmadmb(Ara_rich~Treatment+Yr+Treatment:Yr+(1|Site/Plot), family="nbinom", data=taxrich_full2,admb.opts=admbControl(impSamp=200,shess=FALSE,noinit=FALSE))
 Ararich_mod1<-glmmadmb(Ara_rich~Treatment+Yr+Treatment:Yr+(1|Plot), family="nbinom", data=taxrich_full2)
 summary(Ararich_mod1)
@@ -400,9 +490,9 @@ summary(Formrich_mod1)
 
 #Close GLM(nb) modelling ----
 
-#Binomial model (modelling richness for Blattodea, Orthopera and Other)----
+#Binomial models for Richness (Blattodea, Orthopera and Other)----
 
-bindat <- taxrich_full2[,c(1:6,which(colnames(taxrich_full2) %in% c("Bla_rich","Other_rich","Ort_rich")))]
+bindat <- div_rich_full2[,c(1:6,which(colnames(div_rich_full2) %in% c("Bla_rich","Other_rich","Ort_rich")))]
 head(bindat)
 bindat$Bla_rich[which(bindat$Bla_rich>0)] <- 1
 bindat$Other_rich[which(bindat$Other_rich>0)] <- 1
@@ -421,7 +511,57 @@ summary(Otherrich_mod1)
 
 #Close binomial modelling of Richness ----
 
+#Linear modelling for Shannons diversity (Araneae, Coleoptera and Formicidae) ----
+
+#Initial attempt with Shannons - made NA to model as 1's in richness were equating to inflation of 0's in the diversity data
+#Cannot use gamma to model with 0's in the data
+
+head(div_rich_full2)
+str(div_rich_full2)
+
+Aradiv_mod1 <- lmer(Ara_div ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),data=div_rich_full2)
+summary(Aradiv_mod1)
+
+Coldiv_mod1 <- lmer(Col_div ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),data=div_rich_full2)
+summary(Coldiv_mod1)
+
+Formdiv_mod1 <- lmer(Form_div ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),data=div_rich_full2)
+summary(Formdiv_mod1)
+
+#Gamma models (values have to be >0)
+div_rich_full2$Col_div[which(div_rich_full2$Col_div==0)]<-NA
+div_rich_full2$Ara_div[which(div_rich_full2$Ara_div==0)]<-NA
+
+Aradiv_mod1 <- glmer(Ara_div ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),family=Gamma(link='log'),data=div_rich_full2)
+summary(Aradiv_mod1)
+
+Coldiv_mod1 <- glmer(Col_div ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),family=Gamma(link='log'),data=div_rich_full2)
+summary(Coldiv_mod1)
+
+Formdiv_mod1 <- glmer(Form_div ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),family=Gamma(link='log'),data=div_rich_full2)
+summary(Formdiv_mod1)
+
+#Close linear modelling for Shannons diversity ----
+
+#Modelling for Inverse Simpsons diversity ----
+
+head(divinv_full)
+
+Arainvdiv_mod1 <- glmer(Ara_invdiv ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),family=Gamma(link='log'),data=divinv_full)
+summary(Arainvdiv_mod1)
+
+Colinvdiv_mod1 <- glmer(Col_invdiv ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),family=Gamma(link='log'),data=divinv_full)
+summary(Colinvdiv_mod1)
+
+Forminvdiv_mod1 <- glmer(Form_invdiv ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),family=Gamma(link='log'),data=divinv_full)
+summary(Forminvdiv_mod1)
+
+#Close modelling for Inverse Simpsons diversity ----
+
 #Estimates for Richness ----
+mod1.b<-lm(ar_neutral~trt, data=gd_all)
+summary(mod1.b); anova(mod1.b)
+
 Blarich_mod1 <- glmer(Bla_rich ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),family=binomial,data=bindat)
 summary(Blarich_mod1)
 Blarich_nd <- data.frame(Yr=c(0,0,3,3),Treatment=rep(levels(bindat$Treatment),2))
@@ -432,7 +572,7 @@ Blarich_pr$uci<-Blarich_pr$fit+(1.96*Blarich_pr$se)
 Blarich_pr
 dev.new(width=12,height=8,dpi=80,pointsize=20,noRStudioGD = T)
 par(mfrow=c(2,3),mar=c(5,5,1,1))
-plot(1:4,Blarich_pr$fit,ylim=c(0,1),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Probability of Occurence',xlab='Year',main='Blattodea',font.main=1)
+plot(1:4,Blarich_pr$fit,ylim=c(0,1),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Probability of Occurence',xlab='',main='Blattodea Richness',font.main=1)
 legend("bottomleft", legend=c("Control", "Rock"), pch = c(16,18), cex=1, box.lty=0)
 axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
 arrows(1:4,Blarich_pr$lci,1:4,Blarich_pr$uci,length=0.1,angle=90,code=3)
@@ -445,7 +585,7 @@ Ortrich_pr<-data.frame(Ortrich_nd, fit=Ortrich_pr$fit, se=Ortrich_pr$se.fit)
 Ortrich_pr$lci<-Ortrich_pr$fit-(1.96*Ortrich_pr$se)
 Ortrich_pr$uci<-Ortrich_pr$fit+(1.96*Ortrich_pr$se)
 Ortrich_pr
-plot(1:4,Ortrich_pr$fit,ylim=c(0,1),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Probability of Occurence',xlab='Year',main='Orthoptera ',font.main=1)
+plot(1:4,Ortrich_pr$fit,ylim=c(0,1),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Probability of Occurence',xlab='',main='Orthoptera Richness',font.main=1)
 legend("bottomleft", legend=c("Control", "Rock"), pch = c(16,18), cex=1, box.lty=0)
 axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
 arrows(1:4,Ortrich_pr$lci,1:4,Ortrich_pr$uci,length=0.1,angle=90,code=3)
@@ -458,7 +598,7 @@ Otherrich_pr<-data.frame(Otherrich_nd, fit=Otherrich_pr$fit, se=Otherrich_pr$se.
 Otherrich_pr$lci<-Otherrich_pr$fit-(1.96*Otherrich_pr$se)
 Otherrich_pr$uci<-Otherrich_pr$fit+(1.96*Otherrich_pr$se)
 Otherrich_pr
-plot(1:4,Otherrich_pr$fit,ylim=c(0,1),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Probability of Occurence',xlab='Year',main='Other',font.main=1)
+plot(1:4,Otherrich_pr$fit,ylim=c(0,1),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Probability of Occurence',xlab='',main='Other Richness',font.main=1)
 legend("bottomleft", legend=c("Control", "Rock"), pch = c(16,18), cex=1, box.lty=0)
 axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
 arrows(1:4,Otherrich_pr$lci,1:4,Otherrich_pr$uci,length=0.1,angle=90,code=3)
@@ -483,7 +623,7 @@ Ararich_pr$fit.resp<-exp(Ararich_pr$fit.link)
 Ararich_pr$lci.resp<-exp(Ararich_pr$lci.link)
 Ararich_pr$uci.resp<-exp(Ararich_pr$uci.link)
 Ararich_pr
-plot(1:4,Ararich_pr$fit.resp,ylim=c(min(Ararich_pr$lci.resp),max(Ararich_pr$uci.resp)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Species Richness',xlab='Year',main='Araneae',font.main=1)
+plot(1:4,Ararich_pr$fit.resp,ylim=c(min(Ararich_pr$lci.resp),max(Ararich_pr$uci.resp)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Species Richness',xlab='',main='Araneae Richness',font.main=1)
 legend("bottomleft", legend=c("Control", "Rock"), pch = c(16,18), cex=1, box.lty=0)
 axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
 arrows(1:4,Ararich_pr$lci.resp,1:4,Ararich_pr$uci.resp,length=0.1,angle=90,code=3)
@@ -499,7 +639,7 @@ Colrich_pr$fit.resp<-exp(Colrich_pr$fit.link)
 Colrich_pr$lci.resp<-exp(Colrich_pr$lci.link)
 Colrich_pr$uci.resp<-exp(Colrich_pr$uci.link)
 Colrich_pr
-plot(1:4,Colrich_pr$fit.resp,ylim=c(min(Colrich_pr$lci.resp),max(Colrich_pr$uci.resp)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Species Richness',xlab='Year',main='Coleoptera',font.main=1)
+plot(1:4,Colrich_pr$fit.resp,ylim=c(min(Colrich_pr$lci.resp),max(Colrich_pr$uci.resp)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Species Richness',xlab='',main='Coleoptera Richness',font.main=1)
 legend("bottomleft", legend=c("Control", "Rock"), pch = c(20,18), cex=1, box.lty=0)
 axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
 arrows(1:4,Colrich_pr$lci.resp,1:4,Colrich_pr$uci.resp,length=0.1,angle=90,code=3)
@@ -515,7 +655,7 @@ Formrich_pr$fit.resp<-exp(Formrich_pr$fit.link)
 Formrich_pr$lci.resp<-exp(Formrich_pr$lci.link)
 Formrich_pr$uci.resp<-exp(Formrich_pr$uci.link)
 Formrich_pr
-plot(1:4,Formrich_pr$fit.resp,ylim=c(min(Formrich_pr$lci.resp),max(Formrich_pr$uci.resp)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Species Richness',xlab='Year',main='Formicidae',font.main=1)
+plot(1:4,Formrich_pr$fit.resp,ylim=c(min(Formrich_pr$lci.resp),max(Formrich_pr$uci.resp)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Species Richness',xlab='',main='Formicidae Richness',font.main=1)
 legend("bottomleft", legend=c("Control", "Rock"), pch = c(16,18), cex=1, box.lty=0)
 axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
 arrows(1:4,Formrich_pr$lci.resp,1:4,Formrich_pr$uci.resp,length=0.1,angle=90,code=3)
@@ -525,26 +665,180 @@ plot(1:4,Blarich_pr$fit,ylim=c(min(Blarich_pr$lci),max(Blarich_pr$uci)),type='p'
 
 #Close plotting of estimates for richness ----
 
-#Modelling for Inverse Simpsons diversity ----
+#Estimates for diversity (Shannons) ----
+head(div_rich_full2)
+range(div_rich_full2$Ara_div,na.rm=T)
+plot(div_rich_full2$Ara_rich,div_rich_full2$Ara_div)
 
-head(divinv_full)
+Aradiv_mod1 <- lmer(Ara_div ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),data=div_rich_full2)
+plot(Aradiv_mod1)
+Ara_coeff <- summary(Aradiv_mod1)$coefficients[,1]
+str(summary(Aradiv_mod1))
+levels(div_rich_full2$Treatment)
+unique(div_rich_full2$Yr)
+range(div_rich_full2$Ara_div)
+Ara_coeff[1]
+Ara_coeff[1]+Ara_coeff[2]
+Ara_coeff[1]+(Ara_coeff[3]*3)
+Ara_coeff[1]+Ara_coeff[2]+(Ara_coeff[3]*3)+(Ara_coeff[4]*3)
+Aradiv_nd <- data.frame(Yr=c(0,0,3,3),Treatment=rep(levels(div_rich_full2$Treatment),2))
+Aradiv_pr <- predictSE(Aradiv_mod1,newdata=Aradiv_nd,se.fit=T)
+Aradiv_pr<-data.frame(Aradiv_nd, fit=Aradiv_pr$fit, se=Aradiv_pr$se.fit)
+Aradiv_pr$lci<-Aradiv_pr$fit-(1.96*Aradiv_pr$se)
+Aradiv_pr$uci<-Aradiv_pr$fit+(1.96*Aradiv_pr$se)
+Aradiv_pr
+dev.new(width=24,height=8,dpi=80,pointsize=20,noRStudioGD = T)
+par(mfrow=c(1,3),mar=c(5,5,1,1))
+plot(1:4,Aradiv_pr$fit,ylim=c(0.8,2),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Species diversity',xlab='',main='Araneae diversity',font.main=1)
+legend("topright", legend=c("Control", "Rock"), pch = c(20,18), cex=1, box.lty=0)
+axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
+arrows(1:4,Aradiv_pr$lci,1:4,Aradiv_pr$uci,length=0.2,angle=90,code=3)
 
-Arainvdiv_mod1 <- glmer(Ara_invdiv ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),family=Gamma(link='log'),data=divinv_full)
-summary(Arainvdiv_mod1)
+Coldiv_mod1 <- lmer(Col_div ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),data=div_rich_full2)
+summary(Coldiv_mod1)
+plot(Coldiv_mod1)
+Col_coeff <- summary(Coldiv_mod1)$coefficients[,1]
+str(summary(Coldiv_mod1))
+levels(div_rich_full2$Treatment)
+unique(div_rich_full2$Yr)
+range(div_rich_full2$Col_div)
+Coldiv_nd <- data.frame(Yr=c(0,0,3,3),Treatment=rep(levels(div_rich_full2$Treatment),2))
+Coldiv_pr <- predictSE(Coldiv_mod1,newdata=Coldiv_nd,se.fit=T)
+Coldiv_pr<-data.frame(Coldiv_nd, fit=Coldiv_pr$fit, se=Coldiv_pr$se.fit)
+Coldiv_pr$lci<-Coldiv_pr$fit-(1.96*Coldiv_pr$se)
+Coldiv_pr$uci<-Coldiv_pr$fit+(1.96*Coldiv_pr$se)
+Coldiv_pr
+plot(1:4,Coldiv_pr$fit,ylim=c(0.8,2),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Species diversity',xlab='',main='Coleoptera diversity',font.main=1)
+legend("topright", legend=c("Control", "Rock"), pch = c(20,18), cex=1, box.lty=0)
+axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
+arrows(1:4,Coldiv_pr$lci,1:4,Coldiv_pr$uci,length=0.2,angle=90,code=3)
 
-Colinvdiv_mod1 <- glmer(Col_invdiv ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),family=Gamma(link='log'),data=divinv_full)
-summary(Colinvdiv_mod1)
+Formdiv_mod1 <- lmer(Form_div ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),data=div_rich_full2)
+summary(Formdiv_mod1)
+plot(Formdiv_mod1)
+Form_coeff <- summary(Formdiv_mod1)$coefficients[,1]
+str(summary(Formdiv_mod1))
+levels(div_rich_full2$Treatment)
+unique(div_rich_full2$Yr)
+range(div_rich_full2$Form_div)
+Form_coeff[1]
+Form_coeff[1]+Form_coeff[2]
+Form_coeff[1]+(Form_coeff[3]*3)
+Form_coeff[1]+Form_coeff[2]+(Form_coeff[3]*3)+(Form_coeff[4]*3)
+Formdiv_nd <- data.frame(Yr=c(0,0,3,3),Treatment=rep(levels(div_rich_full2$Treatment),2))
+Formdiv_pr <- predictSE(Formdiv_mod1,newdata=Formdiv_nd,se.fit=T)
+Formdiv_pr<-data.frame(Formdiv_nd, fit=Formdiv_pr$fit, se=Formdiv_pr$se.fit)
+Formdiv_pr$lci<-Formdiv_pr$fit-(1.96*Formdiv_pr$se)
+Formdiv_pr$uci<-Formdiv_pr$fit+(1.96*Formdiv_pr$se)
+Formdiv_pr
+plot(1:4,Formdiv_pr$fit,ylim=c(0.8,2),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Species diversity',xlab='',main='Formicidae diversity',font.main=1)
+legend("topright", legend=c("Control", "Rock"), pch = c(20,18), cex=1, box.lty=0)
+axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
+arrows(1:4,Formdiv_pr$lci,1:4,Formdiv_pr$uci,length=0.2,angle=90,code=3)
 
-Forminvdiv_mod1 <- glmer(Form_invdiv ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),family=Gamma(link='log'),data=divinv_full)
-summary(Forminvdiv_mod1)
+#Models/estimates/plots for diversity glm(Gamma)
+Aradiv_mod1 <- glmer(Ara_div ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),family=Gamma(link='log'),data=div_rich_full2)
+summary(Aradiv_mod1)
+plot(Aradiv_mod1)
+Ara_coeff <- summary(Aradiv_mod1)$coefficients[,1]
+str(summary(Aradiv_mod1))
+levels(div_rich_full2$Treatment)
+unique(div_rich_full2$Yr)
+range(div_rich_full2$Form_div)
+Ara_coeff[1]
+Ara_coeff[1]+Ara_coeff[2]
+Ara_coeff[1]+(Ara_coeff[3]*3)
+Ara_coeff[1]+Ara_coeff[2]+(Ara_coeff[3]*3)+(Ara_coeff[4]*3)
+Aradiv_nd <- data.frame(Yr=c(0,0,3,3),Treatment=rep(levels(div_rich_full2$Treatment),2))
+Aradiv_pr <- predictSE(Aradiv_mod1,newdata=Aradiv_nd,se.fit=T,type='response')
+Aradiv_pr<-data.frame(Aradiv_nd, fit=Aradiv_pr$fit, se=Aradiv_pr$se.fit)
+Aradiv_pr$lci<-Aradiv_pr$fit-(1.96*Aradiv_pr$se)
+Aradiv_pr$uci<-Aradiv_pr$fit+(1.96*Aradiv_pr$se)
+Aradiv_pr
+dev.new(width=12,height=4,dpi=80,pointsize=20,noRStudioGD = T)
+par(mfrow=c(1,3),mar=c(5,5,1,1))
+plot(1:4,Aradiv_pr$fit,ylim=c(0.8,2),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Species diversity',xlab='',main='Araneae diversity',font.main=1)
+legend("topright", legend=c("Control", "Rock"), pch = c(16,18), cex=1, box.lty=0)
+axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
+arrows(1:4,Aradiv_pr$lci,1:4,Aradiv_pr$uci,length=0.1,angle=90,code=3)
 
-#Close modelling for Inverse Simpsons diversity ----
+Coldiv_mod1 <- glmer(Col_div ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),family=Gamma(link='log'),data=div_rich_full2)
+summary(Coldiv_mod1)
+Col_coeff <- summary(Coldiv_mod1)$coefficients[,1]
+str(summary(Coldiv_mod1))
+levels(div_rich_full2$Treatment)
+unique(div_rich_full2$Yr)
+range(div_rich_full2$Form_div)
+Col_coeff[1]
+Col_coeff[1]+Col_coeff[2]
+Col_coeff[1]+(Col_coeff[3]*3)
+Col_coeff[1]+Col_coeff[2]+(Col_coeff[3]*3)+(Col_coeff[4]*3)
+Coldiv_nd <- data.frame(Yr=c(0,0,3,3),Treatment=rep(levels(div_rich_full2$Treatment),2))
+Coldiv_pr <- predictSE(Coldiv_mod1,newdata=Coldiv_nd,se.fit=T,type='response')
+Coldiv_pr<-data.frame(Coldiv_nd, fit=Coldiv_pr$fit, se=Coldiv_pr$se.fit)
+Coldiv_pr$lci<-Coldiv_pr$fit-(1.96*Coldiv_pr$se)
+Coldiv_pr$uci<-Coldiv_pr$fit+(1.96*Coldiv_pr$se)
+Coldiv_pr
+plot(1:4,Coldiv_pr$fit,ylim=c(0.8,2),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Species diversity',xlab='',main='Coleoptera diversity',font.main=1)
+legend("topright", legend=c("Control", "Rock"), pch = c(16,18), cex=1, box.lty=0)
+axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
+arrows(1:4,Coldiv_pr$lci,1:4,Coldiv_pr$uci,length=0.1,angle=90,code=3)
+
+Coldiv_mod2 <- glmmTMB(Col_div ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),family=Gamma(link='log'),data=div_rich_full2)
+summary(Coldiv_mod2)
+Col_coeff <- summary(Coldiv_mod2)$coefficients[,1]
+str(summary(Coldiv_mod2))
+levels(div_rich_full2$Treatment)
+unique(div_rich_full2$Yr)
+range(div_rich_full2$Form_div)
+Col_coeff[1]
+Col_coeff[1]+Col_coeff[2]
+Col_coeff[1]+(Col_coeff[3]*3)
+Col_coeff[1]+Col_coeff[2]+(Col_coeff[3]*3)+(Col_coeff[4]*3)
+Coldiv_nd <- data.frame(Yr=c(0,0,3,3),Treatment=factor(rep(levels(div_rich_full2$Treatment),2),levels=levels(div_rich_full2$Treatment)))
+Coldiv_pr <- predict(Coldiv_mod2,newdata=Coldiv_nd,se.fit=T,type='link')
+Coldiv_pr<-data.frame(Coldiv_nd, fit=Coldiv_pr$fit, se=Coldiv_pr$se.fit)
+Coldiv_pr$lci<-Coldiv_pr$fit-(1.96*Coldiv_pr$se)
+Coldiv_pr$uci<-Coldiv_pr$fit+(1.96*Coldiv_pr$se)
+Coldiv_pr
+plot(1:4,Coldiv_pr$fit,ylim=c(0.8,2),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Species diversity',xlab='',main='Coleoptera diversity',font.main=1)
+legend("topright", legend=c("Control", "Rock"), pch = c(16,18), cex=1, box.lty=0)
+axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
+arrows(1:4,Coldiv_pr$lci,1:4,Coldiv_pr$uci,length=0.1,angle=90,code=3)
+
+Formdiv_mod1 <- glmer(Form_div ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),family=Gamma(link='log'),data=div_rich_full2)
+summary(Formdiv_mod1)
+plot(Formdiv_mod1)
+Form_coeff <- summary(Formdiv_mod1)$coefficients[,1]
+str(summary(Formdiv_mod1))
+levels(div_rich_full2$Treatment)
+unique(div_rich_full2$Yr)
+range(div_rich_full2$Form_div)
+Form_coeff[1]
+Form_coeff[1]+Form_coeff[2]
+Form_coeff[1]+(Form_coeff[3]*3)
+Form_coeff[1]+Form_coeff[2]+(Form_coeff[3]*3)+(Form_coeff[4]*3)
+Formdiv_nd <- data.frame(Yr=c(0,0,3,3),Treatment=rep(levels(div_rich_full2$Treatment),2))
+Formdiv_pr <- predictSE(Formdiv_mod1,newdata=Formdiv_nd,se.fit=T,type='response')
+Formdiv_pr<-data.frame(Formdiv_nd, fit=Formdiv_pr$fit, se=Formdiv_pr$se.fit)
+Formdiv_pr$lci<-Formdiv_pr$fit-(1.96*Formdiv_pr$se)
+Formdiv_pr$uci<-Formdiv_pr$fit+(1.96*Formdiv_pr$se)
+Formdiv_pr
+plot(1:4,Formdiv_pr$fit,ylim=c(0.8,2),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Species diversity',xlab='',main='Formicidae diversity',font.main=1)
+legend("topright", legend=c("Control", "Rock"), pch = c(16,18), cex=1, box.lty=0)
+axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
+arrows(1:4,Formdiv_pr$lci,1:4,Formdiv_pr$uci,length=0.1,angle=90,code=3)
+
+range(divinv_full2$Ara_invdiv)
+
+#Close plotting estimates of Shannons diversity ----
 
 #Estimates for diversity (Inverse Simpsons) ----
 
 #Models/estimates/plots for diversity glm(Gamma)
 Arainvdiv_mod1 <- glmer(Ara_invdiv ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),family=Gamma(link='log'),data=divinv_full)
 summary(Arainvdiv_mod1)
+plot(Arainvdiv_mod1)
 Ara_invcoeff <- summary(Arainvdiv_mod1)$coefficients[,1]
 str(summary(Arainvdiv_mod1))
 levels(divinv_full$Treatment)
@@ -560,16 +854,12 @@ Arainvdiv_pr<-data.frame(Arainvdiv_nd, fit=Arainvdiv_pr$fit, se=Arainvdiv_pr$se.
 Arainvdiv_pr$lci<-Arainvdiv_pr$fit-(1.96*Arainvdiv_pr$se)
 Arainvdiv_pr$uci<-Arainvdiv_pr$fit+(1.96*Arainvdiv_pr$se)
 Arainvdiv_pr
-dev.new(width=14,height=4,dpi=80,pointsize=20,noRStudioGD = T)
+dev.new(width=12,height=4,dpi=80,pointsize=20,noRStudioGD = T)
 par(mfrow=c(1,3),mar=c(5,5,1,1))
-plot(1:4,Arainvdiv_pr$fit,ylim=c(min(Arainvdiv_pr$lci),max(Arainvdiv_pr$uci)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Species diversity',xlab='',main='Araneae',font.main=1)
+plot(1:4,Arainvdiv_pr$fit,ylim=c(min(Arainvdiv_pr$lci),max(Arainvdiv_pr$uci)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Species diversity',xlab='',main='Araneae diversity',font.main=1)
 legend("topright", legend=c("Control", "Rock"), pch = c(16,18), cex=1, box.lty=0)
 axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
 arrows(1:4,Arainvdiv_pr$lci,1:4,Arainvdiv_pr$uci,length=0.1,angle=90,code=3)
-ap <- round(summary(Arainvdiv_mod1)$coefficients[3,'Pr(>|z|)'],3)
-ap <- ifelse(ap<0.001,paste('Yr.P<','0.001',sep=''),paste('Yr.P=',ap,sep=''))
-text(1.5,3,labels=ap)
-text(1.5,3.5,labels=paste('Int. P=',round(summary(Arainvdiv_mod1)$coefficients[4,'Pr(>|z|)'],3),sep=''))
 
 Colinvdiv_mod1 <- glmer(Col_invdiv ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),family=Gamma(link='log'),data=divinv_full)
 summary(Colinvdiv_mod1)
@@ -588,17 +878,14 @@ Colinvdiv_pr<-data.frame(Colinvdiv_nd, fit=Colinvdiv_pr$fit, se=Colinvdiv_pr$se.
 Colinvdiv_pr$lci<-Colinvdiv_pr$fit-(1.96*Colinvdiv_pr$se)
 Colinvdiv_pr$uci<-Colinvdiv_pr$fit+(1.96*Colinvdiv_pr$se)
 Colinvdiv_pr
-plot(1:4,Colinvdiv_pr$fit,ylim=c(min(Colinvdiv_pr$lci),max(Colinvdiv_pr$uci)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Species diversity',xlab='',main='Coleoptera',font.main=1)
+plot(1:4,Colinvdiv_pr$fit,ylim=c(min(Colinvdiv_pr$lci),max(Colinvdiv_pr$uci)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Species diversity',xlab='',main='Coleoptera diversity',font.main=1)
 legend("topright", legend=c("Control", "Rock"), pch = c(16,18), cex=1, box.lty=0)
 axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
 arrows(1:4,Colinvdiv_pr$lci,1:4,Colinvdiv_pr$uci,length=0.1,angle=90,code=3)
-cp <- round(summary(Colinvdiv_mod1)$coefficients[3,'Pr(>|z|)'],3)
-cp <- ifelse(cp<0.001,paste('Yr.P<','0.001',sep=''),paste('Yr.P=',cp,sep=''))
-text(1.5,2.5,labels=cp)
-text(1.5,3,labels=paste('Int. P=',round(summary(Colinvdiv_mod1)$coefficients[4,'Pr(>|z|)'],3),sep=''))
 
 Forminvdiv_mod1 <- glmer(Form_invdiv ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),family=Gamma(link='log'),data=divinv_full)
 summary(Forminvdiv_mod1)
+plot(Forminvdiv_mod1)
 Form_invcoeff <- summary(Forminvdiv_mod1)$coefficients[,1]
 str(summary(Forminvdiv_mod1))
 levels(divinv_full$Treatment)
@@ -614,41 +901,10 @@ Forminvdiv_pr<-data.frame(Forminvdiv_nd, fit=Forminvdiv_pr$fit, se=Forminvdiv_pr
 Forminvdiv_pr$lci<-Forminvdiv_pr$fit-(1.96*Forminvdiv_pr$se)
 Forminvdiv_pr$uci<-Forminvdiv_pr$fit+(1.96*Forminvdiv_pr$se)
 Forminvdiv_pr
-plot(1:4,Forminvdiv_pr$fit,ylim=c(min(Forminvdiv_pr$lci),max(Forminvdiv_pr$uci)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Species diversity',xlab='',main='Formicidae',font.main=1)
+plot(1:4,Forminvdiv_pr$fit,ylim=c(min(Forminvdiv_pr$lci),max(Forminvdiv_pr$uci)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Species diversity',xlab='',main='Formicidae diversity',font.main=1)
 legend("topright", legend=c("Control", "Rock"), pch = c(16,18), cex=1, box.lty=0)
 axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
 arrows(1:4,Forminvdiv_pr$lci,1:4,Forminvdiv_pr$uci,length=0.1,angle=90,code=3)
-fp <- round(summary(Forminvdiv_mod1)$coefficients[3,'Pr(>|z|)'],3)
-fp <- ifelse(fp<0.001,paste('Yr.P<','0.001',sep=''),paste('Yr.P=',fp,sep=''))
-text(3.5,4.5,labels=fp)
-text(3.5,4.8,labels=paste('Int. P=',round(summary(Forminvdiv_mod1)$coefficients[4,'Pr(>|z|)'],3),sep=''))
-
-dev.new(width=14,height=4,dpi=80,pointsize=20,noRStudioGD = T)
-par(mfrow=c(1,3),mar=c(5,5,1,1),mgp=c(2.5,1,0),oma=c(0,0,0,10))
-plot(1:4,Arainvdiv_pr$fit,ylim=c(min(Arainvdiv_pr$lci),max(Arainvdiv_pr$uci)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Species diversity',xlab='Year',main='Araneae',font.main=1)
-axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
-arrows(1:4,Arainvdiv_pr$lci,1:4,Arainvdiv_pr$uci,length=0.1,angle=90,code=3)
-ap <- round(summary(Arainvdiv_mod1)$coefficients[3,'Pr(>|z|)'],3)
-ap <- ifelse(ap<0.001,paste('Yr.P<','0.001',sep=''),paste('Yr.P=',ap,sep=''))
-text(3.5,5.25,labels=ap)
-text(3.5,5.5,labels=paste('Int. P=',round(summary(Arainvdiv_mod1)$coefficients[4,'Pr(>|z|)'],3),sep=''))
-plot(1:4,Colinvdiv_pr$fit,ylim=c(min(Colinvdiv_pr$lci),max(Colinvdiv_pr$uci)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Species diversity',xlab='Year',main='Coleoptera',font.main=1)
-axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
-arrows(1:4,Colinvdiv_pr$lci,1:4,Colinvdiv_pr$uci,length=0.1,angle=90,code=3)
-cp <- round(summary(Colinvdiv_mod1)$coefficients[3,'Pr(>|z|)'],3)
-cp <- ifelse(cp<0.001,paste('Yr.P<','0.001',sep=''),paste('Yr.P=',cp,sep=''))
-text(3.5,5.4,labels=cp)
-text(3.5,5.75,labels=paste('Int. P=',round(summary(Colinvdiv_mod1)$coefficients[4,'Pr(>|z|)'],3),sep=''))
-plot(1:4,Forminvdiv_pr$fit,ylim=c(min(Forminvdiv_pr$lci),5),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Species diversity',xlab='Year',main='Formicidae',font.main=1)
-axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
-arrows(1:4,Forminvdiv_pr$lci,1:4,Forminvdiv_pr$uci,length=0.1,angle=90,code=3)
-fp <- round(summary(Forminvdiv_mod1)$coefficients[3,'Pr(>|z|)'],3)
-fp <- ifelse(fp<0.001,paste('Yr.P<','0.001',sep=''),paste('Yr.P=',fp,sep=''))
-text(3.5,4.5,labels=fp)
-text(3.5,4.8,labels=paste('Int. P=',round(summary(Forminvdiv_mod1)$coefficients[4,'Pr(>|z|)'],3),sep=''))
-par(xpd=NA)
-legend(x=5,y=5,legend = c("Control","Rock"), pch = c(16,18), cex=1, box.lty=0)
-par(xpd=F)
 
 #Close plotting estimates for Inverse Simpsons diversity ----
 
@@ -994,9 +1250,146 @@ rarity <- ifelse(morpho_abun2$Abundance<20,'rare','common')
 
 #Close proportion of zeroes ----
 
-#Principal components analysis 
+# Remove species with less than 80 samples (by yr/pitfall) or 16 samples (by site/reserve) - move to individual species analysis:
 
-#prcomp ----
+mds_abun <- subset(Morpho_abun,Abundance>80)
+head(mds_abun,3)
+mds_abunyr<-mds_abun[,c(-1,-2,-3,-4,-5,-8,-9,-10,-11,-12)]
+mds_abunsite<-mds_abun[,c(-1,-2,-3,-4,-5,-6,-7)]
+
+mds_abun2 <- subset(Morpho_abun,Abundance>16)
+head(mds_abun2)
+mds_abun2yr<-mds_abun2[,c(-1,-2,-3,-4,-5,-8,-9,-10,-11,-12)]
+mds_abun2site<-mds_abun2[,c(-1,-2,-3,-4,-5,-6,-7)]
+
+#MDS attempt ----
+
+Morpho_abun$Abundance <- as.numeric(Morpho_abun$Abundance)
+Morpho_abun$`2016` <- as.numeric(Morpho_abun$`2016`)
+Morpho_abun$`2019` <- as.numeric(Morpho_abun$`2019`)
+Morpho_abun$CR <- as.numeric(Morpho_abun$CR)
+Morpho_abun$JE <- as.numeric(Morpho_abun$JE)
+Morpho_abun$JW <- as.numeric(Morpho_abun$JW)
+Morpho_abun$K <- as.numeric(Morpho_abun$K)
+Morpho_abun$MUL <- as.numeric(Morpho_abun$MUL)
+
+
+
+
+# Do MDS analysis using the Bray-Curtis dissimilarity index:
+simmdsyr<-capscale(mds_abunyr~1, distance="bray")
+simmdsyr
+head(summary(simmdsyr))
+str(summary(simmdsyr))
+head(summary(simmdsyr)$sites)
+length(summary(simmdsyr)$sites[,1])
+summary(simmdsyr)$cont$importance[,1:6]
+
+simmdssite<-capscale(mds_abunsite~1, distance="bray")
+simmdssite
+head(summary(simmdssite))
+str(summary(simmdssite))
+head(summary(simmdssite)$sites)
+length(summary(simmdssite)$sites[,1])
+summary(simmdssite)$cont$importance[,1:6]
+
+simmds2yr<-capscale(mds_abun2yr~1, distance="bray")
+simmds2yr
+head(summary(simmds2yr))
+str(summary(simmds2yr))
+head(summary(simmds2yr)$sites)
+length(summary(simmds2yr)$sites[,1])
+summary(simmds2yr)$cont$importance[,1:6]
+
+simmds2site<-capscale(mds_abun2site~1, distance="bray")
+simmds2site
+head(summary(simmds2site))
+str(summary(simmds2site))
+head(summary(simmds2site)$sites)
+length(summary(simmds2site)$sites[,1])
+summary(simmds2site)$cont$importance[,1:6]
+
+#Analyse dissimilarity (not sure about this)
+
+site_mds<-cbind(mds_abun,site_mds1=as.numeric(summary(simmdssite)$sites[,1]),site_mds2=as.numeric(summary(simmdssite)$sites[,2]),site_mds3=as.numeric(summary(simmdssite)$sites[,3]),site_mds4=as.numeric(summary(simmdssite)$sites[,4]),site_mds5=as.numeric(summary(simmdssite)$sites[,5]),site_mds6=as.numeric(summary(simmdssite)$sites[,6]))
+head(site_mds)
+
+#Close mds ----
+
+#Principal components analysis ----
+
+# ?princomp ----
+Ara2[1:4,1:10];dim(Ara2)
+range(Ara2[,4:ncol(Ara2)])
+a2 <- as.matrix(Ara2[,4:ncol(Ara2)])
+hist(a2[which(a2<10 & a2>0)])
+arapca <- princomp(~ ., data = Ara2[,4:ncol(Ara2)], cor = TRUE)
+summary(arapca)
+arapca$loadings
+#Ara2$arapca<-arapca$scores[,1]
+#Ara2$arapca2<-arapca$scores[,2]*-1
+head(arapca$scores)
+head(Ara2)
+autoplot(arapca, data=Ara2, colour = 'Treatment')
+
+Bla2[1:4,1:10];dim(Bla2)
+range(Bla2[,4:ncol(Bla2)])
+blapca <- princomp(~ ., data = Bla2[,4:ncol(Bla2)], cor = TRUE)
+summary(blapca)
+blapca$loadings
+Bla2$blapca<-blapca$scores[,1]
+Bla2$blapca2<-blapca$scores[,2]*-1
+head(blapca$scores)
+head(Bla2)
+autoplot(blapca, data=Bla2, colour = 'Treatment')
+
+Col2[1:4,1:10];dim(Col2)
+range(Col2[,4:ncol(Col2)])
+colpca <- princomp(~ ., data = Col2[,4:ncol(Col2)], cor = TRUE)
+summary(colpca)
+colpca$loadings
+Col2$colpca<-colpca$scores[,1]
+Col2$colpca2<-colpca$scores[,2]*-1
+head(colpca$scores)
+head(Col2)
+autoplot(colpca, data=Col2, colour = 'Treatment')
+
+Form2[1:4,1:10];dim(Form2)
+range(Form2[,4:ncol(Form2)])
+formpca <- princomp(~ ., data = Form2[,4:ncol(Form2)], cor = TRUE)
+summary(formpca)
+formpca$loadings
+Form2$formpca<-formpca$scores[,1]
+Form2$formpca2<-formpca$scores[,2]*-1
+head(formpca$scores)
+head(Form2)
+autoplot(formpca, data=Form2, colour = 'Treatment')
+
+Ort2[1:4,1:10];dim(Ort2)
+range(Ort2[,4:ncol(Ort2)])
+ortpca <- princomp(~ ., data = Ort2[,4:ncol(Ort2)], cor = TRUE)
+summary(ortpca)
+ortpca$loadings
+Ort2$ortpca<-ortpca$scores[,1]
+Ort2$ortpca2<-ortpca$scores[,2]*-1
+head(ortpca$scores)
+head(Ort2)
+autoplot(ortpca, data=Ort2, colour = 'Treatment')
+
+Other2[1:4,1:10];dim(Other2)
+range(Other2[,4:ncol(Other2)])
+otherpca <- princomp(~ ., data = Other2[,4:ncol(Other2)], cor = TRUE)
+summary(otherpca)
+otherpca$loadings
+Other2$otherpca<-otherpca$scores[,1]
+Other2$ortpca2<-otherpca$scores[,2]*-1
+head(otherpca$scores)
+head(Other2)
+autoplot(otherpca, data=Other2, colour = 'Treatment')
+
+#Close princomp ----
+
+# ?prcomp ----
 
 arapca2 <- prcomp(~ ., data = Ara2[,4:ncol(Ara2)])
 str(summary(arapca2))
@@ -1043,8 +1436,6 @@ biplot(prcomp(~ ., data = Form2[,4:ncol(Form2)]),main='Formicidae')
 biplot(prcomp(~ ., data = Ort2[,4:ncol(Ort2)]),main='Orthoptera')
 biplot(prcomp(~ ., data = Other2[,4:ncol(Other2)]),main='Other')
 
-#Close ----
-  
 #Graphing prcomp ----
 
 summary(arapca2)$importance[2,]
@@ -1193,7 +1584,7 @@ arapca_pr$uci<-arapca_pr$fit+(1.96*arapca_pr$se)
 arapca_pr
 dev.new(width=12,height=8,dpi=100,pointsize=16,noRStudioGD = T)
 par(mfrow=c(2,3),mar=c(5,5,1,1),mgp=c(2.5,1,0),oma=c(0,0,0,6))
-plot(1:4,arapca_pr$fit,ylim=c(min(arapca_pr$lci),max(arapca_pr$uci)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Principal component score',xlab='Year',main='Araneae',font.main=1)
+plot(1:4,arapca_pr$fit,ylim=c(min(arapca_pr$lci),max(arapca_pr$uci)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Principle component score',xlab='',main='Araneae PCA',font.main=1)
 axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
 arrows(1:4,arapca_pr$lci,1:4,arapca_pr$uci,length=0.1,angle=90,code=3)
 text(3,-7,labels=paste('Int. P=',round(summary(arapca2_mod1)$coefficients[4,'Pr(>|t|)'],3),sep=''))
@@ -1205,7 +1596,7 @@ blapca_pr<-data.frame(pca_nd, fit=blapca_pr$fit, se=blapca_pr$se.fit)
 blapca_pr$lci<-blapca_pr$fit-(1.96*blapca_pr$se)
 blapca_pr$uci<-blapca_pr$fit+(1.96*blapca_pr$se)
 blapca_pr
-plot(1:4,blapca_pr$fit,ylim=c(min(blapca_pr$lci),max(blapca_pr$uci)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Principal component score',xlab='Year',main='Blattodea',font.main=1)
+plot(1:4,blapca_pr$fit,ylim=c(min(blapca_pr$lci),max(blapca_pr$uci)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Principle component score',xlab='',main='Blattodea PCA',font.main=1)
 axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
 arrows(1:4,blapca_pr$lci,1:4,blapca_pr$uci,length=0.1,angle=90,code=3)
 text(3,-7,labels=paste('Int. P=',round(summary(blapca2_mod1)$coefficients[4,'Pr(>|t|)'],3),sep=''))
@@ -1217,7 +1608,7 @@ colpca_pr<-data.frame(pca_nd, fit=colpca_pr$fit, se=colpca_pr$se.fit)
 colpca_pr$lci<-colpca_pr$fit-(1.96*colpca_pr$se)
 colpca_pr$uci<-colpca_pr$fit+(1.96*colpca_pr$se)
 colpca_pr
-plot(1:4,colpca_pr$fit,ylim=c(min(colpca_pr$lci),max(colpca_pr$uci)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Principal component score',xlab='Year',main='Coleoptera',font.main=1)
+plot(1:4,colpca_pr$fit,ylim=c(min(colpca_pr$lci),max(colpca_pr$uci)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Principle component score',xlab='',main='Coleoptera PCA',font.main=1)
 axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
 arrows(1:4,colpca_pr$lci,1:4,colpca_pr$uci,length=0.1,angle=90,code=3)
 text(3,-7,labels=paste('Int. P=',round(summary(colpca2_mod1)$coefficients[4,'Pr(>|t|)'],3),sep=''))
@@ -1229,7 +1620,7 @@ formpca_pr<-data.frame(pca_nd, fit=formpca_pr$fit, se=formpca_pr$se.fit)
 formpca_pr$lci<-formpca_pr$fit-(1.96*formpca_pr$se)
 formpca_pr$uci<-formpca_pr$fit+(1.96*formpca_pr$se)
 formpca_pr
-plot(1:4,formpca_pr$fit,ylim=c(min(formpca_pr$lci),max(formpca_pr$uci)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Principal component score',xlab='Year',main='Formicidae',font.main=1)
+plot(1:4,formpca_pr$fit,ylim=c(min(formpca_pr$lci),max(formpca_pr$uci)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Principle component score',xlab='',main='Formicidae PCA',font.main=1)
 axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
 arrows(1:4,formpca_pr$lci,1:4,formpca_pr$uci,length=0.1,angle=90,code=3)
 text(3,-7,labels=paste('Int. P=',round(summary(formpca2_mod1)$coefficients[4,'Pr(>|t|)'],3),sep=''))
@@ -1241,7 +1632,7 @@ ortpca_pr<-data.frame(pca_nd, fit=ortpca_pr$fit, se=ortpca_pr$se.fit)
 ortpca_pr$lci<-ortpca_pr$fit-(1.96*ortpca_pr$se)
 ortpca_pr$uci<-ortpca_pr$fit+(1.96*ortpca_pr$se)
 ortpca_pr
-plot(1:4,ortpca_pr$fit,ylim=c(min(ortpca_pr$lci),max(ortpca_pr$uci)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Principal component score',xlab='Year',main='Orthoptera',font.main=1)
+plot(1:4,ortpca_pr$fit,ylim=c(min(ortpca_pr$lci),max(ortpca_pr$uci)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Principle component score',xlab='',main='Orthoptera PCA',font.main=1)
 axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
 arrows(1:4,ortpca_pr$lci,1:4,ortpca_pr$uci,length=0.1,angle=90,code=3)
 text(3,-7,labels=paste('Int. P=',round(summary(ortpca2_mod1)$coefficients[4,'Pr(>|t|)'],3),sep=''))
@@ -1253,28 +1644,28 @@ otherpca_pr<-data.frame(pca_nd, fit=otherpca_pr$fit, se=otherpca_pr$se.fit)
 otherpca_pr$lci<-otherpca_pr$fit-(1.96*otherpca_pr$se)
 otherpca_pr$uci<-otherpca_pr$fit+(1.96*otherpca_pr$se)
 otherpca_pr
-plot(1:4,otherpca_pr$fit,ylim=c(min(otherpca_pr$lci),max(otherpca_pr$uci)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Principal component score',xlab='Year',main='Other',font.main=1)
+plot(1:4,otherpca_pr$fit,ylim=c(min(otherpca_pr$lci),max(otherpca_pr$uci)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Principle component score',xlab='',main='Other PCA',font.main=1)
 axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
 arrows(1:4,otherpca_pr$lci,1:4,otherpca_pr$uci,length=0.1,angle=90,code=3)
 text(3,-7,labels=paste('Int. P=',round(summary(otherpca2_mod1)$coefficients[4,'Pr(>|t|)'],3),sep=''))
 
 dev.new(width=12,height=8,dpi=100,pointsize=16,noRStudioGD = T)
 par(mfrow=c(2,3),mar=c(5,5,1,1),mgp=c(2.5,1,0),oma=c(0,0,0,10))
-plot(1:4,arapca_pr$fit,ylim=c(min(arapca_pr$lci),max(arapca_pr$uci)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Principal component score',xlab='Year',main='Araneae',font.main=1)
+plot(1:4,arapca_pr$fit,ylim=c(min(arapca_pr$lci),max(arapca_pr$uci)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Principle component score',xlab='',main='Araneae PCA',font.main=1)
 axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
 arrows(1:4,arapca_pr$lci,1:4,arapca_pr$uci,length=0.1,angle=90,code=3)
 arap <- round(summary(arapca2_mod1)$coefficients[3,'Pr(>|t|)'],3)
 arap <- ifelse(arap<0.001,paste('Yr.P<','0.001',sep=''),paste('Yr.P=',arap,sep=''))
 text(3.5,-7,labels=arap)
 text(3.5,-5,labels=paste('Int. P=',round(summary(arapca2_mod1)$coefficients[4,'Pr(>|t|)'],3),sep=''))
-plot(1:4,blapca_pr$fit,ylim=c(min(blapca_pr$lci),max(blapca_pr$uci)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Principal component score',xlab='Year',main='Blattodea',font.main=1)
+plot(1:4,blapca_pr$fit,ylim=c(min(blapca_pr$lci),max(blapca_pr$uci)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Principle component score',xlab='',main='Blattodea PCA',font.main=1)
 axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
 arrows(1:4,blapca_pr$lci,1:4,blapca_pr$uci,length=0.1,angle=90,code=3)
 blap <- round(summary(blapca2_mod1)$coefficients[3,'Pr(>|t|)'],6)
 blap <- ifelse(blap<0.001,paste('Yr.P<','0.001',sep=''),paste('Yr.P=',blap,sep=''))
 text(1.75,-0.75,labels=blap)
 text(1.75,-0.5,labels=paste('Int. P=',round(summary(blapca2_mod1)$coefficients[4,'Pr(>|t|)'],3),sep=''))
-plot(1:4,colpca_pr$fit,ylim=c(min(colpca_pr$lci),max(colpca_pr$uci)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Principal component score',xlab='Year',main='Coleoptera',font.main=1)
+plot(1:4,colpca_pr$fit,ylim=c(min(colpca_pr$lci),max(colpca_pr$uci)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Principle component score',xlab='',main='Coleoptera PCA',font.main=1)
 axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
 arrows(1:4,colpca_pr$lci,1:4,colpca_pr$uci,length=0.1,angle=90,code=3)
 colp <- round(summary(colpca2_mod1)$coefficients[3,'Pr(>|t|)'],6)
@@ -1284,21 +1675,21 @@ text(3.5,-5,labels=paste('Int. P=',round(summary(colpca2_mod1)$coefficients[4,'P
 par(xpd=NA)
 legend(x=5,y=5,legend = c("Control","Rock"), pch = c(16,18), cex=1, box.lty=0)
 par(xpd=F)
-plot(1:4,formpca_pr$fit,ylim=c(min(formpca_pr$lci),max(formpca_pr$uci)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Principal component score',xlab='Year',main='Formicidae',font.main=1)
+plot(1:4,formpca_pr$fit,ylim=c(min(formpca_pr$lci),max(formpca_pr$uci)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Principle component score',xlab='',main='Formicidae PCA',font.main=1)
 axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
 arrows(1:4,formpca_pr$lci,1:4,formpca_pr$uci,length=0.1,angle=90,code=3)
 formp <- round(summary(formpca2_mod1)$coefficients[3,'Pr(>|t|)'],3)
 formp <- ifelse(formp<0.001,paste('Yr.P<','0.001',sep=''),paste('Yr.P=',formp,sep=''))
 text(1.75,-80,labels=formp)
 text(1.75,-60,labels=paste('Int. P=',round(summary(formpca2_mod1)$coefficients[4,'Pr(>|t|)'],3),sep=''))
-plot(1:4,ortpca_pr$fit,ylim=c(min(ortpca_pr$lci),max(ortpca_pr$uci)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Principal component score',xlab='Year',main='Orthoptera',font.main=1)
+plot(1:4,ortpca_pr$fit,ylim=c(min(ortpca_pr$lci),max(ortpca_pr$uci)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Principle component score',xlab='',main='Orthoptera PCA',font.main=1)
 axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
 arrows(1:4,ortpca_pr$lci,1:4,ortpca_pr$uci,length=0.1,angle=90,code=3)
 ortp <- round(summary(ortpca2_mod1)$coefficients[3,'Pr(>|t|)'],3)
 ortp <- ifelse(ortp<0.001,paste('Yr.P<','0.001',sep=''),paste('Yr.P=',ortp,sep=''))
 text(3.5,-1.5,labels=ortp)
 text(3.5,-1,labels=paste('Int. P=',round(summary(ortpca2_mod1)$coefficients[4,'Pr(>|t|)'],3),sep=''))
-plot(1:4,otherpca_pr$fit,ylim=c(min(otherpca_pr$lci),max(otherpca_pr$uci)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Principal component score',xlab='Year',main='Other',font.main=1)
+plot(1:4,otherpca_pr$fit,ylim=c(min(otherpca_pr$lci),max(otherpca_pr$uci)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Principle component score',xlab='',main='Other PCA',font.main=1)
 axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
 arrows(1:4,otherpca_pr$lci,1:4,otherpca_pr$uci,length=0.1,angle=90,code=3)
 othp <- round(summary(otherpca2_mod1)$coefficients[3,'Pr(>|t|)'],3)
@@ -1307,151 +1698,4 @@ text(3.5,-7,labels=othp)
 text(3.5,-5,labels=paste('Int. P=',round(summary(otherpca2_mod1)$coefficients[4,'Pr(>|t|)'],3),sep=''))
 
 #Close model graphs ----
-
-#Preparing for functional group analysis ----
-
-#Araneae
-head(Araneae[,1:8])
-head(Ara_funcabun[,1:8]);dim(Ara_funcabun)
-table(colnames(Araneae)[which(colnames(Araneae)=="Actinopodidae1"):ncol(Araneae)] %in% Ara_funcabun$Morphospecies)
-colnames(Araneae)[which(colnames(Araneae)=="Actinopodidae1"):ncol(Araneae)][which(!colnames(Araneae)[which(colnames(Araneae)=="Actinopodidae1"):ncol(Araneae)] %in% Ara_funcabun$Morphospecies)]
-Ara_occur <- colnames(Araneae)[which(colnames(Araneae)=="Actinopodidae1"):ncol(Araneae)]
-Ara_func <- Ara_funcabun$Morphospecies
-Ara_occur[which(!Ara_occur %in% Ara_func)]
-Ara_func[which(!Ara_func %in% Ara_occur)]
-
-which(duplicated(Ara_occur))
-which(duplicated(Ara_func))
-
-Ara_funcabun$Retreat_type <- as.factor(Ara_funcabun$Retreat_type)
-levels(Ara_funcabun$Retreat_type)
-table(Ara_funcabun$Retreat_type)
-Ara_funcabun$Capture_style <- as.factor(Ara_funcabun$Capture_style)
-levels(Ara_funcabun$Capture_style)
-table(Ara_funcabun$Capture_style)
-Ara_funcabun$Retreat_Capture <- paste(Ara_funcabun$Capture_style,Ara_funcabun$Retreat_type,sep="_")
-Ara_funcabun$Retreat_Capture <- as.factor(Ara_funcabun$Retreat_Capture)
-levels(Ara_funcabun$Retreat_Capture)
-table(Ara_funcabun$Retreat_Capture)
-
-burrowers <- Ara_funcabun$Morphospecies[which(Ara_funcabun$Retreat_type=="Burrow")]
-Ara_sited <- Araneae[,1:5]
-head(Ara_sited);dim(Ara_sited)
-Ara_spd <- Araneae[,which(colnames(Araneae)=="Actinopodidae1"):ncol(Araneae)]
-head(Ara_spd[,1:6])
-burrowd <- Ara_spd[,which(colnames(Ara_spd) %in% burrowers)]
-head(burrowd[,1:6]);dim(burrowd)
-burrowsum <- rowSums(burrowd)
-length(burrowsum)
-
-free <- Ara_funcabun$Morphospecies[which(Ara_funcabun$Retreat_type=="Free")]
-freed <- Ara_spd[,which(colnames(Ara_spd) %in% free)]
-head(freed[,1:6]);dim(freed)
-freesum <- rowSums(freed)
-length(freesum)
-
-sac <- Ara_funcabun$Morphospecies[which(Ara_funcabun$Retreat_type=="Sac")]
-sacd <- Ara_spd[,which(colnames(Ara_spd) %in% sac)]
-head(sacd[,1:6]);dim(sacd)
-sacsum <- rowSums(sacd)
-length(sacsum)
-
-web <- Ara_funcabun$Morphospecies[which(Ara_funcabun$Retreat_type=="Web")]
-webd <- Ara_spd[,which(colnames(Ara_spd) %in% web)]
-head(webd[,1:6]);dim(webd)
-websum <- rowSums(webd)
-length(websum)
-
-active <- Ara_funcabun$Morphospecies[which(Ara_funcabun$Capture_style=="Active")]
-actived <- Ara_spd[,which(colnames(Ara_spd) %in% active)]
-head(actived[,1:6]);dim(actived)
-activesum <- rowSums(actived)
-length(activesum)
-
-snare <- Ara_funcabun$Morphospecies[which(Ara_funcabun$Capture_style=="Snare")]
-snared <- Ara_spd[,which(colnames(Ara_spd) %in% snare)]
-head(snared[,1:6]);dim(snared)
-snaresum <- rowSums(snared)
-length(snaresum)
-
-vagrant <- Ara_funcabun$Morphospecies[which(Ara_funcabun$Capture_style=="Vagrant")]
-vagrantd <- Ara_spd[,which(colnames(Ara_spd) %in% vagrant)]
-head(vagrantd[,1:6]);dim(vagrantd)
-vagrantsum <- rowSums(vagrantd)
-length(vagrantsum)
-
-a_b <- Ara_funcabun$Morphospecies[which(Ara_funcabun$Retreat_Capture=="Active_Burrow")]
-a_bd <- Ara_spd[,which(colnames(Ara_spd) %in% a_b)]
-head(a_bd[,1:6]);dim(a_bd)
-a_bsum <- rowSums(a_bd)
-length(a_bsum)
-
-a_f <- Ara_funcabun$Morphospecies[which(Ara_funcabun$Retreat_Capture=="Active_Free")]
-a_fd <- Ara_spd[,which(colnames(Ara_spd) %in% a_f)]
-head(a_fd);dim(a_fd)
-a_fsum <- rowSums(a_fd)
-length(a_fsum)
-
-a_s <- Ara_funcabun$Morphospecies[which(Ara_funcabun$Retreat_Capture=="Active_Sac")]
-a_sd <- Ara_spd[,which(colnames(Ara_spd) %in% a_s)]
-head(a_sd);dim(a_sd)
-a_ssum <- rowSums(a_sd)
-length(a_ssum)
-
-#Issue - how to sum 1
-a_w <- Ara_funcabun$Morphospecies[which(Ara_funcabun$Retreat_Capture=="Active_Web")]
-a_wd <- Ara_spd[,which(colnames(Ara_spd) %in% a_w)]
-head(a_wd)
-a_wsum <- rowSums(a_wd)
-length(a_wsum)
-
-s_w <- Ara_funcabun$Morphospecies[which(Ara_funcabun$Retreat_Capture=="Snare_Web")]
-s_wd <- Ara_spd[,which(colnames(Ara_spd) %in% s_w)]
-head(s_wd)
-s_wsum <- rowSums(s_wd)
-length(s_wsum)
-
-v_b <- Ara_funcabun$Morphospecies[which(Ara_funcabun$Retreat_Capture=="Vagrant_Burrow")]
-v_bd <- Ara_spd[,which(colnames(Ara_spd) %in% v_b)]
-head(v_bd)
-v_bsum <- rowSums(v_bd)
-length(v_bsum)
-
-v_f <- Ara_funcabun$Morphospecies[which(Ara_funcabun$Retreat_Capture=="Vagrant_Free")]
-v_fd <- Ara_spd[,which(colnames(Ara_spd) %in% v_f)]
-head(v_fd)
-v_fsum <- rowSums(v_fd)
-length(v_fsum)
-
-v_s <- Ara_funcabun$Morphospecies[which(Ara_funcabun$Retreat_Capture=="Vagrant_Sac")]
-v_sd <- Ara_spd[,which(colnames(Ara_spd) %in% v_s)]
-head(v_sd)
-v_ssum <- rowSums(v_sd)
-length(v_ssum)
-ara_groups <- cbind(Ara_sited,data.frame(burrow=burrowsum),data.frame(free=freesum),data.frame(sac=sacsum),data.frame(web=websum),data.frame(active=activesum),data.frame(snare=snaresum),data.frame(vagrant=vagrantsum),data.frame(Active_Burrow=a_bsum),data.frame(Active_Free=a_fsum),data.frame(Active_Sac=a_ssum),data.frame(Snare_Web=s_wsum),data.frame(Vagrant_Burrow=v_bsum),data.frame(Vagrant_Free=v_fsum),data.frame(Vagrant_Sac=v_ssum))
-
-#Coleoptera
-head(Col2[,1:8])
-head(Col_funcabun[,1:8]);dim(Col_funcabun)
-#How do I fix this?
-table(colnames(Col2)[which(colnames(Col2)=="Anthicidae1"):ncol(Col2)] %in% Col_funcabun$Morphospecies)
-colnames(Col2)[which(colnames(Col2)=="Anthicidae1"):ncol(Col2)][which(!colnames(Col2)[which(colnames(Col2)=="Anthicidae1"):ncol(Col2)] %in% Col_funcabun$Morphospecies)]
-Col_occur <- colnames(Col2)[which(colnames(Col2)=="Anthicidae1"):ncol(Col2)]
-Col_func <- Col_funcabun$Morphospecies
-Col_occur[which(!Col_occur %in% Col_func)]
-Col_func[which(!Col_func %in% Col_occur)]
-
-which(duplicated(Col_occur))
-which(duplicated(Col_func))
-
-Col_funcabun$Flight <- as.factor(Col_funcabun$Flight)
-levels(Col_funcabun$Flight)
-table(Col_funcabun$Flight)
-Col_funcabun$Larval_hab <- as.factor(Col_funcabun$Larval_hab)
-levels(Col_funcabun$Larval_hab)
-table(Col_funcabun$Larval_hab)
-Col_funcabun$Flight_Larval_hab <- paste(Col_funcabun$Larval_hab,Col_funcabun$Flight,sep="_")
-Col_funcabun$Flight_Larval_hab <- as.factor(Col_funcabun$Flight_Larval_hab)
-levels(Col_funcabun$Flight_Larval_hab)
-table(Col_funcabun$Flight_Larval_hab)
 
