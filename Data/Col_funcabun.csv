@@ -1,62 +1,62 @@
 Morphospecies,Size,Trophic.level,Order,Flight,Larval_hab,Abundance,2016,2019,CR,JE,JW,K,MUL,propzeros_total,propzeros_2016,propzeros_2019,propzeros_JE,propzeros_JW,propzeros_CR,propzeros_MUL,propzeros_K
-Anthicidae 1,0,Herbivore,Coleoptera,yes,on,398,194,204,67,58,115,39,119,0.3125,0.3125,0.3125,0.4375,0.21875,0.3125,0.125,0.46875
-Anthicidae 2,2.5,Herbivore,Coleoptera,yes,on,160,155,5,55,37,11,43,14,0.725,0.5,0.95,0.75,0.84375,0.65625,0.75,0.625
-Anthicidae 3,0,Herbivore,Coleoptera,yes,on,3,2,1,1,0,1,0,1,0.98125,0.975,0.9875,1,0.96875,0.96875,0.96875,1
-Biphyllidae 1,2.5,Detritivore,Coleoptera,unsure,above,12,9,3,6,2,1,3,0,0.94375,0.925,0.9625,0.9375,0.96875,0.84375,1,0.96875
-Byrrhidae 1,0,Herbivore,Coleoptera,yes,on,20,15,5,0,15,1,1,3,0.93125,0.9125,0.95,0.78125,0.96875,1,0.9375,0.96875
-Cantharidae 1,10,Predator,Coleoptera,yes,below,1,1,0,1,0,0,0,0,0.99375,0.9875,1,1,1,0.96875,1,1
-Carabidae 1,5,Predator,Coleoptera,no,on,331,197,134,44,47,114,97,29,0.40625,0.4125,0.4,0.65625,0.21875,0.5625,0.46875,0.125
-Carabidae 2,5,Omnivore,Coleoptera,no,on,724,685,39,113,294,98,72,147,0.4,0.1,0.7,0.34375,0.375,0.46875,0.4375,0.375
-Carabidae 3,10,Predator,Coleoptera,no,on,9,6,3,1,3,4,1,0,0.95,0.9375,0.9625,0.90625,0.90625,0.96875,1,0.96875
-Carabidae 4,10,Predator,Coleoptera,no,on,124,111,13,15,19,43,16,31,0.6875,0.5,0.875,0.8125,0.40625,0.78125,0.71875,0.71875
-Carabidae 5,2.5,Omnivore,Coleoptera,no,on,4,3,1,0,2,0,2,0,0.975,0.9625,0.9875,0.9375,1,1,1,0.9375
-Carabidae 6,5,Predator,Coleoptera,no,on,1,0,1,1,0,0,0,0,0.99375,1,0.9875,1,1,0.96875,1,1
-Carabidae 7,5,Predator,Coleoptera,no,on,11,11,0,0,2,2,4,3,0.9375,0.875,1,0.9375,0.96875,1,0.90625,0.875
-Carabidae 8,5,Omnivore,Coleoptera,no,on,134,134,0,0,132,0,2,0,0.93125,0.8625,1,0.6875,1,1,1,0.96875
-Carabidae 9,20,Predator,Coleoptera,no,on,6,6,0,1,3,1,0,1,0.9625,0.925,1,0.90625,0.96875,0.96875,0.96875,1
-Cassidinae (Hispoid) 1,2.5,Herbivore,Coleoptera,yes,above,4,3,1,0,2,1,1,0,0.975,0.9625,0.9875,0.9375,0.96875,1,1,0.96875
-Chrysomelidae 1,2.5,Herbivore,Coleoptera,yes,above,3,2,1,0,1,1,0,1,0.98125,0.975,0.9875,0.96875,0.96875,1,0.96875,1
-Coccinellidae 1,0,Predator,Coleoptera,yes,above,9,6,3,0,4,2,2,1,0.94375,0.925,0.9625,0.875,0.9375,1,0.96875,0.9375
-Corylophidae 1,0,Detritivore,Coleoptera,yes,on,30,25,5,2,5,5,11,7,0.8625,0.775,0.95,0.84375,0.875,0.9375,0.8125,0.84375
-Corylophidae 2,0,Detritivore,Coleoptera,yes,on,10,10,0,2,2,0,6,0,0.96875,0.9375,1,0.96875,1,0.96875,1,0.90625
-Corylophidae 3,0,Detritivore,Coleoptera,yes,on,22,22,0,11,2,1,2,6,0.8875,0.775,1,0.9375,0.96875,0.71875,0.875,0.9375
-Corylophidae 4,0,Detritivore,Coleoptera,yes,on,3,3,0,0,2,1,0,0,0.9875,0.975,1,0.96875,0.96875,1,1,1
-Curculionidae 01,5,Herbivore,Coleoptera,no,above,176,71,105,42,62,20,5,47,0.59375,0.6375,0.55,0.46875,0.65625,0.5,0.5,0.84375
-Curculionidae 02,5,Herbivore,Coleoptera,no,above,626,414,212,162,162,46,57,199,0.2,0.0375,0.3625,0.125,0.40625,0.0625,0.1875,0.21875
-Curculionidae 03,2.5,Herbivore,Coleoptera,no,above,3,1,2,1,1,0,0,1,0.98125,0.9875,0.975,0.96875,1,0.96875,0.96875,1
-Curculionidae 04,5,Herbivore,Coleoptera,no,above,249,231,18,32,17,31,10,159,0.6375,0.4375,0.8375,0.8125,0.75,0.46875,0.28125,0.875
-Curculionidae 05,2.5,Herbivore,Coleoptera,no,above,150,143,7,76,0,64,5,5,0.7625,0.6,0.925,1,0.65625,0.4375,0.84375,0.875
-Curculionidae 06,2.5,Herbivore,Coleoptera,no,above,4,0,4,1,0,0,0,3,0.975,1,0.95,1,1,0.96875,0.90625,1
-Curculionidae 07,15,Herbivore,Coleoptera,no,above,2,1,1,0,1,0,0,1,0.9875,0.9875,0.9875,0.96875,1,1,0.96875,1
-Curculionidae 08,5,Herbivore,Coleoptera,no,above,7,6,1,1,1,1,1,3,0.95625,0.925,0.9875,0.96875,0.96875,0.96875,0.90625,0.96875
-Curculionidae 09,2.5,Herbivore,Coleoptera,no,above,9,7,2,1,7,0,1,0,0.9625,0.95,0.975,0.875,1,0.96875,1,0.96875
-Curculionidae 10,0,Herbivore,Coleoptera,no,above,28,28,0,0,23,5,0,0,0.9125,0.825,1,0.71875,0.84375,1,1,1
-Curculionidae 11,2.5,Herbivore,Coleoptera,no,above,4,4,0,0,0,0,0,4,0.9875,0.975,1,1,1,1,0.9375,1
-Elateridae 1,2.5,Predator,Coleoptera,yes,below,10,8,2,0,1,1,0,8,0.98125,0.9875,0.975,0.96875,0.96875,1,0.96875,1
-Elateridae 2,5,Herbivore,Coleoptera,yes,below,46,34,12,4,1,4,1,36,0.8625,0.8,0.925,0.96875,0.875,0.875,0.625,0.96875
-Endomychidae 1,0,Herbivore,Coleoptera,yes,above,17,4,13,2,3,2,2,8,0.91875,0.9625,0.875,0.90625,0.9375,0.9375,0.84375,0.96875
-Latridiidae 1,0,Detritivore,Coleoptera,no,on,70,70,0,7,5,6,31,21,0.775,0.55,1,0.90625,0.8125,0.8125,0.71875,0.625
-Scarabaeoidea 1,5,Herbivore,Coleoptera,yes,below,6,5,1,0,1,0,0,5,0.96875,0.95,0.9875,0.96875,1,1,0.875,1
-Scarabaeoidea 2,5,Herbivore,Coleoptera,yes,below,173,162,11,30,80,17,45,1,0.64375,0.4125,0.875,0.46875,0.75,0.53125,0.96875,0.5
-Scarabaeoidea 3,5,Herbivore,Coleoptera,yes,below,3,2,1,0,1,1,1,0,0.98125,0.975,0.9875,0.96875,0.96875,1,1,0.96875
-Scarabaeoidea 4,5,Herbivore,Coleoptera,yes,below,1,1,0,0,1,0,0,0,0.99375,0.9875,1,0.96875,1,1,1,1
-Scarabaeoidea 5,5,Herbivore,Coleoptera,yes,below,2,2,0,0,1,0,1,0,0.9875,0.975,1,0.96875,1,1,1,0.96875
-Scarabaeoidea 6,2.5,Herbivore,Coleoptera,yes,below,2,2,0,0,2,0,0,0,0.99375,0.9875,1,0.96875,1,1,1,1
-Scarabaeoidea 7,5,Herbivore,Coleoptera,yes,below,2,2,0,0,0,1,0,1,0.9875,0.975,1,1,0.96875,1,0.96875,1
-Scirtidae 1,2.5,Herbivore,Coleoptera,yes,above,1,0,1,0,0,1,0,0,0.99375,1,0.9875,1,0.96875,1,1,1
-Staphylinidae 1,2.5,Detritivore,Coleoptera,yes,above,7,5,2,0,3,1,0,3,0.95625,0.9375,0.975,0.90625,0.96875,1,0.90625,1
-Staphylinidae 2,0,Detritivore,Coleoptera,yes,above,47,40,7,25,6,2,9,5,0.8125,0.7125,0.9125,0.875,0.9375,0.59375,0.875,0.78125
-Staphylinidae 3,0,Detritivore,Coleoptera,yes,above,3,2,1,0,2,1,0,0,0.9875,0.9875,0.9875,0.96875,0.96875,1,1,1
-Staphylinidae 4,2.5,Detritivore,Coleoptera,yes,above,1,0,1,1,0,0,0,0,0.99375,1,0.9875,1,1,0.96875,1,1
-Staphylinidae 5,10,Detritivore,Coleoptera,yes,above,3,3,0,0,1,1,0,1,0.98125,0.9625,1,0.96875,0.96875,1,0.96875,1
-Staphylinidae 6,0,Omnivore,Coleoptera,yes,above,2,2,0,0,2,0,0,0,0.9875,0.975,1,0.9375,1,1,1,1
-Staphylinidae 7,0,Omnivore,Coleoptera,yes,above,1,1,0,0,1,0,0,0,0.99375,0.9875,1,0.96875,1,1,1,1
-Staphylinidae 8,2.5,Omnivore,Coleoptera,yes,above,1,1,0,0,1,0,0,0,0.99375,0.9875,1,0.96875,1,1,1,1
-Tenebrionidae 1,5,Omnivore,Coleoptera,yes,on,1174,961,213,137,314,255,453,15,0.30625,0.225,0.3875,0.15625,0.25,0.40625,0.65625,0.0625
-Tenebrionidae 2,10,Omnivore,Coleoptera,yes,on,48,41,7,7,19,8,3,11,0.8,0.675,0.925,0.6875,0.84375,0.875,0.6875,0.90625
-Tenebrionidae 3,0,Omnivore,Coleoptera,yes,on,1,0,1,0,1,0,0,0,0.99375,1,0.9875,0.96875,1,1,1,1
-Tenebrionidae 4,10,Omnivore,Coleoptera,yes,on,7,1,6,0,0,0,6,1,0.975,0.9875,0.9625,1,1,1,0.96875,0.90625
-Tenebrionidae 5,10,Omnivore,Coleoptera,yes,on,5,4,1,5,0,0,0,0,0.96875,0.95,0.9875,1,1,0.84375,1,1
-Tenebrionidae 6,10,Omnivore,Coleoptera,yes,on,9,8,1,0,2,0,4,3,0.95625,0.925,0.9875,0.96875,1,1,0.90625,0.90625
-Tenebrionidae 7,5,Omnivore,Coleoptera,yes,on,10,9,1,3,1,0,0,6,0.94375,0.9,0.9875,0.96875,1,0.90625,0.84375,1
-Tenebrionidae 8,2.5,Omnivore,Coleoptera,yes,on,2,2,0,1,0,0,0,1,0.9875,0.975,1,1,1,0.96875,0.96875,1
+Anthicidae1,0,Herbivore,Coleoptera,yes,on,398,194,204,67,58,115,39,119,0.3125,0.3125,0.3125,0.4375,0.21875,0.3125,0.125,0.46875
+Anthicidae2,2.5,Herbivore,Coleoptera,yes,on,160,155,5,55,37,11,43,14,0.725,0.5,0.95,0.75,0.84375,0.65625,0.75,0.625
+Anthicidae3,0,Herbivore,Coleoptera,yes,on,3,2,1,1,0,1,0,1,0.98125,0.975,0.9875,1,0.96875,0.96875,0.96875,1
+Biphyllidae1,2.5,Detritivore,Coleoptera,unsure,above,12,9,3,6,2,1,3,0,0.94375,0.925,0.9625,0.9375,0.96875,0.84375,1,0.96875
+Byrrhidae1,0,Herbivore,Coleoptera,yes,on,20,15,5,0,15,1,1,3,0.93125,0.9125,0.95,0.78125,0.96875,1,0.9375,0.96875
+Cantharidae1,10,Predator,Coleoptera,yes,below,1,1,0,1,0,0,0,0,0.99375,0.9875,1,1,1,0.96875,1,1
+Carabidae1,5,Predator,Coleoptera,no,on,331,197,134,44,47,114,97,29,0.40625,0.4125,0.4,0.65625,0.21875,0.5625,0.46875,0.125
+Carabidae2,5,Omnivore,Coleoptera,no,on,724,685,39,113,294,98,72,147,0.4,0.1,0.7,0.34375,0.375,0.46875,0.4375,0.375
+Carabidae3,10,Predator,Coleoptera,no,on,9,6,3,1,3,4,1,0,0.95,0.9375,0.9625,0.90625,0.90625,0.96875,1,0.96875
+Carabidae4,10,Predator,Coleoptera,no,on,124,111,13,15,19,43,16,31,0.6875,0.5,0.875,0.8125,0.40625,0.78125,0.71875,0.71875
+Carabidae5,2.5,Omnivore,Coleoptera,no,on,4,3,1,0,2,0,2,0,0.975,0.9625,0.9875,0.9375,1,1,1,0.9375
+Carabidae6,5,Predator,Coleoptera,no,on,1,0,1,1,0,0,0,0,0.99375,1,0.9875,1,1,0.96875,1,1
+Carabidae7,5,Predator,Coleoptera,no,on,11,11,0,0,2,2,4,3,0.9375,0.875,1,0.9375,0.96875,1,0.90625,0.875
+Carabidae8,5,Omnivore,Coleoptera,no,on,134,134,0,0,132,0,2,0,0.93125,0.8625,1,0.6875,1,1,1,0.96875
+Carabidae9,20,Predator,Coleoptera,no,on,6,6,0,1,3,1,0,1,0.9625,0.925,1,0.90625,0.96875,0.96875,0.96875,1
+Cassidinae(Hispoid)1,2.5,Herbivore,Coleoptera,yes,above,4,3,1,0,2,1,1,0,0.975,0.9625,0.9875,0.9375,0.96875,1,1,0.96875
+Chrysomelidae1,2.5,Herbivore,Coleoptera,yes,above,3,2,1,0,1,1,0,1,0.98125,0.975,0.9875,0.96875,0.96875,1,0.96875,1
+Coccinellidae1,0,Predator,Coleoptera,yes,above,9,6,3,0,4,2,2,1,0.94375,0.925,0.9625,0.875,0.9375,1,0.96875,0.9375
+Corylophidae1,0,Detritivore,Coleoptera,yes,on,30,25,5,2,5,5,11,7,0.8625,0.775,0.95,0.84375,0.875,0.9375,0.8125,0.84375
+Corylophidae2,0,Detritivore,Coleoptera,yes,on,10,10,0,2,2,0,6,0,0.96875,0.9375,1,0.96875,1,0.96875,1,0.90625
+Corylophidae3,0,Detritivore,Coleoptera,yes,on,22,22,0,11,2,1,2,6,0.8875,0.775,1,0.9375,0.96875,0.71875,0.875,0.9375
+Corylophidae4,0,Detritivore,Coleoptera,yes,on,3,3,0,0,2,1,0,0,0.9875,0.975,1,0.96875,0.96875,1,1,1
+Curculionidae01,5,Herbivore,Coleoptera,no,above,176,71,105,42,62,20,5,47,0.59375,0.6375,0.55,0.46875,0.65625,0.5,0.5,0.84375
+Curculionidae02,5,Herbivore,Coleoptera,no,above,626,414,212,162,162,46,57,199,0.2,0.0375,0.3625,0.125,0.40625,0.0625,0.1875,0.21875
+Curculionidae03,2.5,Herbivore,Coleoptera,no,above,3,1,2,1,1,0,0,1,0.98125,0.9875,0.975,0.96875,1,0.96875,0.96875,1
+Curculionidae04,5,Herbivore,Coleoptera,no,above,249,231,18,32,17,31,10,159,0.6375,0.4375,0.8375,0.8125,0.75,0.46875,0.28125,0.875
+Curculionidae05,2.5,Herbivore,Coleoptera,no,above,150,143,7,76,0,64,5,5,0.7625,0.6,0.925,1,0.65625,0.4375,0.84375,0.875
+Curculionidae06,2.5,Herbivore,Coleoptera,no,above,4,0,4,1,0,0,0,3,0.975,1,0.95,1,1,0.96875,0.90625,1
+Curculionidae07,15,Herbivore,Coleoptera,no,above,2,1,1,0,1,0,0,1,0.9875,0.9875,0.9875,0.96875,1,1,0.96875,1
+Curculionidae08,5,Herbivore,Coleoptera,no,above,7,6,1,1,1,1,1,3,0.95625,0.925,0.9875,0.96875,0.96875,0.96875,0.90625,0.96875
+Curculionidae09,2.5,Herbivore,Coleoptera,no,above,9,7,2,1,7,0,1,0,0.9625,0.95,0.975,0.875,1,0.96875,1,0.96875
+Curculionidae10,0,Herbivore,Coleoptera,no,above,28,28,0,0,23,5,0,0,0.9125,0.825,1,0.71875,0.84375,1,1,1
+Curculionidae11,2.5,Herbivore,Coleoptera,no,above,4,4,0,0,0,0,0,4,0.9875,0.975,1,1,1,1,0.9375,1
+Elateridae1,2.5,Predator,Coleoptera,yes,below,10,8,2,0,1,1,0,8,0.98125,0.9875,0.975,0.96875,0.96875,1,0.96875,1
+Elateridae2,5,Herbivore,Coleoptera,yes,below,46,34,12,4,1,4,1,36,0.8625,0.8,0.925,0.96875,0.875,0.875,0.625,0.96875
+Endomychidae1,0,Herbivore,Coleoptera,yes,above,17,4,13,2,3,2,2,8,0.91875,0.9625,0.875,0.90625,0.9375,0.9375,0.84375,0.96875
+Latridiidae1,0,Detritivore,Coleoptera,no,on,70,70,0,7,5,6,31,21,0.775,0.55,1,0.90625,0.8125,0.8125,0.71875,0.625
+Scarabaeoidea1,5,Herbivore,Coleoptera,yes,below,6,5,1,0,1,0,0,5,0.96875,0.95,0.9875,0.96875,1,1,0.875,1
+Scarabaeoidea2,5,Herbivore,Coleoptera,yes,below,173,162,11,30,80,17,45,1,0.64375,0.4125,0.875,0.46875,0.75,0.53125,0.96875,0.5
+Scarabaeoidea3,5,Herbivore,Coleoptera,yes,below,3,2,1,0,1,1,1,0,0.98125,0.975,0.9875,0.96875,0.96875,1,1,0.96875
+Scarabaeoidea4,5,Herbivore,Coleoptera,yes,below,1,1,0,0,1,0,0,0,0.99375,0.9875,1,0.96875,1,1,1,1
+Scarabaeoidea5,5,Herbivore,Coleoptera,yes,below,2,2,0,0,1,0,1,0,0.9875,0.975,1,0.96875,1,1,1,0.96875
+Scarabaeoidea6,2.5,Herbivore,Coleoptera,yes,below,2,2,0,0,2,0,0,0,0.99375,0.9875,1,0.96875,1,1,1,1
+Scarabaeoidea7,5,Herbivore,Coleoptera,yes,below,2,2,0,0,0,1,0,1,0.9875,0.975,1,1,0.96875,1,0.96875,1
+Scirtidae1,2.5,Herbivore,Coleoptera,yes,above,1,0,1,0,0,1,0,0,0.99375,1,0.9875,1,0.96875,1,1,1
+Staphylinidae1,2.5,Detritivore,Coleoptera,yes,above,7,5,2,0,3,1,0,3,0.95625,0.9375,0.975,0.90625,0.96875,1,0.90625,1
+Staphylinidae2,0,Detritivore,Coleoptera,yes,above,47,40,7,25,6,2,9,5,0.8125,0.7125,0.9125,0.875,0.9375,0.59375,0.875,0.78125
+Staphylinidae3,0,Detritivore,Coleoptera,yes,above,3,2,1,0,2,1,0,0,0.9875,0.9875,0.9875,0.96875,0.96875,1,1,1
+Staphylinidae4,2.5,Detritivore,Coleoptera,yes,above,1,0,1,1,0,0,0,0,0.99375,1,0.9875,1,1,0.96875,1,1
+Staphylinidae5,10,Detritivore,Coleoptera,yes,above,3,3,0,0,1,1,0,1,0.98125,0.9625,1,0.96875,0.96875,1,0.96875,1
+Staphylinidae6,0,Omnivore,Coleoptera,yes,above,2,2,0,0,2,0,0,0,0.9875,0.975,1,0.9375,1,1,1,1
+Staphylinidae7,0,Omnivore,Coleoptera,yes,above,1,1,0,0,1,0,0,0,0.99375,0.9875,1,0.96875,1,1,1,1
+Staphylinidae8,2.5,Omnivore,Coleoptera,yes,above,1,1,0,0,1,0,0,0,0.99375,0.9875,1,0.96875,1,1,1,1
+Tenebrionidae1,5,Omnivore,Coleoptera,yes,on,1174,961,213,137,314,255,453,15,0.30625,0.225,0.3875,0.15625,0.25,0.40625,0.65625,0.0625
+Tenebrionidae2,10,Omnivore,Coleoptera,yes,on,48,41,7,7,19,8,3,11,0.8,0.675,0.925,0.6875,0.84375,0.875,0.6875,0.90625
+Tenebrionidae3,0,Omnivore,Coleoptera,yes,on,1,0,1,0,1,0,0,0,0.99375,1,0.9875,0.96875,1,1,1,1
+Tenebrionidae4,10,Omnivore,Coleoptera,yes,on,7,1,6,0,0,0,6,1,0.975,0.9875,0.9625,1,1,1,0.96875,0.90625
+Tenebrionidae5,10,Omnivore,Coleoptera,yes,on,5,4,1,5,0,0,0,0,0.96875,0.95,0.9875,1,1,0.84375,1,1
+Tenebrionidae6,10,Omnivore,Coleoptera,yes,on,9,8,1,0,2,0,4,3,0.95625,0.925,0.9875,0.96875,1,1,0.90625,0.90625
+Tenebrionidae7,5,Omnivore,Coleoptera,yes,on,10,9,1,3,1,0,0,6,0.94375,0.9,0.9875,0.96875,1,0.90625,0.84375,1
+Tenebrionidae8,2.5,Omnivore,Coleoptera,yes,on,2,2,0,1,0,0,0,1,0.9875,0.975,1,1,1,0.96875,0.96875,1

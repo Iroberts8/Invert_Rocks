@@ -1308,9 +1308,9 @@ text(3.5,-5,labels=paste('Int. P=',round(summary(otherpca2_mod1)$coefficients[4,
 
 #Close model graphs ----
 
-#Preparing for functional group analysis ----
+#Functional group analysis ----
 
-#Araneae
+#Araneae----
 head(Araneae[,1:8])
 head(Ara_funcabun[,1:8]);dim(Ara_funcabun)
 table(colnames(Araneae)[which(colnames(Araneae)=="Actinopodidae1"):ncol(Araneae)] %in% Ara_funcabun$Morphospecies)
@@ -1397,13 +1397,14 @@ a_sd <- Ara_spd[,which(colnames(Ara_spd) %in% a_s)]
 head(a_sd);dim(a_sd)
 a_ssum <- rowSums(a_sd)
 length(a_ssum)
+head(a_ssum)
 
-#Issue - how to sum 1
 a_w <- Ara_funcabun$Morphospecies[which(Ara_funcabun$Retreat_Capture=="Active_Web")]
 a_wd <- Ara_spd[,which(colnames(Ara_spd) %in% a_w)]
 head(a_wd)
-a_wsum <- rowSums(a_wd)
-length(a_wsum)
+a_wsum <- a_wd
+length(a_wd)
+head(a_wd)
 
 s_w <- Ara_funcabun$Morphospecies[which(Ara_funcabun$Retreat_Capture=="Snare_Web")]
 s_wd <- Ara_spd[,which(colnames(Ara_spd) %in% s_w)]
@@ -1428,12 +1429,147 @@ v_sd <- Ara_spd[,which(colnames(Ara_spd) %in% v_s)]
 head(v_sd)
 v_ssum <- rowSums(v_sd)
 length(v_ssum)
-ara_groups <- cbind(Ara_sited,data.frame(burrow=burrowsum),data.frame(free=freesum),data.frame(sac=sacsum),data.frame(web=websum),data.frame(active=activesum),data.frame(snare=snaresum),data.frame(vagrant=vagrantsum),data.frame(Active_Burrow=a_bsum),data.frame(Active_Free=a_fsum),data.frame(Active_Sac=a_ssum),data.frame(Snare_Web=s_wsum),data.frame(Vagrant_Burrow=v_bsum),data.frame(Vagrant_Free=v_fsum),data.frame(Vagrant_Sac=v_ssum))
+ara_groups <- cbind(Ara_sited,data.frame(Burrow=burrowsum),data.frame(Free=freesum),data.frame(Sac=sacsum),data.frame(Web=websum),data.frame(Active=activesum),data.frame(Snare=snaresum),data.frame(Vagrant=vagrantsum),data.frame(Active_Burrow=a_bsum),data.frame(Active_Free=a_fsum),data.frame(Active_Sac=a_ssum),data.frame(Active_Web=a_wd),data.frame(Snare_Web=s_wsum),data.frame(Vagrant_Burrow=v_bsum),data.frame(Vagrant_Free=v_fsum),data.frame(Vagrant_Sac=v_ssum))
+ara_groups$Yr <- ara_groups$Year-min(ara_groups$Year)
+ara_groups <- ara_groups[,c(1:5,which(colnames(ara_groups)=="Yr"),which(colnames(ara_groups)=="Burrow"):which(colnames(ara_groups)=="Vagrant_Sac"))]
+ara_groups$Site <- as.factor(ara_groups$Site)
+ara_groups$Plot <- as.factor(ara_groups$Plot)
+ara_groups$Treatment <- as.factor(ara_groups$Treatment)
+head(ara_groups)
 
-#Coleoptera
+aragroup_summary1 <- apply(ara_groups[,which(colnames(ara_groups)=="Burrow"):ncol(ara_groups)],MARGIN = 2,FUN=function(x)table(x==0)[2]/sum(table(x==0)))
+aragroup_summary <- data.frame(group=names(aragroup_summary1),propzero=aragroup_summary1)
+rownames(aragroup_summary) <- 1:nrow(aragroup_summary)
+#table(ara_groups$burrow==0)[2]/sum(table(ara_groups$burrow==0))
+
+aragroup_summary$abun <- apply(ara_groups[,which(colnames(ara_groups)=="Burrow"):ncol(ara_groups)],MARGIN = 2,FUN=function(x)sum(x))
+aragroup_summary$fit_binom <- ifelse(aragroup_summary$propzero<0.2,'no','yes')
+aragroup_summary$fit_abun <- ifelse(aragroup_summary$abun<135,'no','yes')
+
+head(ara_groups);dim(ara_groups)
+ara_gr <- colnames(ara_groups)[which(colnames(ara_groups)=="Burrow"):ncol(ara_groups)]
+aragroup_summary
+aragroup_summary$p_binom_int <- NA
+aragroup_summary$p_abun_int <- NA
+aragroup_binom <- list()
+aragroup_bicoef <- list()
+aragroup_bipred <- list()
+aragroup_abun <- list()
+aragroup_abcoef <- list()
+aragroup_abpred <- list()
+
+for(i in 1:length(ara_gr)){
+  group_this_run <- ara_gr[i]
+  sum_this_run <- aragroup_summary[which(aragroup_summary$group==group_this_run),]
+  dat_this_run <- ara_groups[,c(1:6,which(colnames(ara_groups)==group_this_run))]
+  dg_this_run <- dat_this_run[,which(colnames(dat_this_run)==group_this_run)]
+  head(dat_this_run)
+  if(sum_this_run$fit_binom=='yes'){
+    dg_binom <- ifelse(dg_this_run>0,1,0)
+    binom_this_run <- glmer(dg_binom ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),family=binomial,data=dat_this_run)
+    binom_sum<-summary(binom_this_run)$coefficients
+    aragroup_binom[[i]]<-binom_this_run
+    aragroup_bicoef[[i]]<-binom_sum
+    aragroup_summary$p_binom_int[i]<-round(binom_sum[which(rownames(binom_sum)=='TreatmentRock:Yr'),which(colnames(binom_sum)=='Pr(>|z|)')],4)
+    
+    binom_nd <- data.frame(Yr=c(0,0,3,3),Treatment=factor(rep(levels(dat_this_run$Treatment),2),levels=levels(dat_this_run$Treatment)))
+    binom_pr <- predictSE(mod=binom_this_run,newdata=binom_nd,se.fit=T,type='link')
+    binom_pr<-data.frame(binom_nd, fit.link=binom_pr$fit, se=binom_pr$se.fit)
+    binom_pr$lci.link<-binom_pr$fit-(1.96*binom_pr$se)
+    binom_pr$uci.link<-binom_pr$fit+(1.96*binom_pr$se)
+    binom_pr$fit.resp<-invlogit(binom_pr$fit.link)
+    binom_pr$lci.resp<-invlogit(binom_pr$lci.link)
+    binom_pr$uci.resp<-invlogit(binom_pr$uci.link)
+    binom_pr
+    aragroup_bipred[[i]]<-binom_pr
+  } #close fit_binom
+ 
+   if(sum_this_run$fit_abun=='yes'){
+    abun_this_run<-glmmadmb(dg_this_run~Treatment+Yr+Treatment:Yr+(1|Site/Plot), family="nbinom", data=dat_this_run)
+    abun_sum<-summary(abun_this_run)$coefficients
+    aragroup_abun[[i]]<-abun_this_run
+    aragroup_abcoef[[i]]<-abun_sum
+    aragroup_summary$p_abun_int[i]<-round(abun_sum[which(rownames(abun_sum)=='TreatmentRock:Yr'),which(colnames(abun_sum)=='Pr(>|z|)')],4)
+    
+    abun_nd <- data.frame(Yr=c(0,0,3,3),Treatment=factor(rep(levels(dat_this_run$Treatment),2),levels=levels(dat_this_run$Treatment)))
+    abun_pr <- predict(abun_this_run,newdata=abun_nd,se.fit=T,type='link')
+    abun_pr<-data.frame(abun_nd, fit.link=abun_pr$fit, se=abun_pr$se.fit)
+    abun_pr$lci.link<-abun_pr$fit-(1.96*abun_pr$se)
+    abun_pr$uci.link<-abun_pr$fit+(1.96*abun_pr$se)
+    abun_pr$fit.resp<-exp(abun_pr$fit.link)
+    abun_pr$lci.resp<-exp(abun_pr$lci.link)
+    abun_pr$uci.resp<-exp(abun_pr$uci.link)
+    abun_pr
+    aragroup_abpred[[i]]<-abun_pr
+   } #close fit_abun
+  
+} #close i
+
+aragroup_abun
+summary(aragroup_abun[[3]])
+aragroup_abcoef
+aragroup_abpred[[3]]
+
+aragroup_binom
+summary(aragroup_binom[[15]])
+aragroup_bicoef
+aragroup_bipred[[]]
+
+#Vagrant_Free model did not converge, standard errors tiny, CI's not estimated, Interaction probability was 0. So we will not plot this model.
+
+aragroup_summary$p_binom_int[which(aragroup_summary$group=='Vagrant_Free')] <- NA
+
+length(which(!is.na(aragroup_summary$p_binom_int)))
+binom.plot <- which(!is.na(aragroup_summary$p_binom_int))
+
+dev.new(width=12,height=8,dpi=80,pointsize=20,noRStudioGD = T)
+par(mfrow=c(3,3),mar=c(5,5,1,1),oma=c(0,0,0,8),mgp=c(2.5,1,0))
+
+for(i in binom.plot){
+  
+  pred.this.run<-aragroup_bipred[[i]]
+  plot(1:4,pred.this.run$fit.resp,ylim=c(0,1),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Prob. occurence',xlab='Year',main=aragroup_summary$group[i],font.main=1)
+ 
+  axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
+  arrows(1:4,pred.this.run$lci.resp,1:4,pred.this.run$uci.resp,length=0.05,angle=90,code=3)
+  text(x=0.5, y=0.9,labels=paste('Int.p=',round(aragroup_summary$p_binom_int[i],3),sep=''),adj=0)
+  
+} #close plot loop
+
+par(xpd=NA)
+legend(x=8, y=1, legend=c("Control", "Rock"), pch = c(16,18), cex=1, box.lty=0)
+par(xpd=F)
+
+#Abundance model plots - Spiders
+
+length(which(!is.na(aragroup_summary$p_abun_int)))
+abun.plot <- which(!is.na(aragroup_summary$p_abun_int))
+
+dev.new(width=12,height=8,dpi=80,pointsize=20,noRStudioGD = T)
+par(mfrow=c(3,3),mar=c(5,5,1,1),oma=c(0,0,0,8),mgp=c(2.5,1,0))
+
+for(i in abun.plot){
+  
+  pred.this.run<-aragroup_abpred[[i]]
+  plot(1:4,pred.this.run$fit.resp,ylim=c(0,max(pred.this.run$uci.resp)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Abundance',xlab='Year',main=aragroup_summary$group[i],font.main=1)
+  
+  axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
+  arrows(1:4,pred.this.run$lci.resp,1:4,pred.this.run$uci.resp,length=0.05,angle=90,code=3)
+  text(x=0.5, y=0.15,labels=paste('Int.p=',round(aragroup_summary$p_abun_int[i],3),sep=''),adj=0)
+  
+} #close plot loop
+
+par(xpd=NA)
+legend(x=6, y=36, legend=c("Control", "Rock"), pch = c(16,18), cex=1, box.lty=0)
+par(xpd=F)
+
+# if needed can add this to correct model errors admb.opts=admbControl(impSamp=200,shess=FALSE,noinit=FALSE)
+
+#Close Araneae----
+
+#Coleoptera----
 head(Col2[,1:8])
 head(Col_funcabun[,1:8]);dim(Col_funcabun)
-#How do I fix this?
 table(colnames(Col2)[which(colnames(Col2)=="Anthicidae1"):ncol(Col2)] %in% Col_funcabun$Morphospecies)
 colnames(Col2)[which(colnames(Col2)=="Anthicidae1"):ncol(Col2)][which(!colnames(Col2)[which(colnames(Col2)=="Anthicidae1"):ncol(Col2)] %in% Col_funcabun$Morphospecies)]
 Col_occur <- colnames(Col2)[which(colnames(Col2)=="Anthicidae1"):ncol(Col2)]
@@ -1444,14 +1580,1137 @@ Col_func[which(!Col_func %in% Col_occur)]
 which(duplicated(Col_occur))
 which(duplicated(Col_func))
 
+Col_funcabun$Size2<-ifelse(Col_funcabun$Size<5,'small','big')
+
+Col_funcabun$Size2 <- as.factor(Col_funcabun$Size2)
+levels(Col_funcabun$Size2)
+table(Col_funcabun$Size2)
+Col_funcabun$Trophic.level <- as.factor(Col_funcabun$Trophic.level)
+levels(Col_funcabun$Trophic.level)
+table(Col_funcabun$Trophic.level)
 Col_funcabun$Flight <- as.factor(Col_funcabun$Flight)
 levels(Col_funcabun$Flight)
 table(Col_funcabun$Flight)
 Col_funcabun$Larval_hab <- as.factor(Col_funcabun$Larval_hab)
 levels(Col_funcabun$Larval_hab)
 table(Col_funcabun$Larval_hab)
+Col_funcabun$Size_Trophic <- paste(Col_funcabun$Size2,Col_funcabun$Trophic.level,sep="_")
+Col_funcabun$Size_Trophic <- as.factor(Col_funcabun$Size_Trophic)
+levels(Col_funcabun$Size_Trophic)
+table(Col_funcabun$Size_Trophic)
+Col_funcabun$Size_Flight <- paste(Col_funcabun$Size2,Col_funcabun$Flight,sep="_")
+Col_funcabun$Size_Flight <- as.factor(Col_funcabun$Size_Flight)
+levels(Col_funcabun$Size_Flight)
+table(Col_funcabun$Size_Flight)
+Col_funcabun$Size_Larval_hab <- paste(Col_funcabun$Size2,Col_funcabun$Larval_hab,sep="_")
+Col_funcabun$Size_Larval_hab <- as.factor(Col_funcabun$Size_Larval_hab)
+levels(Col_funcabun$Size_Larval_hab)
+table(Col_funcabun$Size_Larval_hab)
+Col_funcabun$Trophic_Flight <- paste(Col_funcabun$Trophic.level,Col_funcabun$Flight,sep="_")
+Col_funcabun$Trophic_Flight <- as.factor(Col_funcabun$Trophic_Flight)
+levels(Col_funcabun$Trophic_Flight)
+table(Col_funcabun$Trophic_Flight)
+Col_funcabun$Trophic_Larval_hab <- paste(Col_funcabun$Trophic.level,Col_funcabun$Larval_hab,sep="_")
+Col_funcabun$Trophic_Larval_hab <- as.factor(Col_funcabun$Trophic_Larval_hab)
+levels(Col_funcabun$Trophic_Larval_hab)
+table(Col_funcabun$Trophic_Larval_hab)
 Col_funcabun$Flight_Larval_hab <- paste(Col_funcabun$Larval_hab,Col_funcabun$Flight,sep="_")
 Col_funcabun$Flight_Larval_hab <- as.factor(Col_funcabun$Flight_Larval_hab)
 levels(Col_funcabun$Flight_Larval_hab)
 table(Col_funcabun$Flight_Larval_hab)
 
+#Unsure not analysed
+
+head(Col_funcabun);dim(Col_funcabun)
+Col_sited <- Coleoptera[,1:5]
+head(Col_sited);dim(Col_sited)
+Col_spd <- Col2[,which(colnames(Col2)=="Anthicidae1"):ncol(Col2)]
+head(Col_spd[,1:6])
+
+big <- Col_funcabun$Morphospecies[which(Col_funcabun$Size2=="big")]
+big_d <- Col_spd[,which(colnames(Col_spd) %in% big)]
+head(big_d);dim(big_d)
+big_sum <- rowSums(big_d)
+length(big_sum)
+
+small <- Col_funcabun$Morphospecies[which(Col_funcabun$Size2=="small")]
+small_d <- Col_spd[,which(colnames(Col_spd) %in% small)]
+head(small_d);dim(small_d)
+small_sum <- rowSums(small_d)
+length(small_sum)
+
+detritivore <- Col_funcabun$Morphospecies[which(Col_funcabun$Trophic.level=="Detritivore")]
+det_d <- Col_spd[,which(colnames(Col_spd) %in% detritivore)]
+head(det_d);dim(det_d)
+det_sum <- rowSums(det_d)
+length(det_sum)
+
+omnivore <- Col_funcabun$Morphospecies[which(Col_funcabun$Trophic.level=="Omnivore")]
+omn_d <- Col_spd[,which(colnames(Col_spd) %in% omnivore)]
+head(omn_d);dim(omn_d)
+omn_sum <- rowSums(omn_d)
+length(omn_sum)
+
+predator <- Col_funcabun$Morphospecies[which(Col_funcabun$Trophic.level=="Predator")]
+pred_d <- Col_spd[,which(colnames(Col_spd) %in% predator)]
+head(pred_d);dim(pred_d)
+pred_sum <- rowSums(pred_d)
+length(pred_sum)
+
+herbivore <- Col_funcabun$Morphospecies[which(Col_funcabun$Trophic.level=="Herbivore")]
+herb_d <- Col_spd[,which(colnames(Col_spd) %in% herbivore)]
+head(herb_d);dim(herb_d)
+herb_sum <- rowSums(herb_d)
+length(herb_sum)
+
+dnf <- Col_funcabun$Morphospecies[which(Col_funcabun$Flight=="no")]
+dnf_d <- Col_spd[,which(colnames(Col_spd) %in% dnf)]
+head(dnf_d);dim(dnf_d)
+dnf_sum <- rowSums(dnf_d)
+length(dnf_sum)
+
+fly <- Col_funcabun$Morphospecies[which(Col_funcabun$Flight=="yes")]
+flyd <- Col_spd[,which(colnames(Col_spd) %in% fly)]
+head(flyd[,1:6]);dim(flyd)
+flysum <- rowSums(flyd)
+length(flysum)
+
+hab_above <- Col_funcabun$Morphospecies[which(Col_funcabun$Larval_hab=="above")]
+aboved <- Col_spd[,which(colnames(Col_spd) %in% hab_above)]
+head(aboved[,1:6]);dim(aboved)
+abovesum <- rowSums(aboved)
+length(abovesum)
+
+hab_below <- Col_funcabun$Morphospecies[which(Col_funcabun$Larval_hab=="below")]
+belowd <- Col_spd[,which(colnames(Col_spd) %in% hab_below)]
+head(belowd[,1:6]);dim(belowd)
+belowsum <- rowSums(belowd)
+length(belowsum)
+
+hab_on <- Col_funcabun$Morphospecies[which(Col_funcabun$Larval_hab=="on")]
+ond <- Col_spd[,which(colnames(Col_spd) %in% hab_on)]
+head(ond[,1:6]);dim(ond)
+onsum <- rowSums(ond)
+length(onsum)
+
+#Mixed trait groups
+
+big_det <- Col_funcabun$Morphospecies[which(Col_funcabun$Size_Trophic=="big_Detritivore")]
+big_det_d <- Col_spd[,which(colnames(Col_spd) %in% big_det)]
+head(big_det_d);dim(big_det_d)
+big_detsum <- big_det_d
+length(big_detsum)
+
+big_herb <- Col_funcabun$Morphospecies[which(Col_funcabun$Size_Trophic=="big_Herbivore")]
+big_herb_d <- Col_spd[,which(colnames(Col_spd) %in% big_herb)]
+head(big_herb_d);dim(big_herb_d)
+big_herbsum <- rowSums(big_herb_d)
+length(big_herbsum)
+
+big_omn <- Col_funcabun$Morphospecies[which(Col_funcabun$Size_Trophic=="big_Omnivore")]
+big_omn_d <- Col_spd[,which(colnames(Col_spd) %in% big_omn)]
+head(big_omn_d);dim(big_omn_d)
+big_omnsum <- rowSums(big_omn_d)
+length(big_omnsum)
+
+big_pred <- Col_funcabun$Morphospecies[which(Col_funcabun$Size_Trophic=="big_Predator")]
+big_pred_d <- Col_spd[,which(colnames(Col_spd) %in% big_pred)]
+head(big_pred_d);dim(big_pred_d)
+big_predsum <- rowSums(big_pred_d)
+length(big_predsum)
+
+small_det <- Col_funcabun$Morphospecies[which(Col_funcabun$Size_Trophic=="small_Detritivore")]
+small_det_d <- Col_spd[,which(colnames(Col_spd) %in% small_det)]
+head(small_det_d);dim(small_det_d)
+small_detsum <- rowSums(small_det_d)
+length(small_detsum)
+
+small_herb <- Col_funcabun$Morphospecies[which(Col_funcabun$Size_Trophic=="small_Herbivore")]
+small_herb_d <- Col_spd[,which(colnames(Col_spd) %in% small_herb)]
+head(small_herb_d);dim(small_herb_d)
+small_herbsum <- rowSums(small_herb_d)
+length(small_herbsum)
+
+small_omn <- Col_funcabun$Morphospecies[which(Col_funcabun$Size_Trophic=="small_Omnivore")]
+small_omn_d <- Col_spd[,which(colnames(Col_spd) %in% small_omn)]
+head(small_omn_d);dim(small_omn_d)
+small_omnsum <- rowSums(small_omn_d)
+length(small_omnsum)
+
+small_pred <- Col_funcabun$Morphospecies[which(Col_funcabun$Size_Trophic=="small_Predator")]
+small_pred_d <- Col_spd[,which(colnames(Col_spd) %in% small_pred)]
+head(small_pred_d);dim(small_pred_d)
+small_predsum <- rowSums(small_pred_d)
+length(small_predsum)
+
+big_dnf <- Col_funcabun$Morphospecies[which(Col_funcabun$Size_Flight=="big_no")]
+big_dnf_d <- Col_spd[,which(colnames(Col_spd) %in% big_dnf)]
+head(big_dnf_d);dim(big_dnf_d)
+big_dnfsum <- rowSums(big_dnf_d)
+length(big_dnfsum)
+
+big_fly <- Col_funcabun$Morphospecies[which(Col_funcabun$Size_Flight=="big_yes")]
+big_fly_d <- Col_spd[,which(colnames(Col_spd) %in% big_fly)]
+head(big_fly_d);dim(big_fly_d)
+big_flysum <- rowSums(big_fly_d)
+length(big_flysum)
+
+small_dnf <- Col_funcabun$Morphospecies[which(Col_funcabun$Size_Flight=="small_no")]
+small_dnf_d <- Col_spd[,which(colnames(Col_spd) %in% small_dnf)]
+head(small_dnf_d);dim(small_dnf_d)
+small_dnfsum <- rowSums(small_dnf_d)
+length(small_dnfsum)
+
+small_fly <- Col_funcabun$Morphospecies[which(Col_funcabun$Size_Flight=="small_yes")]
+small_fly_d <- Col_spd[,which(colnames(Col_spd) %in% small_fly)]
+head(small_fly_d);dim(small_fly_d)
+small_flysum <- rowSums(small_fly_d)
+length(small_flysum)
+
+big_above <- Col_funcabun$Morphospecies[which(Col_funcabun$Size_Larval_hab=="big_above")]
+big_above_d <- Col_spd[,which(colnames(Col_spd) %in% big_above)]
+head(big_above_d);dim(big_above_d)
+big_abovesum <- rowSums(big_above_d)
+length(big_abovesum)
+
+big_below <- Col_funcabun$Morphospecies[which(Col_funcabun$Size_Larval_hab=="big_below")]
+big_below_d <- Col_spd[,which(colnames(Col_spd) %in% big_below)]
+head(big_below_d);dim(big_below_d)
+big_belowsum <- rowSums(big_below_d)
+length(big_belowsum)
+
+big_on <- Col_funcabun$Morphospecies[which(Col_funcabun$Size_Larval_hab=="big_on")]
+big_on_d <- Col_spd[,which(colnames(Col_spd) %in% big_on)]
+head(big_on_d);dim(big_on_d)
+big_onsum <- rowSums(big_on_d)
+length(big_onsum)
+
+small_above <- Col_funcabun$Morphospecies[which(Col_funcabun$Size_Larval_hab=="small_above")]
+small_above_d <- Col_spd[,which(colnames(Col_spd) %in% small_above)]
+head(small_above_d);dim(small_above_d)
+small_abovesum <- rowSums(small_above_d)
+length(small_abovesum)
+
+small_below <- Col_funcabun$Morphospecies[which(Col_funcabun$Size_Larval_hab=="small_below")]
+small_below_d <- Col_spd[,which(colnames(Col_spd) %in% small_below)]
+head(small_below_d);dim(small_below_d)
+small_belowsum <- rowSums(small_below_d)
+length(small_belowsum)
+
+small_on <- Col_funcabun$Morphospecies[which(Col_funcabun$Size_Larval_hab=="small_on")]
+small_on_d <- Col_spd[,which(colnames(Col_spd) %in% small_on)]
+head(small_on_d);dim(small_on_d)
+small_onsum <- rowSums(small_on_d)
+length(small_onsum)
+
+det_dnf <- Col_funcabun$Morphospecies[which(Col_funcabun$Trophic_Flight=="Detritivore_no")]
+det_dnf_d <- Col_spd[,which(colnames(Col_spd) %in% det_dnf)]
+head(det_dnf_d);dim(det_dnf_d)
+det_dnfsum <- det_dnf_d
+length(det_dnfsum)
+
+det_fly <- Col_funcabun$Morphospecies[which(Col_funcabun$Trophic_Flight=="Detritivore_yes")]
+det_fly_d <- Col_spd[,which(colnames(Col_spd) %in% det_fly)]
+head(det_fly_d);dim(det_fly_d)
+det_flysum <- rowSums(det_fly_d)
+length(det_flysum)
+
+herb_no <- Col_funcabun$Morphospecies[which(Col_funcabun$Trophic_Flight=="Herbivore_no")]
+herb_no_d <- Col_spd[,which(colnames(Col_spd) %in% herb_no)]
+head(herb_no_d);dim(herb_no_d)
+herb_nosum <- rowSums(herb_no_d)
+length(herb_nosum)
+
+herb_yes <- Col_funcabun$Morphospecies[which(Col_funcabun$Trophic_Flight=="Herbivore_yes")]
+herb_yes_d <- Col_spd[,which(colnames(Col_spd) %in% herb_yes)]
+head(herb_yes_d);dim(herb_yes_d)
+herb_yessum <- rowSums(herb_yes_d)
+length(herb_yessum)
+
+omn_no <- Col_funcabun$Morphospecies[which(Col_funcabun$Trophic_Flight=="Omnivore_no")]
+omn_no_d <- Col_spd[,which(colnames(Col_spd) %in% omn_no)]
+head(omn_no_d);dim(omn_no_d)
+omn_nosum <- rowSums(omn_no_d)
+length(omn_nosum)
+
+omn_yes <- Col_funcabun$Morphospecies[which(Col_funcabun$Trophic_Flight=="Omnivore_yes")]
+omn_yes_d <- Col_spd[,which(colnames(Col_spd) %in% omn_yes)]
+head(omn_yes_d);dim(omn_yes_d)
+omn_yessum <- rowSums(omn_yes_d)
+length(omn_yessum)
+
+pred_no <- Col_funcabun$Morphospecies[which(Col_funcabun$Trophic_Flight=="Predator_no")]
+pred_no_d <- Col_spd[,which(colnames(Col_spd) %in% pred_no)]
+head(pred_no_d);dim(pred_no_d)
+pred_nosum <- rowSums(pred_no_d)
+length(pred_nosum)
+
+pred_yes <- Col_funcabun$Morphospecies[which(Col_funcabun$Trophic_Flight=="Predator_yes")]
+pred_yes_d <- Col_spd[,which(colnames(Col_spd) %in% pred_yes)]
+head(pred_yes_d);dim(pred_yes_d)
+pred_yessum <- rowSums(pred_yes_d)
+length(pred_yessum)
+
+det_above <- Col_funcabun$Morphospecies[which(Col_funcabun$Trophic_Larval_hab=="Detritivore_above")]
+det_above_d <- Col_spd[,which(colnames(Col_spd) %in% det_above)]
+head(det_above_d);dim(det_above_d)
+det_abovesum <- rowSums(det_above_d)
+length(det_abovesum)
+
+det_on <- Col_funcabun$Morphospecies[which(Col_funcabun$Trophic_Larval_hab=="Detritivore_on")]
+det_on_d <- Col_spd[,which(colnames(Col_spd) %in% det_on)]
+head(det_on_d);dim(det_on_d)
+det_onsum <- rowSums(det_on_d)
+length(det_onsum)
+
+herb_above <- Col_funcabun$Morphospecies[which(Col_funcabun$Trophic_Larval_hab=="Herbivore_above")]
+herb_above_d <- Col_spd[,which(colnames(Col_spd) %in% herb_above)]
+head(herb_above_d);dim(herb_above_d)
+herb_abovesum <- rowSums(herb_above_d)
+length(herb_abovesum)
+
+herb_below <- Col_funcabun$Morphospecies[which(Col_funcabun$Trophic_Larval_hab=="Herbivore_below")]
+herb_below_d <- Col_spd[,which(colnames(Col_spd) %in% herb_below)]
+head(herb_below_d);dim(herb_below_d)
+herb_belowsum <- rowSums(herb_below_d)
+length(herb_belowsum)
+
+herb_on <- Col_funcabun$Morphospecies[which(Col_funcabun$Trophic_Larval_hab=="Herbivore_on")]
+herb_on_d <- Col_spd[,which(colnames(Col_spd) %in% herb_on)]
+head(herb_on_d);dim(herb_on_d)
+herb_onsum <- rowSums(herb_on_d)
+length(herb_onsum)
+
+omn_above <- Col_funcabun$Morphospecies[which(Col_funcabun$Trophic_Larval_hab=="Omnivore_above")]
+omn_above_d <- Col_spd[,which(colnames(Col_spd) %in% omn_above)]
+head(omn_above_d);dim(omn_above_d)
+omn_abovesum <- rowSums(omn_above_d)
+length(omn_abovesum)
+
+omn_on <- Col_funcabun$Morphospecies[which(Col_funcabun$Trophic_Larval_hab=="Omnivore_on")]
+omn_on_d <- Col_spd[,which(colnames(Col_spd) %in% omn_on)]
+head(omn_on_d);dim(omn_on_d)
+omn_onsum <- rowSums(omn_on_d)
+length(omn_onsum)
+
+pred_above <- Col_funcabun$Morphospecies[which(Col_funcabun$Trophic_Larval_hab=="Predator_above")]
+pred_above_d <- Col_spd[,which(colnames(Col_spd) %in% pred_above)]
+head(pred_above_d);dim(pred_above_d)
+pred_abovesum <- pred_above_d
+length(pred_abovesum)
+
+pred_below <- Col_funcabun$Morphospecies[which(Col_funcabun$Trophic_Larval_hab=="Predator_below")]
+pred_below_d <- Col_spd[,which(colnames(Col_spd) %in% pred_below)]
+head(pred_below_d);dim(pred_below_d)
+pred_belowsum <- rowSums(pred_below_d)
+length(pred_belowsum)
+
+pred_on <- Col_funcabun$Morphospecies[which(Col_funcabun$Trophic_Larval_hab=="Predator_on")]
+pred_on_d <- Col_spd[,which(colnames(Col_spd) %in% pred_on)]
+head(pred_on_d);dim(pred_on_d)
+pred_onsum <- rowSums(pred_on_d)
+length(pred_onsum)
+
+above_dnf <- Col_funcabun$Morphospecies[which(Col_funcabun$Flight_Larval_hab=="above_no")]
+above_dnf_d <- Col_spd[,which(colnames(Col_spd) %in% above_dnf)]
+head(above_dnf_d);dim(above_dnf_d)
+above_dnfsum <- rowSums(above_dnf_d)
+length(above_dnfsum)
+
+above_fly <- Col_funcabun$Morphospecies[which(Col_funcabun$Flight_Larval_hab=="above_yes")]
+above_flyd <- Col_spd[,which(colnames(Col_spd) %in% above_fly)]
+head(above_flyd);dim(above_flyd)
+above_flysum <- rowSums(above_flyd)
+length(above_flysum)
+head(above_flysum)
+
+below_fly <- Col_funcabun$Morphospecies[which(Col_funcabun$Flight_Larval_hab=="below_yes")]
+below_flyd <- Col_spd[,which(colnames(Col_spd) %in% below_fly)]
+head(below_flyd);dim(below_flyd)
+below_flysum <- rowSums(below_flyd)
+length(below_flysum)
+head(below_flysum)
+
+on_dnf <- Col_funcabun$Morphospecies[which(Col_funcabun$Flight_Larval_hab=="on_no")]
+on_dnf_d <- Col_spd[,which(colnames(Col_spd) %in% on_dnf)]
+head(on_dnf_d)
+on_dnfsum <- rowSums(on_dnf_d)
+length(on_dnfsum)
+head(on_dnfsum)
+
+on_fly <- Col_funcabun$Morphospecies[which(Col_funcabun$Flight_Larval_hab=="on_yes")]
+on_flyd <- Col_spd[,which(colnames(Col_spd) %in% on_fly)]
+head(on_flyd)
+on_flysum <- rowSums(on_flyd)
+length(on_flysum)
+head(on_flysum)
+
+head(colgroups_summary)
+head(col_groups)
+table(col_groups$Site,col_groups$Hab_below)
+
+col_groups <- cbind(Col_sited,data.frame(Big=big_sum),data.frame(Small=small_sum),data.frame(Detritivore=det_sum),data.frame(Omnivore=omn_sum),data.frame(Carnivore=pred_sum),data.frame(Herbivore=herb_sum),data.frame(Do_not_fly=dnf_sum),data.frame(Fly=flysum),data.frame(Hab_above=abovesum),data.frame(Hab_below=belowsum),data.frame(Hab_on=onsum),data.frame(Big_det=big_detsum),data.frame(Big_herb=big_herbsum),data.frame(Big_omn=big_omnsum),data.frame(Big_carn=big_predsum),data.frame(Small_det=small_detsum),data.frame(Small_herb=small_herbsum),data.frame(Small_omn=small_omnsum),data.frame(Small_carn=small_predsum),data.frame(Big_dnf=big_dnfsum),data.frame(Big_fly=big_flysum),data.frame(Small_dnf=small_dnfsum),data.frame(Small_fly=small_flysum),data.frame(Big_above=big_abovesum),data.frame(Big_below=big_belowsum),data.frame(Big_on=big_onsum),data.frame(Small_above=small_abovesum),data.frame(Small_below=small_belowsum),data.frame(Small_on=small_onsum),data.frame(Det_dnf=det_dnfsum),data.frame(Det_fly=det_flysum),data.frame(Herb_dnf=herb_nosum),data.frame(Herb_fly=herb_yessum),data.frame(Omn_dnf=omn_nosum),data.frame(Omn_fly=omn_yessum),data.frame(Carn_dnf=pred_nosum),data.frame(Carn_fly=pred_yessum),data.frame(Det_above=det_abovesum),data.frame(Det_on=det_onsum),data.frame(Herb_above=herb_abovesum),data.frame(Herb_below=herb_belowsum),data.frame(Herb_on=herb_onsum),data.frame(Omn_above=omn_abovesum),data.frame(Omn_on=omn_onsum),data.frame(Carn_above=pred_abovesum),data.frame(Carn_below=pred_belowsum),data.frame(Carn_on=pred_onsum),data.frame(Above_dnf=above_dnfsum),data.frame(Above_fly=above_flysum),data.frame(Below_fly=below_flysum),data.frame(On_dnf=on_dnfsum),data.frame(On_fly=on_flysum))
+col_groups$Yr <- col_groups$Year-min(col_groups$Year)
+col_groups <- col_groups[,c(1:5,which(colnames(col_groups)=="Yr"),which(colnames(col_groups)=="Big"):which(colnames(col_groups)=="On_fly"))]
+col_groups$Site <- as.factor(col_groups$Site)
+col_groups$Plot <- as.factor(col_groups$Plot)
+col_groups$Treatment <- as.factor(col_groups$Treatment)
+head(col_groups);dim(col_groups)
+
+colgroups_summary1 <- apply(col_groups[,which(colnames(col_groups)=="Big"):ncol(col_groups)],MARGIN = 2,FUN=function(x)table(x==0)[2]/sum(table(x==0)))
+colgroups_summary <- data.frame(group=names(colgroups_summary1),propzero=colgroups_summary1)
+rownames(colgroups_summary) <- 1:nrow(colgroups_summary)
+#table(col_groups$big==0)[2]/sum(table(col_groups$big==0))
+
+colgroups_summary$abun <- apply(col_groups[,which(colnames(col_groups)=="Big"):ncol(col_groups)],MARGIN = 2,FUN=function(x)sum(x))
+colgroups_summary$fit_binom <- ifelse(colgroups_summary$propzero<0.2|colgroups_summary$propzero>0.9,'no','yes')
+colgroups_summary$fit_abun <- ifelse(colgroups_summary$abun<80,'no','yes')
+
+# %in% colgroups_summary$propzero>0.9 [,admb.opts=admbControl(impSamp=500,shess=FALSE,noinit=FALSE)]
+admbControl(impSamp=0,maxfn=10000,imaxfn=500,maxph=5,noinit=TRUE,shess=TRUE,run=TRUE, ZI_kluge=FALSE, poiss_prob_bound=TRUE)
+
+head(col_groups);dim(col_groups)
+col_gr <- colnames(col_groups)[which(colnames(col_groups)=="Big"):ncol(col_groups)]
+colgroups_summary
+colgroups_summary$p_binom_int <- NA
+colgroups_summary$p_abun_int <- NA
+colgroup_binom <- list()
+colgroup_bicoef <- list()
+colgroup_bipred <- list()
+colgroup_abun <- list()
+colgroup_abcoef <- list()
+colgroup_abpred <- list()
+
+for(i in 34:length(col_gr)){
+  group_this_run <- col_gr[i]
+  sum_this_run <- colgroups_summary[which(colgroups_summary$group==group_this_run),]
+  dat_this_run <- col_groups[,c(1:6,which(colnames(col_groups)==group_this_run))]
+  dg_this_run <- dat_this_run[,which(colnames(dat_this_run)==group_this_run)]
+  head(dat_this_run);dim(dat_this_run)
+   if(sum_this_run$fit_binom=='yes'){
+    dg_binom <- ifelse(dg_this_run>0,1,0)
+    binom_this_run <- glmer(dg_binom ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),family=binomial,data=dat_this_run)
+    binom_sum<-summary(binom_this_run)$coefficients
+    colgroup_binom[[i]]<-binom_this_run
+    colgroup_bicoef[[i]]<-binom_sum
+    colgroups_summary$p_binom_int[i]<-round(binom_sum[which(rownames(binom_sum)=='TreatmentRock:Yr'),which(colnames(binom_sum)=='Pr(>|z|)')],4)
+    
+    binom_nd <- data.frame(Yr=c(0,0,3,3),Treatment=factor(rep(levels(dat_this_run$Treatment),2),levels=levels(dat_this_run$Treatment)))
+    binom_pr <- predictSE(mod=binom_this_run,newdata=binom_nd,se.fit=T,type='link')
+    binom_pr<-data.frame(binom_nd, fit.link=binom_pr$fit, se=binom_pr$se.fit)
+    binom_pr$lci.link<-binom_pr$fit-(1.96*binom_pr$se)
+    binom_pr$uci.link<-binom_pr$fit+(1.96*binom_pr$se)
+    binom_pr$fit.resp<-invlogit(binom_pr$fit.link)
+    binom_pr$lci.resp<-invlogit(binom_pr$lci.link)
+    binom_pr$uci.resp<-invlogit(binom_pr$uci.link)
+    binom_pr
+    colgroup_bipred[[i]]<-binom_pr
+   
+  } #close fit_binom
+  
+  if(sum_this_run$fit_abun=='yes'){
+    abun_this_run<-glmmadmb(dg_this_run~Treatment+Yr+Treatment:Yr+(1|Site/Plot), family="nbinom", data=dat_this_run)
+    abun_sum<-summary(abun_this_run)$coefficients
+    colgroup_abun[[i]]<-abun_this_run
+    colgroup_abcoef[[i]]<-abun_sum
+    colgroups_summary$p_abun_int[i]<-round(abun_sum[which(rownames(abun_sum)=='TreatmentRock:Yr'),which(colnames(abun_sum)=='Pr(>|z|)')],4)
+    
+    abun_nd <- data.frame(Yr=c(0,0,3,3),Treatment=factor(rep(levels(dat_this_run$Treatment),2),levels=levels(dat_this_run$Treatment)))
+    abun_pr <- predict(abun_this_run,newdata=abun_nd,se.fit=T,type='link')
+    abun_pr<-data.frame(abun_nd, fit.link=abun_pr$fit, se=abun_pr$se.fit)
+    abun_pr$lci.link<-abun_pr$fit-(1.96*abun_pr$se)
+    abun_pr$uci.link<-abun_pr$fit+(1.96*abun_pr$se)
+    abun_pr$fit.resp<-exp(abun_pr$fit.link)
+    abun_pr$lci.resp<-exp(abun_pr$lci.link)
+    abun_pr$uci.resp<-exp(abun_pr$uci.link)
+    abun_pr
+    colgroup_abpred[[i]]<-abun_pr
+  } #close fit_abun
+  
+} #close i
+
+#Remove sites without data
+site_sum<-tapply(dat_this_run[,which(colnames(dat_this_run)==group_this_run)],INDEX=dat_this_run$Site,FUN=sum)
+site_to_remove<-names(which(site_sum==0))
+if(length(site_to_remove)>0){
+  dat_this_run<-dat_this_run[-which(dat_this_run$Site %in% site_to_remove),]
+  dat_this_run<-droplevels(dat_this_run)
+  rownames(dat_this_run)<-1:nrow(dat_this_run)}#close remove sites
+
+colgroup_abun
+colgroup_abcoef
+colgroup_abpred
+
+colgroup_binom
+summary(colgroup_binom[[1]])
+colgroup_bicoef
+colgroup_bipred
+
+#Groups excluded due to errors 
+colgroups_summary$p_binom_int[which(colgroups_summary$group=='Det_dnf')] <- NA
+
+colgroups_summary$p_b_int_adj<-p.adjust(colgroups_summary$p_binom_int,method="hochberg",n=nrow(colgroups_summary)-length(which(is.na(colgroups_summary$p_binom_int))))
+colgroups_summary$p_a_int_adj<-p.adjust(colgroups_summary$p_abun_int,method="hochberg",n=nrow(colgroups_summary)-length(which(is.na(colgroups_summary$p_abun_int))))
+
+length(which(!is.na(colgroups_summary$p_binom_int)))
+binom.plot <- which(!is.na(colgroups_summary$p_binom_int))
+
+dev.new(width=15,height=14,dpi=80,pointsize=20,noRStudioGD = T)
+par(mfrow=c(5,4),mar=c(4,4,1,1),oma=c(0,0,0,0),mgp=c(2.5,1,0))
+
+for(i in binom.plot){
+  
+  pred.this.run<-colgroup_bipred[[i]]
+  plot(1:4,pred.this.run$fit.resp,ylim=c(0,1),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Prob. occurence',xlab='',main=colgroups_summary$group[i],font.main=1)
+  
+  axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'),mgp=c(2,0.8,0))
+  arrows(1:4,pred.this.run$lci.resp,1:4,pred.this.run$uci.resp,length=0.05,angle=90,code=3)
+  text(x=0.5, y=0.1,labels=paste('Int.p=',round(colgroups_summary$p_binom_int[i],2),sep=''),adj=0)
+  title(xlab='Year',mgp=c(2,0.8,0))
+  
+} #close plot loop
+
+par(xpd=NA)
+legend(x=8, y=1, legend=c("Control", "Rock"), pch = c(16,18), cex=1, box.lty=0)
+par(xpd=F)
+
+#Abundance model plots - Beetles
+
+length(which(!is.na(colgroups_summary$p_abun_int)))
+abun.plot <- which(!is.na(colgroups_summary$p_abun_int))
+
+dev.new(width=25,height=15,dpi=80,pointsize=20,noRStudioGD = T)
+par(mfrow=c(5,8),mar=c(4,4,1,1),oma=c(0,0,0,8),mgp=c(2.5,1,0))
+
+for(i in abun.plot){
+  
+  pred.this.run<-colgroup_abpred[[i]]
+  plot(1:4,pred.this.run$fit.resp,ylim=c(0,max(pred.this.run$uci.resp)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Abundance',xlab='',main=colgroups_summary$group[i],font.main=1)
+  
+  axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'),mgp=c(2,0.8,0))
+  arrows(1:4,pred.this.run$lci.resp,1:4,pred.this.run$uci.resp,length=0.05,angle=90,code=3)
+  text(x=2, y=(par('usr')[4])-par('usr')[4]/10,labels=paste('Int.p=',round(colgroups_summary$p_abun_int[i],2),sep=''),adj=0)
+  title(xlab='Year',mgp=c(2,0.8,0))
+  
+} #close plot loop
+
+par(xpd=NA)
+legend(x=6, y=36, legend=c("Control", "Rock"), pch = c(16,18), cex=1, box.lty=0)
+par(xpd=F)
+
+#Close Coleoptera ----
+
+#Formicidae ----
+
+head(Form2[,1:10])
+head(Form_funcabun[,1:10]);dim(Form_funcabun)
+table(colnames(Form2)[which(colnames(Form2)=="Amblyoponinae1"):ncol(Form2)] %in% Form_funcabun$Morphospecies)
+colnames(Form2)[which(colnames(Form2)=="Amblyoponinae1"):ncol(Form2)][which(!colnames(Form2)[which(colnames(Form2)=="Amblyoponinae1"):ncol(Form2)] %in% Form_funcabun$Morphospecies)]
+Form_occur <- colnames(Form2)[which(colnames(Form2)=="Amblyoponinae1"):ncol(Form2)]
+Form_func <- Form_funcabun$Morphospecies
+Form_occur[which(!Form_occur %in% Form_func)]
+Form_func[which(!Form_func %in% Form_occur)]
+
+which(duplicated(Form_occur))
+which(duplicated(Form_func))
+
+Form_funcabun$Size2<-ifelse(Form_funcabun$Size<5,'Small','Big')
+Form_funcabun$Colony_size2<-ifelse(Form_funcabun$Colony_size=="Tens"|Form_funcabun$Colony_size=="Hundreds",'Few','Many')
+Form_funcabun$Colony_size2[which(Form_funcabun$Colony_size=='Unknown')] <- 'Unknown'
+
+#Exclude foraging site and food preference as these effects are captured by others
+head(Form_funcabun,3)
+form_funcabun2<-Form_funcabun[,c('Size2','Trophic.level','Food_preference','Nest_site','Colony_size2','Foraging_style','Foraging_site')]
+head(form_funcabun2,3)
+plot(form_funcabun2)
+form_funcabun2$Colony_size2<-as.factor(form_funcabun2$Colony_size2)
+form_funcabun3<-data.frame(as.numeric(form_funcabun2$Size2),as.numeric(form_funcabun2$Trophic.level),as.numeric(form_funcabun2$Food_preference),as.numeric(form_funcabun2$Nest_site),as.numeric(form_funcabun2$Colony_size2),as.numeric(form_funcabun2$Foraging_style),as.numeric(form_funcabun2$Foraging_site))
+head(form_funcabun3,3)
+colnames(form_funcabun3)<-colnames(form_funcabun2)
+corrffabund<-cor(form_funcabun3)
+corrplot(corrffabund,method='circle',diag=F)
+form_funcabun4<-form_funcabun3[,-which(colnames(form_funcabun3)%in%c('Foraging_site','Food_preference'))]
+corrffabund2<-cor(form_funcabun4)
+
+Form_funcabun$Size2 <- as.factor(Form_funcabun$Size2)
+levels(Form_funcabun$Size2)
+table(Form_funcabun$Size2)
+Form_funcabun$Trophic.level <- as.factor(Form_funcabun$Trophic.level)
+levels(Form_funcabun$Trophic.level)
+table(Form_funcabun$Trophic.level)
+Form_funcabun$Nest_site <- as.factor(Form_funcabun$Nest_site)
+levels(Form_funcabun$Nest_site)
+table(Form_funcabun$Nest_site)
+Form_funcabun$Colony_size <- as.factor(Form_funcabun$Colony_size2)
+levels(Form_funcabun$Colony_size)
+table(Form_funcabun$Colony_size)
+Form_funcabun$Foraging_style <- as.factor(Form_funcabun$Foraging_style)
+levels(Form_funcabun$Foraging_style)
+table(Form_funcabun$Foraging_style)
+Form_funcabun$Size_Trophic <- paste(Form_funcabun$Size2,Form_funcabun$Trophic.level,sep="_")
+Form_funcabun$Size_Trophic <- as.factor(Form_funcabun$Size_Trophic)
+levels(Form_funcabun$Size_Trophic)
+table(Form_funcabun$Size_Trophic)
+Form_funcabun$Size_Nest <- paste(Form_funcabun$Size2,Form_funcabun$Nest_site,sep="_")
+Form_funcabun$Size_Nest <- as.factor(Form_funcabun$Size_Nest)
+levels(Form_funcabun$Size_Nest)
+table(Form_funcabun$Size_Nest)
+Form_funcabun$Size_Colony <- paste(Form_funcabun$Size2,Form_funcabun$Colony_size2,sep="_")
+Form_funcabun$Size_Colony <- as.factor(Form_funcabun$Size_Colony)
+levels(Form_funcabun$Size_Colony)
+table(Form_funcabun$Size_Colony)
+Form_funcabun$Size_Fstyle <- paste(Form_funcabun$Size2,Form_funcabun$Foraging_style,sep="_")
+Form_funcabun$Size_Fstyle <- as.factor(Form_funcabun$Size_Fstyle)
+levels(Form_funcabun$Size_Fstyle)
+table(Form_funcabun$Size_Fstyle)
+Form_funcabun$Trophic_Nest <- paste(Form_funcabun$Trophic.level,Form_funcabun$Nest_site,sep="_")
+Form_funcabun$Trophic_Nest <- as.factor(Form_funcabun$Trophic_Nest)
+levels(Form_funcabun$Trophic_Nest)
+table(Form_funcabun$Trophic_Nest)
+Form_funcabun$Trophic_Colony <- paste(Form_funcabun$Trophic.level,Form_funcabun$Colony_size2,sep="_")
+Form_funcabun$Trophic_Colony <- as.factor(Form_funcabun$Trophic_Colony)
+levels(Form_funcabun$Trophic_Colony)
+table(Form_funcabun$Trophic_Colony)
+Form_funcabun$Trophic_Fstyle <- paste(Form_funcabun$Trophic.level,Form_funcabun$Foraging_style,sep="_")
+Form_funcabun$Trophic_Fstyle <- as.factor(Form_funcabun$Trophic_Fstyle)
+levels(Form_funcabun$Trophic_Fstyle)
+table(Form_funcabun$Trophic_Fstyle)
+Form_funcabun$Nest_Colony <- paste(Form_funcabun$Nest_site,Form_funcabun$Colony_size2,sep="_")
+Form_funcabun$Nest_Colony <- as.factor(Form_funcabun$Nest_Colony)
+levels(Form_funcabun$Nest_Colony)
+table(Form_funcabun$Nest_Colony)
+Form_funcabun$Nest_Fstyle <- paste(Form_funcabun$Nest_site,Form_funcabun$Foraging_style,sep="_")
+Form_funcabun$Nest_Fstyle <- as.factor(Form_funcabun$Nest_Fstyle)
+levels(Form_funcabun$Nest_Fstyle)
+table(Form_funcabun$Nest_Fstyle)
+Form_funcabun$Colony_Fstyle <- paste(Form_funcabun$Colony_size2,Form_funcabun$Foraging_style,sep="_")
+Form_funcabun$Colony_Fstyle <- as.factor(Form_funcabun$Colony_Fstyle)
+levels(Form_funcabun$Colony_Fstyle)
+table(Form_funcabun$Colony_Fstyle)
+
+head(Form_funcabun);dim(Form_funcabun)
+Form_sited <- Formicidae[,1:5]
+head(Form_sited);dim(Form_sited)
+Form_spd <- Form2[,which(colnames(Form2)=="Amblyoponinae1"):ncol(Form2)]
+head(Form_spd[,1:6])
+
+Big <- Form_funcabun$Morphospecies[which(Form_funcabun$Size2=="Big")]
+Big_d <- Form_spd[,which(colnames(Form_spd) %in% Big)]
+head(Big_d);dim(Big_d)
+Big_sum <- rowSums(Big_d)
+length(Big_sum)
+
+Small <- Form_funcabun$Morphospecies[which(Form_funcabun$Size2=="Small")]
+Small_d <- Form_spd[,which(colnames(Form_spd) %in% Small)]
+head(Small_d);dim(Small_d)
+Small_sum <- rowSums(Small_d)
+length(Small_sum)
+
+Carnivore <- Form_funcabun$Morphospecies[which(Form_funcabun$Trophic.level=="Carnivore")]
+Carnivore_d <- Form_spd[,which(colnames(Form_spd) %in% Carnivore)]
+head(Carnivore_d);dim(Carnivore_d)
+Carnivore_sum <- rowSums(Carnivore_d)
+length(Carnivore_sum)
+
+Omnivore <- Form_funcabun$Morphospecies[which(Form_funcabun$Trophic.level=="Omnivore")]
+Omnivore_d <- Form_spd[,which(colnames(Form_spd) %in% Omnivore)]
+head(Omnivore_d);dim(Omnivore_d)
+Omnivore_sum <- rowSums(Omnivore_d)
+length(Omnivore_sum)
+
+Herbivore <- Form_funcabun$Morphospecies[which(Form_funcabun$Trophic.level=="Herbivore")]
+Herbivore_d <- Form_spd[,which(colnames(Form_spd) %in% Herbivore)]
+head(Herbivore_d);dim(Herbivore_d)
+Herbivore_sum <- rowSums(Herbivore_d)
+length(Herbivore_sum)
+
+Mixed <- Form_funcabun$Morphospecies[which(Form_funcabun$Nest_site=="Mixed")]
+Mixed_d <- Form_spd[,which(colnames(Form_spd) %in% Mixed)]
+head(Mixed_d);dim(Mixed_d)
+Mixed_sum <- rowSums(Mixed_d)
+length(Mixed_sum)
+
+Soil <- Form_funcabun$Morphospecies[which(Form_funcabun$Nest_site=="Soil")]
+Soil_d <- Form_spd[,which(colnames(Form_spd) %in% Soil)]
+head(Soil_d);dim(Soil_d)
+Soil_sum <- rowSums(Soil_d)
+length(Soil_sum)
+
+Trees <- Form_funcabun$Morphospecies[which(Form_funcabun$Nest_site=="Trees")]
+Trees_d <- Form_spd[,which(colnames(Form_spd) %in% Trees)]
+head(Trees_d);dim(Trees_d)
+Trees_sum <- Trees_d
+length(Trees_sum)
+
+Few <- Form_funcabun$Morphospecies[which(Form_funcabun$Colony_size2=="Few")]
+Few_d <- Form_spd[,which(colnames(Form_spd) %in% Few)]
+head(Few_d);dim(Few_d)
+Few_sum <- rowSums(Few_d)
+length(Few_sum)
+
+Many <- Form_funcabun$Morphospecies[which(Form_funcabun$Colony_size2=="Many")]
+Many_d <- Form_spd[,which(colnames(Form_spd) %in% Many)]
+head(Many_d);dim(Many_d)
+Many_sum <- rowSums(Many_d)
+length(Many_sum)
+
+Cooperative <- Form_funcabun$Morphospecies[which(Form_funcabun$Foraging_style=="Cooperative")]
+Cooperative_d <- Form_spd[,which(colnames(Form_spd) %in% Cooperative)]
+head(Cooperative_d);dim(Cooperative_d)
+Cooperative_sum <- rowSums(Cooperative_d)
+length(Cooperative_sum)
+
+Solitary <- Form_funcabun$Morphospecies[which(Form_funcabun$Foraging_style=="Solitary")]
+Solitary_d <- Form_spd[,which(colnames(Form_spd) %in% Solitary)]
+head(Solitary_d);dim(Solitary_d)
+Solitary_sum <- rowSums(Solitary_d)
+length(Solitary_sum)
+
+#Mixed traits
+
+Big_carn <- Form_funcabun$Morphospecies[which(Form_funcabun$Size_Trophic=="Big_Carnivore")]
+Big_carn_d <- Form_spd[,which(colnames(Form_spd) %in% Big_carn)]
+head(Big_carn_d);dim(Big_carn_d)
+Big_carn_sum <- rowSums(Big_carn_d)
+length(Big_carn_sum)
+
+Big_omn <- Form_funcabun$Morphospecies[which(Form_funcabun$Size_Trophic=="Big_Omnivore")]
+Big_omn_d <- Form_spd[,which(colnames(Form_spd) %in% Big_omn)]
+head(Big_omn_d);dim(Big_omn_d)
+Big_omn_sum <- rowSums(Big_omn_d)
+length(Big_omn_sum)
+
+Small_carn <- Form_funcabun$Morphospecies[which(Form_funcabun$Size_Trophic=="Small_Carnivore")]
+Small_carn_d <- Form_spd[,which(colnames(Form_spd) %in% Small_carn)]
+head(Small_carn_d);dim(Small_carn_d)
+Small_carn_sum <- rowSums(Small_carn_d)
+length(Small_carn_sum)
+
+Small_herb <- Form_funcabun$Morphospecies[which(Form_funcabun$Size_Trophic=="Small_Herbivore")]
+Small_herb_d <- Form_spd[,which(colnames(Form_spd) %in% Small_herb)]
+head(Small_herb_d);dim(Small_herb_d)
+Small_herb_sum <- rowSums(Small_herb_d)
+length(Small_herb_sum)
+
+Small_omn <- Form_funcabun$Morphospecies[which(Form_funcabun$Size_Trophic=="Small_Omnivore")]
+Small_omn_d <- Form_spd[,which(colnames(Form_spd) %in% Small_omn)]
+head(Small_omn_d);dim(Small_omn_d)
+Small_omn_sum <- rowSums(Small_omn_d)
+length(Small_omn_sum)
+
+Big_mixed <- Form_funcabun$Morphospecies[which(Form_funcabun$Size_Nest=="Big_Mixed")]
+Big_mixed_d <- Form_spd[,which(colnames(Form_spd) %in% Big_mixed)]
+head(Big_mixed_d);dim(Big_mixed_d)
+Big_mixed_sum <- rowSums(Big_mixed_d)
+length(Big_mixed_sum)
+
+Big_soil <- Form_funcabun$Morphospecies[which(Form_funcabun$Size_Nest=="Big_Soil")]
+Big_soil_d <- Form_spd[,which(colnames(Form_spd) %in% Big_soil)]
+head(Big_soil_d);dim(Big_soil_d)
+Big_soil_sum <- rowSums(Big_soil_d)
+length(Big_soil_sum)
+
+Small_mixed <- Form_funcabun$Morphospecies[which(Form_funcabun$Size_Nest=="Small_Mixed")]
+Small_mixed_d <- Form_spd[,which(colnames(Form_spd) %in% Small_mixed)]
+head(Small_mixed_d);dim(Small_mixed_d)
+Small_mixed_sum <- rowSums(Small_mixed_d)
+length(Small_mixed_sum)
+
+Small_soil <- Form_funcabun$Morphospecies[which(Form_funcabun$Size_Nest=="Small_Soil")]
+Small_soil_d <- Form_spd[,which(colnames(Form_spd) %in% Small_soil)]
+head(Small_soil_d);dim(Small_soil_d)
+Small_soil_sum <- rowSums(Small_soil_d)
+length(Small_soil_sum)
+
+Small_trees <- Form_funcabun$Morphospecies[which(Form_funcabun$Size_Nest=="Small_Trees")]
+Small_trees_d <- Form_spd[,which(colnames(Form_spd) %in% Small_trees)]
+head(Small_trees_d);dim(Small_trees_d)
+Small_trees_sum <- Small_trees_d
+length(Small_trees_sum)
+
+Big_few <- Form_funcabun$Morphospecies[which(Form_funcabun$Size_Colony=="Big_Few")]
+Big_few_d <- Form_spd[,which(colnames(Form_spd) %in% Big_few)]
+head(Big_few_d);dim(Big_few_d)
+Big_few_sum <- Big_few_d
+length(Big_few_sum)
+
+Big_many <- Form_funcabun$Morphospecies[which(Form_funcabun$Size_Colony=="Big_Many")]
+Big_many_d <- Form_spd[,which(colnames(Form_spd) %in% Big_many)]
+head(Big_many_d);dim(Big_many_d)
+Big_many_sum <- rowSums(Big_many_d)
+length(Big_many_sum)
+
+Small_few <- Form_funcabun$Morphospecies[which(Form_funcabun$Size_Colony=="Small_Few")]
+Small_few_d <- Form_spd[,which(colnames(Form_spd) %in% Small_few)]
+head(Small_few_d);dim(Small_few_d)
+Small_few_sum <- rowSums(Small_few_d)
+length(Small_few_sum)
+
+Small_many <- Form_funcabun$Morphospecies[which(Form_funcabun$Size_Colony=="Small_Many")]
+Small_many_d <- Form_spd[,which(colnames(Form_spd) %in% Small_many)]
+head(Small_many_d);dim(Small_many_d)
+Small_many_sum <- rowSums(Small_many_d)
+length(Small_many_sum)
+
+Big_coop <- Form_funcabun$Morphospecies[which(Form_funcabun$Size_Fstyle=="Big_Cooperative")]
+Big_coop_d <- Form_spd[,which(colnames(Form_spd) %in% Big_coop)]
+head(Big_coop_d);dim(Big_coop_d)
+Big_coop_sum <- rowSums(Big_coop_d)
+length(Big_coop_sum)
+
+Big_solitary <- Form_funcabun$Morphospecies[which(Form_funcabun$Size_Fstyle=="Big_Solitary")]
+Big_solitary_d <- Form_spd[,which(colnames(Form_spd) %in% Big_solitary)]
+head(Big_solitary_d);dim(Big_solitary_d)
+Big_solitary_sum <- Big_solitary_d
+length(Big_solitary_sum)
+
+Small_coop <- Form_funcabun$Morphospecies[which(Form_funcabun$Size_Fstyle=="Small_Cooperative")]
+Small_coop_d <- Form_spd[,which(colnames(Form_spd) %in% Small_coop)]
+head(Small_coop_d);dim(Small_coop_d)
+Small_coop_sum <- rowSums(Small_coop_d)
+length(Small_coop_sum)
+
+Small_solitary <- Form_funcabun$Morphospecies[which(Form_funcabun$Size_Fstyle=="Small_Solitary")]
+Small_solitary_d <- Form_spd[,which(colnames(Form_spd) %in% Small_solitary)]
+head(Small_solitary_d);dim(Small_solitary_d)
+Small_solitary_sum <- rowSums(Small_solitary_d)
+length(Small_solitary_sum)
+
+Carn_mixed <- Form_funcabun$Morphospecies[which(Form_funcabun$Trophic_Nest=="Carnivore_Mixed")]
+Carn_mixed_d <- Form_spd[,which(colnames(Form_spd) %in% Carn_mixed)]
+head(Carn_mixed_d);dim(Carn_mixed_d)
+Carn_mixed_sum <- rowSums(Carn_mixed_d)
+length(Carn_mixed_sum)
+
+Carn_soil <- Form_funcabun$Morphospecies[which(Form_funcabun$Trophic_Nest=="Carnivore_Soil")]
+Carn_soil_d <- Form_spd[,which(colnames(Form_spd) %in% Carn_soil)]
+head(Carn_soil_d);dim(Carn_soil_d)
+Carn_soil_sum <- rowSums(Carn_soil_d)
+length(Carn_soil_sum)
+
+Herb_mixed <- Form_funcabun$Morphospecies[which(Form_funcabun$Trophic_Nest=="Herbivore_Mixed")]
+Herb_mixed_d <- Form_spd[,which(colnames(Form_spd) %in% Herb_mixed)]
+head(Herb_mixed_d);dim(Herb_mixed_d)
+Herb_mixed_sum <- rowSums(Herb_mixed_d)
+length(Herb_mixed_sum)
+
+Omn_mixed <- Form_funcabun$Morphospecies[which(Form_funcabun$Trophic_Nest=="Omnivore_Mixed")]
+Omn_mixed_d <- Form_spd[,which(colnames(Form_spd) %in% Omn_mixed)]
+head(Omn_mixed_d);dim(Omn_mixed_d)
+Omn_mixed_sum <- rowSums(Omn_mixed_d)
+length(Omn_mixed_sum)
+
+Omn_soil <- Form_funcabun$Morphospecies[which(Form_funcabun$Trophic_Nest=="Omnivore_Soil")]
+Omn_soil_d <- Form_spd[,which(colnames(Form_spd) %in% Omn_soil)]
+head(Omn_soil_d);dim(Omn_soil_d)
+Omn_soil_sum <- rowSums(Omn_soil_d)
+length(Omn_soil_sum)
+
+Omn_trees <- Form_funcabun$Morphospecies[which(Form_funcabun$Trophic_Nest=="Omnivore_Trees")]
+Omn_trees_d <- Form_spd[,which(colnames(Form_spd) %in% Omn_trees)]
+head(Omn_trees_d);dim(Omn_trees_d)
+Omn_trees_sum <- Omn_trees_d
+length(Omn_trees_sum)
+
+Carn_few <- Form_funcabun$Morphospecies[which(Form_funcabun$Trophic_Colony=="Carnivore_Few")]
+Carn_few_d <- Form_spd[,which(colnames(Form_spd) %in% Carn_few)]
+head(Carn_few_d);dim(Carn_few_d)
+Carn_few_sum <- rowSums(Carn_few_d)
+length(Carn_few_sum)
+
+Carn_many <- Form_funcabun$Morphospecies[which(Form_funcabun$Trophic_Colony=="Carnivore_Many")]
+Carn_many_d <- Form_spd[,which(colnames(Form_spd) %in% Carn_many)]
+head(Carn_many_d);dim(Carn_many_d)
+Carn_many_sum <- rowSums(Carn_many_d)
+length(Carn_many_sum)
+
+Omn_few <- Form_funcabun$Morphospecies[which(Form_funcabun$Trophic_Colony=="Omnivore_Few")]
+Omn_few_d <- Form_spd[,which(colnames(Form_spd) %in% Omn_few)]
+head(Omn_few_d);dim(Omn_few_d)
+Omn_few_sum <- rowSums(Omn_few_d)
+length(Omn_few_sum)
+
+Omn_many <- Form_funcabun$Morphospecies[which(Form_funcabun$Trophic_Colony=="Omnivore_Many")]
+Omn_many_d <- Form_spd[,which(colnames(Form_spd) %in% Omn_many)]
+head(Omn_many_d);dim(Omn_many_d)
+Omn_many_sum <- rowSums(Omn_many_d)
+length(Omn_many_sum)
+
+Carn_coop <- Form_funcabun$Morphospecies[which(Form_funcabun$Trophic_Fstyle=="Carnivore_Cooperative")]
+Carn_coop_d <- Form_spd[,which(colnames(Form_spd) %in% Carn_coop)]
+head(Carn_coop_d);dim(Carn_coop_d)
+Carn_coop_sum <- rowSums(Carn_coop_d)
+length(Carn_coop_sum)
+
+Carn_solitary <- Form_funcabun$Morphospecies[which(Form_funcabun$Trophic_Fstyle=="Carnivore_Solitary")]
+Carn_solitary_d <- Form_spd[,which(colnames(Form_spd) %in% Carn_solitary)]
+head(Carn_solitary_d);dim(Carn_solitary_d)
+Carn_solitary_sum <- rowSums(Carn_solitary_d)
+length(Carn_solitary_sum)
+
+Omn_coop <- Form_funcabun$Morphospecies[which(Form_funcabun$Trophic_Fstyle=="Omnivore_Cooperative")]
+Omn_coop_d <- Form_spd[,which(colnames(Form_spd) %in% Omn_coop)]
+head(Omn_coop_d);dim(Omn_coop_d)
+Omn_coop_sum <- rowSums(Omn_coop_d)
+length(Omn_coop_sum)
+
+Omn_solitary <- Form_funcabun$Morphospecies[which(Form_funcabun$Trophic_Fstyle=="Omnivore_Solitary")]
+Omn_solitary_d <- Form_spd[,which(colnames(Form_spd) %in% Omn_solitary)]
+head(Omn_solitary_d);dim(Omn_solitary_d)
+Omn_solitary_sum <- rowSums(Omn_solitary_d)
+length(Omn_solitary_sum)
+
+Mixed_few <- Form_funcabun$Morphospecies[which(Form_funcabun$Nest_Colony=="Mixed_Few")]
+Mixed_few_d <- Form_spd[,which(colnames(Form_spd) %in% Mixed_few)]
+head(Mixed_few_d);dim(Mixed_few_d)
+Mixed_few_sum <- rowSums(Mixed_few_d)
+length(Mixed_few_sum)
+
+Mixed_many <- Form_funcabun$Morphospecies[which(Form_funcabun$Nest_Colony=="Mixed_Many")]
+Mixed_many_d <- Form_spd[,which(colnames(Form_spd) %in% Mixed_many)]
+head(Mixed_many_d);dim(Mixed_many_d)
+Mixed_many_sum <- rowSums(Mixed_many_d)
+length(Mixed_many_sum)
+
+Soil_few <- Form_funcabun$Morphospecies[which(Form_funcabun$Nest_Colony=="Soil_Few")]
+Soil_few_d <- Form_spd[,which(colnames(Form_spd) %in% Soil_few)]
+head(Soil_few_d);dim(Soil_few_d)
+Soil_few_sum <- rowSums(Soil_few_d)
+length(Soil_few_sum)
+
+Soil_many <- Form_funcabun$Morphospecies[which(Form_funcabun$Nest_Colony=="Soil_Many")]
+Soil_many_d <- Form_spd[,which(colnames(Form_spd) %in% Soil_many)]
+head(Soil_many_d);dim(Soil_many_d)
+Soil_many_sum <- rowSums(Soil_many_d)
+length(Soil_many_sum)
+
+Trees_many <- Form_funcabun$Morphospecies[which(Form_funcabun$Nest_Colony=="Trees_Many")]
+Trees_many_d <- Form_spd[,which(colnames(Form_spd) %in% Trees_many)]
+head(Trees_many_d);dim(Trees_many_d)
+Trees_many_sum <- Trees_many_d
+length(Trees_many_sum)
+
+Mixed_coop <- Form_funcabun$Morphospecies[which(Form_funcabun$Nest_Fstyle=="Mixed_Cooperative")]
+Mixed_coop_d <- Form_spd[,which(colnames(Form_spd) %in% Mixed_coop)]
+head(Mixed_coop_d);dim(Mixed_coop_d)
+Mixed_coop_sum <- rowSums(Mixed_coop_d)
+length(Mixed_coop_sum)
+
+Mixed_solitary <- Form_funcabun$Morphospecies[which(Form_funcabun$Nest_Fstyle=="Mixed_Solitary")]
+Mixed_solitary_d <- Form_spd[,which(colnames(Form_spd) %in% Mixed_solitary)]
+head(Mixed_solitary_d);dim(Mixed_solitary_d)
+Mixed_solitary_sum <- rowSums(Mixed_solitary_d)
+length(Mixed_solitary_sum)
+
+Soil_coop <- Form_funcabun$Morphospecies[which(Form_funcabun$Nest_Fstyle=="Soil_Cooperative")]
+Soil_coop_d <- Form_spd[,which(colnames(Form_spd) %in% Soil_coop)]
+head(Soil_coop_d);dim(Soil_coop_d)
+Soil_coop_sum <- rowSums(Soil_coop_d)
+length(Soil_coop_sum)
+
+Soil_solitary <- Form_funcabun$Morphospecies[which(Form_funcabun$Nest_Fstyle=="Soil_Solitary")]
+Soil_solitary_d <- Form_spd[,which(colnames(Form_spd) %in% Soil_solitary)]
+head(Soil_solitary_d);dim(Soil_solitary_d)
+Soil_solitary_sum <- rowSums(Soil_solitary_d)
+length(Soil_solitary_sum)
+
+Trees_coop <- Form_funcabun$Morphospecies[which(Form_funcabun$Nest_Fstyle=="Trees_Cooperative")]
+Trees_coop_d <- Form_spd[,which(colnames(Form_spd) %in% Trees_coop)]
+head(Trees_coop_d);dim(Trees_coop_d)
+Trees_coop_sum <- Trees_coop_d
+length(Trees_coop_sum)
+
+Few_coop <- Form_funcabun$Morphospecies[which(Form_funcabun$Colony_Fstyle=="Few_Cooperative")]
+Few_coop_d <- Form_spd[,which(colnames(Form_spd) %in% Few_coop)]
+head(Few_coop_d);dim(Few_coop_d)
+Few_coop_sum <- rowSums(Few_coop_d)
+length(Few_coop_sum)
+
+Few_solitary <- Form_funcabun$Morphospecies[which(Form_funcabun$Colony_Fstyle=="Few_Solitary")]
+Few_solitary_d <- Form_spd[,which(colnames(Form_spd) %in% Few_solitary)]
+head(Few_solitary_d);dim(Few_solitary_d)
+Few_solitary_sum <- rowSums(Few_solitary_d)
+length(Few_solitary_sum)
+
+Many_coop <- Form_funcabun$Morphospecies[which(Form_funcabun$Colony_Fstyle=="Many_Cooperative")]
+Many_coop_d <- Form_spd[,which(colnames(Form_spd) %in% Many_coop)]
+head(Many_coop_d);dim(Many_coop_d)
+Many_coop_sum <- rowSums(Many_coop_d)
+length(Many_coop_sum)
+
+Many_solitary <- Form_funcabun$Morphospecies[which(Form_funcabun$Colony_Fstyle=="Many_Solitary")]
+Many_solitary_d <- Form_spd[,which(colnames(Form_spd) %in% Many_solitary)]
+head(Many_solitary_d);dim(Many_solitary_d)
+Many_solitary_sum <- Many_solitary_d
+length(Many_solitary_sum)
+
+form_groups <- cbind(Form_sited,data.frame(Big=Big_sum),data.frame(Small=Small_sum),data.frame(Carnivore=Carnivore_sum),data.frame(Herbivore=Herbivore_sum),data.frame(Omnivore=Omnivore_sum),data.frame(Mixed=Mixed_sum),data.frame(Soil=Soil_sum),data.frame(Trees=Trees_sum),data.frame(Few=Few_sum),data.frame(Many=Many_sum),data.frame(Cooperative=Cooperative_sum),data.frame(Solitary=Solitary_sum),data.frame(Big_carn=Big_carn_sum),data.frame(Big_omn=Big_omn_sum),data.frame(Small_carn=Small_carn_sum),data.frame(Small_herb=Small_herb_sum),data.frame(Small_omn=Small_omn_sum),data.frame(Big_mixed=Big_mixed_sum),data.frame(Big_soil=Big_soil_sum),data.frame(Small_mixed=Small_mixed_sum),data.frame(Small_soil=Small_soil_sum),data.frame(Small_trees=Small_trees_sum),data.frame(Big_few=Big_few_sum),data.frame(Big_many=Big_many_sum),data.frame(Small_few=Small_few_sum),data.frame(Small_many=Small_many_sum),data.frame(Big_coop=Big_coop_sum),data.frame(Big_solitary=Big_solitary_sum),data.frame(Small_coop=Small_coop_sum),data.frame(Small_solitary=Small_solitary_sum),data.frame(Carn_mixed=Carn_mixed_sum),data.frame(Carn_soil=Carn_soil_sum),data.frame(Herb_mixed=Herb_mixed_sum),data.frame(Omn_mixed=Omn_mixed_sum),data.frame(Omn_soil=Omn_soil_sum),data.frame(Omn_trees=Omn_trees_sum),data.frame(Carn_few=Carn_few_sum),data.frame(Carn_many=Carn_many_sum),data.frame(Omn_few=Omn_few_sum),data.frame(Omn_many=Omn_many_sum),data.frame(Carn_coop=Carn_coop_sum),data.frame(Carn_solitary=Carn_solitary_sum),data.frame(Omn_coop=Omn_coop_sum),data.frame(Omn_solitary=Omn_solitary_sum),data.frame(Mixed_few=Mixed_few_sum),data.frame(Mixed_many=Mixed_many_sum),data.frame(Soil_few=Soil_few_sum),data.frame(Soil_many=Soil_many_sum),data.frame(Trees_many=Trees_many_sum),data.frame(Mixed_coop=Mixed_coop_sum),data.frame(Mixed_solitary=Mixed_solitary_sum),data.frame(Soil_coop=Soil_coop_sum),data.frame(Soil_solitary=Soil_solitary_sum),data.frame(Trees_coop=Trees_coop_sum),data.frame(Few_coop=Trees_coop_sum),data.frame(Few_solitary=Few_solitary_sum),data.frame(Many_coop=Many_coop_sum),data.frame(Many_solitary=Many_solitary_sum))
+form_groups$Yr <- form_groups$Year-min(form_groups$Year)
+form_groups <- form_groups[,c(1:5,which(colnames(form_groups)=="Yr"),which(colnames(form_groups)=="Big"):which(colnames(form_groups)=="Many_solitary"))]
+form_groups$Site <- as.factor(form_groups$Site)
+form_groups$Plot <- as.factor(form_groups$Plot)
+form_groups$Treatment <- as.factor(form_groups$Treatment)
+head(form_groups);dim(form_groups)
+
+form_groups_summary1 <- apply(form_groups[,which(colnames(form_groups)=="Big"):ncol(form_groups)],MARGIN = 2,FUN=function(x)table(x==0)[2]/sum(table(x==0)))
+#Getting NA's in the summary dataset - specifically in groups where there are no zeros
+#This is resulting in models not running for groups where there are no zeros
+formgroups_summary <- data.frame(group=names(form_groups_summary1),propzero=form_groups_summary1)
+rownames(formgroups_summary) <- 1:nrow(formgroups_summary)
+formgroups_summary[is.na(formgroups_summary)] = 0
+#table(form_groups$big==0)[2]/sum(table(form_groups$big==0))
+
+formgroups_summary$abun <- apply(form_groups[,which(colnames(form_groups)=="Big"):ncol(form_groups)],MARGIN = 2,FUN=function(x)sum(x))
+formgroups_summary$fit_binom <- ifelse(formgroups_summary$propzero<0.2|formgroups_summary$propzero>0.9,'no','yes')
+formgroups_summary$fit_abun <- ifelse(formgroups_summary$abun<80,'no','yes')
+
+#Removes groups that have less than the number of plots per reserve (16), update to 80 to remove groups with less than the total number of plots per year
+head(formgroups_summary);dim(formgroups_summary)
+formgroups_summary <- formgroups_summary[-which(formgroups_summary$abun<16),]
+formgroups_summary<-droplevels(formgroups_summary)
+rownames(formgroups_summary)<-1:nrow(formgroups_summary)
+
+head(form_groups);dim(form_groups)
+form_gr <- colnames(form_groups)[which(colnames(form_groups)=="Big"):ncol(form_groups)]
+formgroups_summary
+formgroups_summary$p_binom_int <- NA
+formgroups_summary$p_abun_int <- NA
+formgroup_binom <- list()
+formgroup_bicoef <- list()
+formgroup_bipred <- list()
+formgroup_abun <- list()
+formgroup_abcoef <- list()
+formgroup_abpred <- list()
+
+for(i in 33:length(form_gr)){
+  group_this_run <- form_gr[i]
+  sum_this_run <- formgroups_summary[which(formgroups_summary$group==group_this_run),]
+  dat_this_run <- form_groups[,c(1:6,which(colnames(form_groups)==group_this_run))]
+  dg_this_run <- dat_this_run[,which(colnames(dat_this_run)==group_this_run)]
+  head(dat_this_run);dim(dat_this_run)
+  #place the remove site code here - issue with models running after sites removed
+  
+    #close remove sites
+  
+  if(sum_this_run$fit_binom=='yes'){
+    dg_binom <- ifelse(dg_this_run>0,1,0)
+    binom_this_run <- glmer(dg_binom ~ Treatment+Yr+Treatment:Yr+(1|Site/Plot),family=binomial,data=dat_this_run)
+    binom_sum<-summary(binom_this_run)$coefficients
+    formgroup_binom[[i]]<-binom_this_run
+    formgroup_bicoef[[i]]<-binom_sum
+    formgroups_summary$p_binom_int[i]<-round(binom_sum[which(rownames(binom_sum)=='TreatmentRock:Yr'),which(colnames(binom_sum)=='Pr(>|z|)')],4)
+    
+    binom_nd <- data.frame(Yr=c(0,0,3,3),Treatment=factor(rep(levels(dat_this_run$Treatment),2),levels=levels(dat_this_run$Treatment)))
+    binom_pr <- predictSE(mod=binom_this_run,newdata=binom_nd,se.fit=T,type='link')
+    binom_pr<-data.frame(binom_nd, fit.link=binom_pr$fit, se=binom_pr$se.fit)
+    binom_pr$lci.link<-binom_pr$fit-(1.96*binom_pr$se)
+    binom_pr$uci.link<-binom_pr$fit+(1.96*binom_pr$se)
+    binom_pr$fit.resp<-invlogit(binom_pr$fit.link)
+    binom_pr$lci.resp<-invlogit(binom_pr$lci.link)
+    binom_pr$uci.resp<-invlogit(binom_pr$uci.link)
+    binom_pr
+    formgroup_bipred[[i]]<-binom_pr
+    
+  } #close fit_binom
+  
+  if(sum_this_run$fit_abun=='yes'){
+    abun_this_run<-glmmadmb(dg_this_run~Treatment+Yr+Treatment:Yr+(1|Site/Plot), family="nbinom", data=dat_this_run,admb.opts=admbControl(impSamp=200,maxfn=5000,imaxfn=500,maxph=5,shess=FALSE,noinit=FALSE))
+    abun_sum<-summary(abun_this_run)$coefficients
+    formgroup_abun[[i]]<-abun_this_run
+    formgroup_abcoef[[i]]<-abun_sum
+    formgroups_summary$p_abun_int[i]<-round(abun_sum[which(rownames(abun_sum)=='TreatmentRock:Yr'),which(colnames(abun_sum)=='Pr(>|z|)')],4)
+    
+    abun_nd <- data.frame(Yr=c(0,0,3,3),Treatment=factor(rep(levels(dat_this_run$Treatment),2),levels=levels(dat_this_run$Treatment)))
+    abun_pr <- predict(abun_this_run,newdata=abun_nd,se.fit=T,type='link')
+    abun_pr<-data.frame(abun_nd, fit.link=abun_pr$fit, se=abun_pr$se.fit)
+    abun_pr$lci.link<-abun_pr$fit-(1.96*abun_pr$se)
+    abun_pr$uci.link<-abun_pr$fit+(1.96*abun_pr$se)
+    abun_pr$fit.resp<-exp(abun_pr$fit.link)
+    abun_pr$lci.resp<-exp(abun_pr$lci.link)
+    abun_pr$uci.resp<-exp(abun_pr$uci.link)
+    abun_pr
+    formgroup_abpred[[i]]<-abun_pr
+  } #close fit_abun
+  
+} #close i
+
+#Remove sites without data
+site_sum<-tapply(dat_this_run[,which(colnames(dat_this_run)==group_this_run)],INDEX=dat_this_run$Site,FUN=sum)
+site_to_remove<-names(which(site_sum==0))
+if(length(site_to_remove)>0){
+  dat_this_run<-dat_this_run[-which(dat_this_run$Site %in% site_to_remove),]
+  dat_this_run<-droplevels(dat_this_run)
+  rownames(dat_this_run)<-1:nrow(dat_this_run)}
+
+admbControl(impSamp=0,maxfn=10000,imaxfn=500,maxph=5,noinit=TRUE,shess=TRUE,run=TRUE, ZI_kluge=FALSE, poiss_prob_bound=TRUE)
+
+formgroup_abun
+summary(formgroup_abun[[27]])
+formgroup_abcoef
+formgroup_abpred
+
+formgroup_binom
+summary(formgroup_binom[[32]])
+formgroup_bicoef
+formgroup_bipred
+
+#Abundance binomial plots
+
+#Groups excluded due to errors 
+formgroups_summary$p_binom_int[which(formgroups_summary$group=='Herbivore')] <- NA
+formgroups_summary$p_binom_int[which(formgroups_summary$group=='Small_herb')] <- NA
+formgroups_summary$p_binom_int[which(formgroups_summary$group=='Big_mixed')] <- NA
+formgroups_summary$p_binom_int[which(formgroups_summary$group=='Big_coop')] <- NA
+formgroups_summary$p_binom_int[which(formgroups_summary$group=='Herb_mixed')] <- NA
+
+formgroups_summary$p_b_int_adj<-p.adjust(formgroups_summary$p_binom_int,method="hochberg",n=nrow(formgroups_summary)-length(which(is.na(formgroups_summary$p_binom_int))))
+formgroups_summary$p_a_int_adj<-p.adjust(formgroups_summary$p_abun_int,method="hochberg",n=nrow(formgroups_summary)-length(which(is.na(formgroups_summary$p_abun_int))))
+
+length(which(!is.na(formgroups_summary$p_binom_int)))
+binom.plot <- which(!is.na(formgroups_summary$p_binom_int))
+
+dev.new(width=15,height=14,dpi=80,pointsize=20,noRStudioGD = T)
+par(mfrow=c(4,4),mar=c(4,4,1,1),oma=c(0,0,0,0),mgp=c(2.5,1,0))
+
+for(i in binom.plot){
+  
+  pred.this.run<-formgroup_bipred[[i]]
+  plot(1:4,pred.this.run$fit.resp,ylim=c(0,1),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Prob. occurence',xlab='',main=formgroups_summary$group[i],font.main=1)
+  
+  axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'),mgp=c(2,0.8,0))
+  arrows(1:4,pred.this.run$lci.resp,1:4,pred.this.run$uci.resp,length=0.05,angle=90,code=3)
+  text(x=3, y=0.975,labels=paste('Int.p=',round(formgroups_summary$p_binom_int[i],2),sep=''),adj=0)
+  title(xlab='Year',mgp=c(2,0.8,0))
+  
+} #close plot loop
+
+par(xpd=NA)
+legend(x=8, y=1, legend=c("Control", "Rock"), pch = c(16,18), cex=1, box.lty=0)
+par(xpd=F)
+
+#Abundance model plots
+
+formgroups_summary$p_abun_int[which(formgroups_summary$group=='Solitary')] <- NA
+formgroups_summary$p_abun_int[which(formgroups_summary$group=='Small_omn')] <- NA
+
+length(which(!is.na(formgroups_summary$p_abun_int)))
+abun.plot <- which(!is.na(formgroups_summary$p_abun_int))
+
+dev.new(width=25,height=15,dpi=80,pointsize=20,noRStudioGD = T)
+par(mfrow=c(5,8),mar=c(4,4,1,1),oma=c(0,0,0,8),mgp=c(2.5,1,0))
+
+for(i in abun.plot){
+  
+  pred.this.run<-colgroup_abpred[[i]]
+  plot(1:4,pred.this.run$fit.resp,ylim=c(0,max(pred.this.run$uci.resp)),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Abundance',xlab='',main=formgroups_summary$group[i],font.main=1)
+  
+  axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'),mgp=c(2,0.8,0))
+  arrows(1:4,pred.this.run$lci.resp,1:4,pred.this.run$uci.resp,length=0.05,angle=90,code=3)
+  text(x=2, y=(par('usr')[4])-par('usr')[4]/10,labels=paste('Int.p=',round(formgroups_summary$p_abun_int[i],2),sep=''),adj=0)
+  title(xlab='Year',mgp=c(2,0.8,0))
+  
+} #close plot loop
+
+par(xpd=NA)
+legend(x=6, y=36, legend=c("Control", "Rock"), pch = c(16,18), cex=1, box.lty=0)
+par(xpd=F)
