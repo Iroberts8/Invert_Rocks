@@ -18,11 +18,11 @@ pr
 
 #made prtest for plotting
 
-plot(1:4,prtest$fit.resp,ylim=c(min(prtest$lci.resp)-0.5,max(prtest$uci.resp)+0.5),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Abundance',xlab='Year',main='Expectation',font.main=1)
+plot(1:4,prtest$fit.resp,ylim=c(min(prtest$lci.resp)-0.5,max(prtest$uci.resp)+0.5),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',yaxt='n',ylab='Response metric',xlab='Year',main='Expectation',font.main=1)
 axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
 arrows(1:4,prtest$lci.resp,1:4,prtest$uci.resp,length=0.1,angle=90,code=3)
 par(xpd=NA)
-legend(x=5,y=10,legend = c("Control","Rock"), pch = c(16,18), cex=1, box.lty=0)
+legend(x=5,y=8,legend = c("Control","Rock"), pch = c(16,18), cex=1, box.lty=0)
 par(xpd=F)
 
 dev.new(width=10,height=8,dpi=100,pointsize=20,noRStudioGD = T)
