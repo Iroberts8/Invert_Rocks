@@ -14,7 +14,7 @@ Carabidae6,5,Predator,Coleoptera,no,on,1,0,1,1,0,0,0,0,0.99375,1,0.9875,1,1,0.96
 Carabidae7,5,Predator,Coleoptera,no,on,11,11,0,0,2,2,4,3,0.9375,0.875,1,0.9375,0.96875,1,0.90625,0.875
 Carabidae8,5,Omnivore,Coleoptera,no,on,134,134,0,0,132,0,2,0,0.93125,0.8625,1,0.6875,1,1,1,0.96875
 Carabidae9,20,Predator,Coleoptera,no,on,6,6,0,1,3,1,0,1,0.9625,0.925,1,0.90625,0.96875,0.96875,0.96875,1
-Cassidinae(Hispoid)1,2.5,Herbivore,Coleoptera,yes,above,4,3,1,0,2,1,1,0,0.975,0.9625,0.9875,0.9375,0.96875,1,1,0.96875
+Cassidinae_Hispoid1,2.5,Herbivore,Coleoptera,yes,above,4,3,1,0,2,1,1,0,0.975,0.9625,0.9875,0.9375,0.96875,1,1,0.96875
 Chrysomelidae1,2.5,Herbivore,Coleoptera,yes,above,3,2,1,0,1,1,0,1,0.98125,0.975,0.9875,0.96875,0.96875,1,0.96875,1
 Coccinellidae1,0,Predator,Coleoptera,yes,above,9,6,3,0,4,2,2,1,0.94375,0.925,0.9625,0.875,0.9375,1,0.96875,0.9375
 Corylophidae1,0,Detritivore,Coleoptera,yes,on,30,25,5,2,5,5,11,7,0.8625,0.775,0.95,0.84375,0.875,0.9375,0.8125,0.84375
