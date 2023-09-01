@@ -3,7 +3,7 @@ Analysis of Invertebrate Diversity as a response to Rock Supplementation in ACT 
 
 ## Content Description
 
-Data: Plant survey data and associated metadata
+Data: Invertebrate survey data and associated metadata
 
 Functions: Functions used in processing and analysis
 
