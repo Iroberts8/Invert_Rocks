@@ -19,4 +19,10 @@ Isobel Roberts and Annabel Smith
 
 ## Manuscript
 
+To be completed.
+
 ## License
+
+The Invert_Rocks Analysis project by Isobel Roberts, Annabel Smith and Richard Milner is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.
+
+Based on a work at https://github.com/Iroberts8/Invert_Rocks

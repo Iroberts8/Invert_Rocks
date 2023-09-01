@@ -46,6 +46,9 @@ head(Form_funcabun);dim(Form_funcabun)
 
 #Close load data ----
 
+# Load libraries:
+library(abind); library(AICcmodavg); library(arm); library(glmmADMB); library(vegan); library(MASS); library(lme4); library(lmerTest); library(plyr)
+
 # Load functions:
 invisible(lapply(paste("Functions/",dir("Functions"),sep=""), function(x) source(x)))
 
@@ -53,6 +56,9 @@ invisible(lapply(paste("Functions/",dir("Functions"),sep=""), function(x) source
 head(Morphospecies);dim(Morphospecies)
 
 #Summary data - abundance overall and by year/site (Warning - numeric datasets) ----
+
+library(dplyr)
+
 Site$Site <- as.factor(as.character(Site$Site))
 Site$Treatment <- as.factor(as.character(Site$Treatment))
 Site$Replicate <- as.factor(as.character(Site$Replicate))
@@ -293,6 +299,8 @@ year_abun <- rbind(Ara_yrabun,Bla_yrabun,Col_yrabun,Form_yrabun,Ort_yrabun,Other
 
 #Abundance by site
 site_abun <- rbind(Ara_siteabun,Bla_siteabun,Col_siteabun,Form_siteabun,Ort_siteabun,Other_siteabun)
+
+detach('package:dplyr')
 
 #Close summaries ----
 
