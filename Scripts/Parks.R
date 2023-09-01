@@ -4,8 +4,6 @@
 
 ##Site x plot in the code is called 'Replicate' (also referred to replicate in the paper).
 
-# Testing changes at Annabel's end
-
 #Five target orders
 #1 Araneae (Spiders) - Family
 #2 Blattodea (Cockroaches) - Family
