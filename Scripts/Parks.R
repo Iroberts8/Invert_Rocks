@@ -1815,12 +1815,6 @@ head(a_bd[,1:6]);dim(a_bd)
 a_bsum <- rowSums(a_bd)
 length(a_bsum)
 
-a_f <- Ara_funcabun$Morphospecies[which(Ara_funcabun$Retreat_Capture=="Active_Free")]
-a_fd <- Ara_spd[,which(colnames(Ara_spd) %in% a_f)]
-head(a_fd);dim(a_fd)
-a_fsum <- rowSums(a_fd)
-length(a_fsum)
-
 a_s <- Ara_funcabun$Morphospecies[which(Ara_funcabun$Retreat_Capture=="Active_Sac")]
 a_sd <- Ara_spd[,which(colnames(Ara_spd) %in% a_s)]
 head(a_sd);dim(a_sd)
@@ -1858,7 +1852,7 @@ v_sd <- Ara_spd[,which(colnames(Ara_spd) %in% v_s)]
 head(v_sd)
 v_ssum <- rowSums(v_sd)
 length(v_ssum)
-ara_groups <- cbind(Ara_sited,data.frame(Burrow=burrowsum),data.frame(Free=freesum),data.frame(Sac=sacsum),data.frame(Web=websum),data.frame(Active=activesum),data.frame(Snare=snaresum),data.frame(Vagrant=vagrantsum),data.frame(Active_Burrow=a_bsum),data.frame(Active_Free=a_fsum),data.frame(Active_Sac=a_ssum),data.frame(Active_Web=a_wd),data.frame(Snare_Web=s_wsum),data.frame(Vagrant_Burrow=v_bsum),data.frame(Vagrant_Free=v_fsum),data.frame(Vagrant_Sac=v_ssum))
+ara_groups <- cbind(Ara_sited,data.frame(Burrow=burrowsum),data.frame(Free=freesum),data.frame(Sac=sacsum),data.frame(Web=websum),data.frame(Active=activesum),data.frame(Snare=snaresum),data.frame(Vagrant=vagrantsum),data.frame(Active_Burrow=a_bsum),data.frame(Active_Sac=a_ssum),data.frame(Active_Web=a_wd),data.frame(Snare_Web=s_wsum),data.frame(Vagrant_Burrow=v_bsum),data.frame(Vagrant_Free=v_fsum),data.frame(Vagrant_Sac=v_ssum))
 ara_groups$Yr <- ara_groups$Year-min(ara_groups$Year)
 ara_groups <- ara_groups[,c(1:6,which(colnames(ara_groups)=="Yr"),which(colnames(ara_groups)=="Burrow"):which(colnames(ara_groups)=="Vagrant_Sac"))]
 ara_groups$Site <- as.factor(ara_groups$Site)
@@ -2498,7 +2492,7 @@ colgroup_abpred <- list()
 
 #Failure occurs for abundance models 5, 15, 17, 33, 36 and 47 - skip these by adjusting i.
 
-for(i in 48:length(col_gr)){
+for(i in 37:length(col_gr)){
   group_this_run <- col_gr[i]
   sum_this_run <- colgroups_summary[which(colgroups_summary$group==group_this_run),]
   dat_this_run <- col_groups[,c(1:7,which(colnames(col_groups)==group_this_run))]
