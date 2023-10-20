@@ -10,7 +10,7 @@
 #3 Coleoptera (Beetles) - Family
 #4 Orthoptera (Crickets and Grasshoppers) - Sub-family
 #5 Formicidae (Ants) - Sub-family
-#6 Other (Other invertebrates) - identified to Order only, does not include Hemiptera, Hymenoptera
+#6 Other (Other invertebrates) - identified to Order only, does not include Hemiptera, or Hymenoptera
 
 #Load workspace
 load('Workspace/Invert_Rocks_E.RData')
@@ -73,7 +73,7 @@ head(Site2,3);dim(Site2)
 
 #Araneae summary data
 Ara2 <- Araneae[,c(-5)]
-Ara_summ <- Ara2 %>% group_by(Year,Site,Treatment) %>% summarise_all(sum)
+Ara_summ <- Ara2 %>% group_by(Year,Site,Treatment,Plot) %>% summarise_all(sum)
 head(Ara2,3);dim(Ara2)
 
 Ara2$Plot <- as.factor(as.character(Ara2$Plot))
@@ -87,7 +87,7 @@ Site$Site_plot %in% Ara2$Site_plot
 Ara2$Site_plot %in% Site$Site_plot
 
 Ara2 <- merge(Ara2,Site2,by='Site_plot',all.x=T,all.y=F)
-Ara2<-relocate(Ara2,"Replicate", .before = "Site_plot")
+Ara2<- relocate(Ara2,"Replicate", .before = "Site_plot")
 
 #Araneae total abundance
 Ara_ttl <- Ara2[,c(-1,-2,-3,-4,-5,-6)] %>% summarise_all(sum)
@@ -108,7 +108,7 @@ Ara_siteabun <- Ara_siteabun[(-1),]
 
 #Blattodea summary data
 Bla2 <- Blattodea[,c(-5)]
-Bla_summ <- Bla2 %>% group_by(Year,Site,Treatment) %>% summarise_all(sum)
+Bla_summ <- Bla2 %>% group_by(Year,Site,Treatment,Plot) %>% summarise_all(sum)
 head(Bla2,3);dim(Bla2)
 
 Bla2$Plot <- as.factor(as.character(Bla2$Plot))
@@ -143,7 +143,7 @@ Bla_siteabun <- Bla_siteabun[(-1),]
 
 #Coleoptera summary data
 Col2 <- Coleoptera[,c(-5,-42,-43,-44,-45,-46,-47,-48,-49)]
-Col_summ <- Col2 %>% group_by(Year,Site,Treatment) %>% summarise_all(sum)
+Col_summ <- Col2 %>% group_by(Year,Site,Treatment,Plot) %>% summarise_all(sum)
 head(Col2,3);dim(Col2)
 
 Col2$Plot <- as.factor(as.character(Col2$Plot))
@@ -178,7 +178,7 @@ Col_siteabun <- Col_siteabun[(-1),]
 
 #Formicidae summary data
 Form2 <- Formicidae[,c(-5)]
-Form_summ <- Form2 %>% group_by(Year,Site,Treatment) %>% summarise_all(sum)
+Form_summ <- Form2 %>% group_by(Year,Site,Treatment,Plot) %>% summarise_all(sum)
 head(Form2,3);dim(Form2)
 
 Form2$Plot <- as.factor(as.character(Form2$Plot))
@@ -213,7 +213,7 @@ Form_siteabun <- Form_siteabun[(-1),]
 
 #Orthoptera summary data
 Ort2 <- Orthoptera[,c(-5,-7,-11)]
-Ort_summ <- Ort2 %>% group_by(Year,Site,Treatment) %>% summarise_all(sum)
+Ort_summ <- Ort2 %>% group_by(Year,Site,Treatment,Plot) %>% summarise_all(sum)
 head(Ort2,3);dim(Ort2)
 
 Ort2$Plot <- as.factor(as.character(Ort2$Plot))
@@ -248,7 +248,7 @@ Ort_siteabun <- Ort_siteabun[(-1),]
 
 #Other species summary data
 Other2 <- Other[,c(-5,-11,-21,-28,-29,-30,-31,-32,-33,-34)]
-Other_summ <- Other2 %>% group_by(Year,Site,Treatment) %>% summarise_all(sum)
+Other_summ <- Other2 %>% group_by(Year,Site,Treatment,Plot) %>% summarise_all(sum)
 head(Other2,3);dim(Other2)
 
 Other2$Plot <- as.factor(as.character(Other2$Plot))
@@ -485,33 +485,6 @@ summary(Ortrich_mod1)
 Otherrich_mod1 <- glmer(Other_rich ~ Treatment+Yr+Treatment:Yr+(1|Site/Replicate),family=binomial,data=bindat)
 summary(Otherrich_mod1)
 
-dev.new(width=15,height=5,dpi=100,pointsize=20,noRStudioGD = T)
-par(mfrow=c(1,3),mar=c(5,5,1,1),mgp=c(2.5,1,0),oma=c(0,0,2.5,5))
-plot(1:4,Blarich_pr$fit,ylim=c(0,1),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Probability of Occurence',xlab='Year')
-title (mtext("(a) Blattodea", side=3, adj=0, line=0.8, cex=0.75, font=1))
-axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
-arrows(1:4,Blarich_pr$lci,1:4,Blarich_pr$uci,length=0.1,angle=90,code=3)
-bp1 <- round(summary(Blarich_mod1)$coefficients[3,'Pr(>|z|)'],3)
-bp1 <- ifelse(bp1<0.001,paste('Yr.P<','0.001',sep=''),paste('Yr.P=',bp1,sep=''))
-legend('topright',legend = c(paste('Treat. P=',round(summary(Blarich_mod1)$coefficients[2,'Pr(>|z|)'],3),sep=''),bp1,paste('Int. P=',round(summary(Blarich_mod1)$coefficients[4,'Pr(>|z|)'],3),sep='')),pch="", adj = 0,bty = 'n')
-plot(1:4,Ortrich_pr$fit,ylim=c(0,1),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Probability of Occurence',xlab='Year')
-title (mtext("(b) Orthoptera", side=3, adj=0, line=0.8, cex=0.75, font=1))
-axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
-arrows(1:4,Ortrich_pr$lci,1:4,Ortrich_pr$uci,length=0.1,angle=90,code=3)
-orp1 <- round(summary(Ortrich_mod1)$coefficients[3,'Pr(>|z|)'],3)
-orp1 <- ifelse(orp1<0.001,paste('Yr.P<','0.001',sep=''),paste('Yr.P=',orp1,sep=''))
-legend('bottomright',legend = c(paste('Treat. P=',round(summary(Ortrich_mod1)$coefficients[2,'Pr(>|z|)'],3),sep=''),orp1,paste('Int. P=',round(summary(Ortrich_mod1)$coefficients[4,'Pr(>|z|)'],3),sep='')),pch="", adj = 0,bty = 'n')
-plot(1:4,Otherrich_pr$fit,ylim=c(0,1),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Probability of Occurence',xlab='Year')
-title (mtext("(c) Other", side=3, adj=0, line=0.8, cex=0.75, font=1))
-axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
-arrows(1:4,Otherrich_pr$lci,1:4,Otherrich_pr$uci,length=0.1,angle=90,code=3)
-op1 <- round(summary(Otherrich_mod1)$coefficients[3,'Pr(>|z|)'],3)
-op1 <- ifelse(op1<0.001,paste('Yr.P<','0.001',sep=''),paste('Yr.P=',op1,sep=''))
-legend('bottomright',legend = c(paste('Treat. P=',round(summary(Otherrich_mod1)$coefficients[2,'Pr(>|z|)'],3),sep=''),op1,paste('Int. P=',round(summary(Otherrich_mod1)$coefficients[4,'Pr(>|z|)'],3),sep='')),pch="", adj = 0,bty = 'n')
-par(xpd=NA)
-legend(x=5,y=0.8,legend = c("Control","Rock"), pch = c(16,18), cex=1, box.lty=0)
-par(xpd=F)
-
 #Close binomial modelling of Richness ----
 
 #Estimates for Richness ----
@@ -539,6 +512,33 @@ Otherrich_pr<-data.frame(Otherrich_nd, fit=Otherrich_pr$fit, se=Otherrich_pr$se.
 Otherrich_pr$lci<-Otherrich_pr$fit-(1.96*Otherrich_pr$se)
 Otherrich_pr$uci<-Otherrich_pr$fit+(1.96*Otherrich_pr$se)
 Otherrich_pr
+
+dev.new(width=15,height=5,dpi=100,pointsize=20,noRStudioGD = T)
+par(mfrow=c(1,3),mar=c(5,5,1,1),mgp=c(2.5,1,0),oma=c(0,0,2.5,5))
+plot(1:4,Blarich_pr$fit,ylim=c(0,1),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Probability of Occurence',xlab='Year')
+title (mtext("(a) Blattodea", side=3, adj=0, line=0.8, cex=0.75, font=1))
+axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
+arrows(1:4,Blarich_pr$lci,1:4,Blarich_pr$uci,length=0.1,angle=90,code=3)
+bp1 <- round(summary(Blarich_mod1)$coefficients[3,'Pr(>|z|)'],3)
+bp1 <- ifelse(bp1<0.001,paste('Yr.P<','0.001',sep=''),paste('Yr.P=',bp1,sep=''))
+legend('topright',legend = c(paste('Treat. P=',round(summary(Blarich_mod1)$coefficients[2,'Pr(>|z|)'],3),sep=''),bp1,paste('Int. P=',round(summary(Blarich_mod1)$coefficients[4,'Pr(>|z|)'],3),sep='')),pch="", adj = 0,bty = 'n')
+plot(1:4,Ortrich_pr$fit,ylim=c(0,1),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Probability of Occurence',xlab='Year')
+title (mtext("(b) Orthoptera", side=3, adj=0, line=0.8, cex=0.75, font=1))
+axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
+arrows(1:4,Ortrich_pr$lci,1:4,Ortrich_pr$uci,length=0.1,angle=90,code=3)
+orp1 <- round(summary(Ortrich_mod1)$coefficients[3,'Pr(>|z|)'],3)
+orp1 <- ifelse(orp1<0.001,paste('Yr.P<','0.001',sep=''),paste('Yr.P=',orp1,sep=''))
+legend('bottomright',legend = c(paste('Treat. P=',round(summary(Ortrich_mod1)$coefficients[2,'Pr(>|z|)'],3),sep=''),orp1,paste('Int. P=',round(summary(Ortrich_mod1)$coefficients[4,'Pr(>|z|)'],3),sep='')),pch="", adj = 0,bty = 'n')
+plot(1:4,Otherrich_pr$fit,ylim=c(0,1),type='p',pch=c(16,18,16,18),xlim=c(0.5,4.5),las=1,cex=1.5,xaxt='n',ylab='Probability of Occurence',xlab='Year')
+title (mtext("(c) Other", side=3, adj=0, line=0.8, cex=0.75, font=1))
+axis(side=1,at=c(1.5,3.5),labels=c('2016','2019'))
+arrows(1:4,Otherrich_pr$lci,1:4,Otherrich_pr$uci,length=0.1,angle=90,code=3)
+op1 <- round(summary(Otherrich_mod1)$coefficients[3,'Pr(>|z|)'],3)
+op1 <- ifelse(op1<0.001,paste('Yr.P<','0.001',sep=''),paste('Yr.P=',op1,sep=''))
+legend('bottomright',legend = c(paste('Treat. P=',round(summary(Otherrich_mod1)$coefficients[2,'Pr(>|z|)'],3),sep=''),op1,paste('Int. P=',round(summary(Otherrich_mod1)$coefficients[4,'Pr(>|z|)'],3),sep='')),pch="", adj = 0,bty = 'n')
+par(xpd=NA)
+legend(x=5,y=0.8,legend = c("Control","Rock"), pch = c(16,18), cex=1, box.lty=0)
+par(xpd=F)
 
 summary(Ararich_mod1)
 Ararich_nd <- data.frame(Yr=c(0,0,3,3),Treatment=factor(rep(levels(taxrich_full2$Treatment),2),levels=levels(taxrich_full2$Treatment)))
@@ -719,7 +719,8 @@ axis(side=1,at=1:4,labels=c('C_2016','R_2016','C_2019','R_2019'))
 
 #Modelling for Inverse Simpsons diversity ----
 
-head(divinv_full)
+head(divinv_full,3);dim(divinv_full)
+#write.table(divinv_full,"divinv_full_fresh.txt",sep='\t',quote=F,row.names=F)
 
 Arainvdiv_mod1 <- glmer(Ara_invdiv ~ Treatment+Yr+Treatment:Yr+(1|Site/Replicate),family=Gamma(link='log'),data=divinv_full)
 summary(Arainvdiv_mod1)
@@ -764,12 +765,12 @@ Colinvdiv_pr
 
 #Contrasts
 #There are 6 contrasts for four categories (c16:r16,c16:c19, C16:r19, r16:c19, r16:r19, c19:r19)
-col_c<-data.frame(Year=rep(unique(col_groups$Year)[order(unique(col_groups$Year))],rep(2,2)),Treatment=c('C','R'))
+col_c<-data.frame(Year=rep(unique(taxrich$Year)[order(unique(taxrich$Year))],rep(2,2)),Treatment=c('C','R'))
 col_c$Year_Treatment <- paste(col_c$Year,col_c$Treatment,sep='_')
 col_contrast<-data.frame(contrast=paste(combn(col_c$Year_Treatment,2)[1,],combn(col_c$Year_Treatment,2)[2,],sep=':'))
 
 #Create unique model matrix
-mm_col <- lm(dg_binom ~ Treatment+Yr+Treatment:Yr,data=form_groups,x=T)$x
+mm_col <- lm(Col_invdiv ~ Treatment+Yr+Treatment:Yr,data=divinv_full,x=T)$x
 umm_col <- unique(mm_col)
 rownames(umm_col) <- 1:nrow(umm_col)
 
@@ -1955,7 +1956,7 @@ ara_c$Year_Treatment <- paste(ara_c$Year,ara_c$Treatment,sep='_')
 ara_contrast<-data.frame(contrast=paste(combn(ara_c$Year_Treatment,2)[1,],combn(ara_c$Year_Treatment,2)[2,],sep=':'))
 
 #Create unique model matrix
-mm_ara <- lm(dg_binom ~ Treatment+Yr+Treatment:Yr,data=ara_groups,x=T)$x
+umm_ara <- lm(dg_binom ~ Treatment+Yr+Treatment:Yr,data=ara_groups,x=T)$x
 umm_ara <- unique(umm_ara)
 rownames(umm_ara) <- 1:nrow(umm_ara)
 
@@ -2495,7 +2496,7 @@ colgroup_abun <- list()
 colgroup_abcoef <- list()
 colgroup_abpred <- list()
 
-#Failure occurs for abundance models 5, 15, 17, 33, 36 and 47 - skip these by adjusting i in 1.
+#Failure occurs for abundance models 5, 15, 17, 33, 36 and 47 - skip these by adjusting i.
 
 for(i in 48:length(col_gr)){
   group_this_run <- col_gr[i]
@@ -3207,7 +3208,7 @@ mm_form <- lm(dg_binom ~ Treatment+Yr+Treatment:Yr,data=form_groups,x=T)$x
 umm_form <- unique(mm_form)
 rownames(umm_form) <- 1:nrow(umm_form)
 
-#WARNING NUMERIC SUBSETS - put them in the natural order 2016-2019, c to r
+#Put them in the natural order 2016-2019, c to r
 
 umm_subset <- c(as.numeric(which(umm_form[,which(dimnames(umm_form)[[2]]=='Yr')]==0 & umm_form[,which(dimnames(umm_form)[[2]]=='TreatmentRock')]==0)),  
 as.numeric(which(umm_form[,which(dimnames(umm_form)[[2]]=='Yr')]==0 & umm_form[,which(dimnames(umm_form)[[2]]=='TreatmentRock')]==1)), 

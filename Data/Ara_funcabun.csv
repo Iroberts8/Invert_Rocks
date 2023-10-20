@@ -1,7 +1,5 @@
 Morphospecies,Size,Trophic.level,Order,Capture_style,Retreat_type,Abundance,2016,2019,CR,JE,JW,K,MUL,propzeros_total,propzeros_2016,propzeros_2019,propzeros_JE,propzeros_JW,propzeros_CR,propzeros_MUL,propzeros_K
 Actinopodidae1,10,Predator,Araneae,Active,Burrow,1,0,1,0,0,0,0,1,0.99375,1,0.9875,1,1,1,0.96875,1
-Ammoxenidae1,2.5,Predator,Araneae,Active,Free,15,10,5,5,3,2,4,1,0.9125,0.8875,0.9375,0.9375,0.9375,0.84375,0.96875,0.875
-Ammoxenidae2,0,Predator,Araneae,Active,Free,7,4,3,1,1,0,2,3,0.96875,0.975,0.9625,0.96875,1,0.96875,0.9375,0.96875
 Araneidae1,2.5,Predator,Araneae,Snare,Web,4,4,0,3,1,0,0,0,0.975,0.95,1,0.96875,1,0.90625,1,1
 Araneidae2,10,Predator,Araneae,Snare,Web,1,1,0,0,0,0,1,0,0.99375,0.9875,1,1,1,1,1,0.96875
 Clubiniodae1,0,Predator,Araneae,Active,Sac,1,0,1,1,0,0,0,0,0.99375,1,0.9875,1,1,0.96875,1,1
@@ -14,6 +12,8 @@ Dictynidae3,2.5,Predator,Araneae,Snare,Free,3,3,0,0,1,2,0,0,0.9875,0.975,1,0.968
 Gnaphosidae1,0,Predator,Araneae,Active,Sac,83,60,23,20,20,14,15,14,0.675,0.5875,0.7625,0.6875,0.75,0.625,0.65625,0.65625
 Gnaphosidae2,0,Predator,Araneae,Active,Sac,19,15,4,5,3,6,3,2,0.90625,0.8625,0.95,0.9375,0.875,0.84375,0.9375,0.9375
 Gnaphosidae3,2.5,Predator,Araneae,Active,Sac,38,18,20,6,2,0,20,10,0.80625,0.8,0.8125,0.9375,1,0.8125,0.71875,0.5625
+Gnaphosidae4,2.5,Predator,Araneae,Active,Sac,15,10,5,5,3,2,4,1,0.9125,0.8875,0.9375,0.9375,0.9375,0.84375,0.96875,0.875
+Gnaphosidae5,0,Predator,Araneae,Active,Sac,7,4,3,1,1,0,2,3,0.96875,0.975,0.9625,0.96875,1,0.96875,0.9375,0.96875
 Lamponidae1,2.5,Predator,Araneae,Active,Sac,76,59,17,9,15,24,21,7,0.7125,0.5875,0.8375,0.71875,0.6875,0.78125,0.78125,0.59375
 Lamponidae2,2.5,Predator,Araneae,Active,Sac,105,23,82,63,2,0,7,33,0.7875,0.8625,0.7125,0.9375,1,0.53125,0.65625,0.8125
 Lamponidae3,2.5,Predator,Araneae,Active,Sac,2,1,1,1,0,1,0,0,0.9875,0.9875,0.9875,1,0.96875,0.96875,1,1
@@ -35,7 +35,7 @@ Mysmenidae2,0,Predator,Araneae,Snare,Web,2,2,0,0,1,0,1,0,0.9875,0.975,1,0.96875,
 Oonopidae1,0,Predator,Araneae,Vagrant,Sac,10,7,3,4,0,0,0,6,0.9375,0.9125,0.9625,1,1,0.875,0.8125,1
 Oxyopidae1,2.5,Predator,Araneae,Vagrant,Sac,2,0,2,1,0,0,0,1,0.9875,1,0.975,1,1,0.96875,0.96875,1
 Prodidomidae1,2.5,Predator,Araneae,Active,Web,1,1,0,1,0,0,0,0,0.99375,0.9875,1,1,1,0.96875,1,1
-Salticidae1,2.5,Predator,Araneae,Active,Free,16,12,4,9,1,0,2,4,0.925,0.8875,0.9625,0.96875,1,0.84375,0.875,0.9375
+Salticidae1,2.5,Predator,Araneae,Active,Sac,16,12,4,9,1,0,2,4,0.925,0.8875,0.9625,0.96875,1,0.84375,0.875,0.9375
 Salticidae2,0,Predator,Araneae,Active,Sac,12,2,10,1,1,3,7,0,0.925,0.975,0.875,0.96875,0.90625,0.96875,1,0.78125
 Salticidae3,0,Predator,Araneae,Active,Sac,8,2,6,2,2,3,0,1,0.95625,0.975,0.9375,0.9375,0.9375,0.9375,0.96875,1
 Salticidae4,0,Predator,Araneae,Active,Sac,1,0,1,0,1,0,0,0,0.99375,1,0.9875,0.96875,1,1,1,1
