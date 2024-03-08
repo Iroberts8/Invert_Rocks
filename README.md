@@ -1,6 +1,9 @@
 # Invert_Rocks
 Analysis of Invertebrate Diversity as a response to Rock Supplementation in ACT grassland reserves.
 
+# Latest Release (Archived)
+[![DOI](https://zenodo.org/badge/604401015.svg)](https://doi.org/10.5281/zenodo.8307373)
+
 ## Content Description
 
 Data: Invertebrate survey data and associated metadata
